@@ -361,8 +361,9 @@ export default class ContentSetting extends React.Component {
               }
             }`
           }).then(result => {
+            const allActivity = result.data.project.activity
             const delActivity = (query) => this.fetch({query:query})
-            result.data.project.activity.forEach(function(item){
+            allActivity.forEach(function(item){
               delActivity('mutation{activity_delete(_id:"'+item._id+'"){_id}}')
             })
           })
