@@ -49,13 +49,13 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'M1') {
         data.push({
           date:temp[i]['date'],
-          detail:'You edited '+temp[i]['detail']+' from the module',
+          detail:'You edited '+temp[i]['detail']+' module',
           type:2
         })
       } else if (temp[i]['code'] === 'M2') {
         data.push({
           date:temp[i]['date'],
-          detail:'You deleted '+temp[i]['detail']+' from the module',
+          detail:'You deleted '+temp[i]['detail']+' module',
           type:3
         })
       } else if (temp[i]['code'] === 'R0') {
