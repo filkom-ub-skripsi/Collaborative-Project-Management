@@ -9,15 +9,14 @@ const breadcrumb = [
 ]
 
 export default class ViewClient extends React.Component {
-  constructor(props){
-    super(props)
+  componentDidMount(){
     document.title = 'Client'
   }
   render() {
     return (
       <Container fluid>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-        <ContentClient/>
+        <ContentClient webservice={this.props.webservice}/>
       </Container>
     )
   }

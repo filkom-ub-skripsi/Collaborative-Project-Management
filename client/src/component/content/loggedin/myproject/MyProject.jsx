@@ -10,11 +10,6 @@ import StepWizard from 'react-step-wizard'
 import LayoutCardContent  from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 //notification
 const notification = 'Your changes have been successfully saved'
 
@@ -43,12 +38,19 @@ export default class ContentMyProject extends React.Component {
     this.handler_6 = this.handler_6.bind(this)
     this.handler_back = this.handler_back.bind(this)
     this.handler_save = this.handler_save.bind(this)
+  }
+
+  //component did mount
+  componentDidMount(){
     this.push()
   }
 
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
   //push
   push(){
-    fetch({
+    this.fetch({
       query:`{
         organization(_id:"`+localStorage.getItem('organization')+`") {
           project {
@@ -109,7 +111,7 @@ export default class ContentMyProject extends React.Component {
         header_button:false
       })
     })
-    fetch({
+    this.fetch({
       query:`{
         organization(_id:"`+localStorage.getItem('organization')+`") {
           client {
@@ -517,7 +519,7 @@ export default class ContentMyProject extends React.Component {
       var start_date = new Date(this.state.add_form_start);var end_date = new Date(this.state.add_form_end)
       var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
       var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           project_add(
             _id:"`+id+`",
@@ -539,7 +541,7 @@ export default class ContentMyProject extends React.Component {
       })
       var activity_id = RDS.generate({length:32,charset:'alphabetic'})
       var activity_date = new Date()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           activity_add(
             _id:"`+activity_id+`",
@@ -571,7 +573,7 @@ export default class ContentMyProject extends React.Component {
     var start_date = new Date(start);var end_date = new Date(end)
     var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
     var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
-    fetch({query:`
+    this.fetch({query:`
       mutation {
         project_add(
           _id:"`+id+`",
@@ -593,7 +595,7 @@ export default class ContentMyProject extends React.Component {
     })
     var activity_id = RDS.generate({length:32,charset:'alphabetic'})
     var activity_date = new Date()
-    fetch({query:`
+    this.fetch({query:`
       mutation {
         activity_add(
           _id:"`+activity_id+`",

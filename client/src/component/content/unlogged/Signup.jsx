@@ -5,12 +5,9 @@ import { createApolloFetch } from 'apollo-fetch'
 import RDS from 'randomstring'
 import MD5 from 'md5'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
-//array
+//misc
+const button_name = 'Sign Up'
+const spinner = <Spinner animation="border" size="sm"/>
 const form = [
   {field:'name',feedback:'fname'},
   {field:'organization',feedback:'forganization'},
@@ -18,12 +15,6 @@ const form = [
   {field:'email',feedback:'femail'},
   {field:'password',feedback:'fpassword'},
 ]
-
-//spinner
-const spinner = <Spinner animation="border" size="sm"/>
-
-//button
-const button_name = 'Sign Up'
 
 //class
 export default class ContentSignup extends React.Component {
@@ -36,6 +27,9 @@ export default class ContentSignup extends React.Component {
       button:button_name
     }
   }
+
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
 
   //validate
   validate(){
@@ -69,13 +63,13 @@ export default class ContentSignup extends React.Component {
       var email = document.getElementById('email').value
       var password = MD5(document.getElementById('password').value)
       var organization = document.getElementById('organization').value
-      fetch({
+      this.fetch({
         query:`{
           employee(email:"`+email+`"){name}
         }`
       }).then(result => {
         if (result.data.employee === null) {
-          fetch({
+          this.fetch({
             query:`
               mutation {
                 employee_add(
@@ -89,8 +83,7 @@ export default class ContentSignup extends React.Component {
                 ){_id}
               }`
           }).then(() => {
-            NotificationManager.success('Registration successful')
-            fetch({query:`
+            this.fetch({query:`
               mutation {
                 organization_add(
                   _id:"`+_id_organization+`",
@@ -98,7 +91,7 @@ export default class ContentSignup extends React.Component {
                 ){_id}
               }`
             })
-            fetch({query:`
+            this.fetch({query:`
               mutation {
                 rule_add(
                   organization:"`+_id_organization+`",
@@ -115,6 +108,7 @@ export default class ContentSignup extends React.Component {
               disabled:false,
               button:button_name
             })
+            NotificationManager.success('Registration successful')
           })
         } else {
           document.getElementById('email').className = 'form-control is-invalid'

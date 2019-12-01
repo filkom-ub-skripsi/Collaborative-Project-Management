@@ -6,11 +6,6 @@ import { Download } from 'react-feather'
 import { Row, Col, Button, Spinner, Modal, Form, ListGroup } from 'react-bootstrap'
 import LayoutCardContent from '../../../layout/CardContent'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 //misc
 const spinner = <Spinner animation="border" size="sm"/>
 const prewrap = { whiteSpace:'pre-wrap' }
@@ -32,10 +27,14 @@ export default class ContentOverview extends React.Component {
       problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,status:props.status,status_text:'-',
       update_problem:'',update_goal:'',update_objective:'',update_success:'',update_obstacle:'',update_project_modal:false,
     }
+  }
+
+  //component did mount
+  componentDidMount(){
     this.push()
   }
 
-  //props
+  //component will receive props
   componentWillReceiveProps(props){
     this.setState({
       loading:props.loading,header:props.header,status:props.status,
@@ -46,9 +45,12 @@ export default class ContentOverview extends React.Component {
     else if (props.status === '1') { this.setState({status_text:'Status : On Progress'}) }
   }
 
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
   //push
   push(){
-    fetch({
+    this.fetch({
       query:`{
         project(_id:"`+this.props.id+`") {
           problem,
@@ -137,7 +139,7 @@ export default class ContentOverview extends React.Component {
 
   //edit project
   edit_project(){
-    fetch({query:`
+    this.fetch({query:`
       mutation {
         project_update(
           _id:"`+this.props.id+`",
@@ -152,7 +154,7 @@ export default class ContentOverview extends React.Component {
     var activity_id = RDS.generate({length:32,charset:'alphabetic'})
     var activity_code = 'P1'
     var activity_date = new Date()
-    fetch({query:`
+    this.fetch({query:`
       mutation {
         activity_add(
           _id:"`+activity_id+`",

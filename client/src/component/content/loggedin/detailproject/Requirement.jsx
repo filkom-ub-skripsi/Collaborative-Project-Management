@@ -12,7 +12,7 @@ export default class ContentRequirement extends React.Component {
     {selector:'detail',sortable:true},
     {
       cell: (row) => <a href="#!" onClick={()=>{this.props.handler(row.id)}}><Circle size={22}/></a>,
-      ignoreRowClick:true,allowOverflow:true,button:true,width:'6%'
+      ignoreRowClick:true,allowOverflow:true,button:true,width:"78px"
     },
   ]
 

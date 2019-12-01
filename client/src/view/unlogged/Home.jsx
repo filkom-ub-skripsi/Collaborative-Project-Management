@@ -3,36 +3,42 @@ import { Container, Row, Col, Form } from 'react-bootstrap'
 import ImageLogo from '../../component/image/logo.png'
 import ImageHome from '../../component/image/home.png'
 import LayoutAppbar from '../../component/layout/Appbar'
-import ContentLogin from '../../component/content/unlogged/Login'
 import ContentSignUp from '../../component/content/unlogged/Signup'
+import ContentLogin from '../../component/content/unlogged/Login'
 
-const appbar_left = () => {
-  return (
-    <Form inline className="animated fast fadeIn">
-      <img src={ImageLogo} alt="Logo" width="150px"/>
-    </Form>
-  )
-}
-
-const appbar_right = () => {
-  return (
-    <Form inline className="animated fast fadeIn">
-      <ContentLogin/>
-    </Form>
-  )
-}
-
+//class
 export default class ViewHome extends React.Component {
-  constructor(props){
-    super(props)
+
+  //component did mount
+  componentDidMount(){
     document.title = 'Collaborative Project Management'
   }
+
+  //left
+  appbar_left(){
+    return (
+      <Form inline className="animated fast fadeIn">
+        <img src={ImageLogo} alt="Logo" width="150px"/>
+      </Form>
+    )
+  }
+  
+  //right
+  appbar_right(){
+    return (
+      <Form inline className="animated fast fadeIn">
+        <ContentLogin webservice={this.props.webservice}/>
+      </Form>
+    )
+  }
+
+  //render
   render() {
     return (
       <div>
         <LayoutAppbar
-          left={appbar_left()}
-          right={appbar_right()}
+          left={this.appbar_left()}
+          right={this.appbar_right()}
         />
         <Container>
           <Row>
@@ -45,7 +51,7 @@ export default class ViewHome extends React.Component {
             </Col>
             <Col lg={6}>
               <div className="animated fast fadeIn">
-                <ContentSignUp/>
+                <ContentSignUp webservice={this.props.webservice}/>
               </div> 
             </Col>
           </Row>
@@ -53,4 +59,5 @@ export default class ViewHome extends React.Component {
       </div>
     )
   }
+  
 }

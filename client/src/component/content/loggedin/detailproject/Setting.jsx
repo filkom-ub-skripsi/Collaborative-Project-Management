@@ -7,11 +7,6 @@ import { ListGroup, Modal, Button, Form, Spinner } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import LayoutCardContent from '../../../layout/CardContent'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 //notification
 const success = 'Your changes have been successfully saved'
 
@@ -51,10 +46,14 @@ export default class ContentSetting extends React.Component {
       delete_modal:false,delete_button:delete_button,delete_state:false,
       client:[],status:props.status
     }
+  }
+
+  //component did mount
+  componentDidMount(){
     this.push()
   }
 
-  //props
+  //component will receive props
   componentWillReceiveProps(props){
     this.setState({
       code:props.data[0]['code'],name:props.data[0]['name'],client_id:props.data[0]['client_id'],start:props.data[0]['start'],end:props.data[0]['end'],
@@ -62,9 +61,12 @@ export default class ContentSetting extends React.Component {
     })
   }
 
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
   //push
   push(){
-    fetch({
+    this.fetch({
       query:`
       { 
         organization(_id:"`+localStorage.getItem('organization')+`") {
@@ -91,7 +93,7 @@ export default class ContentSetting extends React.Component {
     }).then((willStart) => {
       if (willStart) {
         NotificationManager.info('Checking all requirements...')
-        fetch({
+        this.fetch({
           query:`
           {
             project(_id:"`+this.props.id+`") {
@@ -109,7 +111,7 @@ export default class ContentSetting extends React.Component {
               var activity_id = RDS.generate({length:32,charset:'alphabetic'})
               var activity_code = 'P3'
               var activity_date = new Date()
-              fetch({query:`
+              this.fetch({query:`
                 mutation {
                   activity_add(
                     _id:"`+activity_id+`",
@@ -128,6 +130,7 @@ export default class ContentSetting extends React.Component {
                 button:false,
                 timer:1500
               })
+              NotificationManager.success('All your requirements are good!')
               this.props.activity(activity_code,'',activity_date)
               this.props.start()
             } else {
@@ -247,7 +250,7 @@ export default class ContentSetting extends React.Component {
       var activity_id = RDS.generate({length:32,charset:'alphabetic'})
       var activity_code = 'P2'
       var activity_date = new Date()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           activity_add(
             _id:"`+activity_id+`",
@@ -342,7 +345,7 @@ export default class ContentSetting extends React.Component {
   delete_project(){
     if (this.delete_validation() === true) {
       this.setState({delete_button:spinner,delete_state:true})
-      fetch({
+      this.fetch({
         query:`{
           project(_id:"`+this.props.id+`") {
             module {
@@ -353,7 +356,7 @@ export default class ContentSetting extends React.Component {
       }).then(result => {
         this.setState({delete_button:delete_button,delete_state:false,delete_modal:false})
         if (result.data.project.module.length === 0) {
-          fetch({
+          this.fetch({
             query:`{
               project(_id:"`+this.props.id+`") {
                 activity {
@@ -363,7 +366,7 @@ export default class ContentSetting extends React.Component {
             }`
           }).then(result => {
             result.data.project.activity.forEach(function(item){
-              fetch({query:`
+              this.fetch({query:`
                 mutation {
                   activity_delete(_id:"`+item._id+`"){
                     _id
@@ -372,7 +375,7 @@ export default class ContentSetting extends React.Component {
               })
             })
           })
-          fetch({query:`
+          this.fetch({query:`
             mutation {
               project_delete(_id:"`+this.props.id+`") {
                 _id

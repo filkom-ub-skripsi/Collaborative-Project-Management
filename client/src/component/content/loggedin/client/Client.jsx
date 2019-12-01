@@ -8,11 +8,6 @@ import { createApolloFetch } from 'apollo-fetch'
 import LayoutCardContent  from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 //notification
 const success = 'Your changes have been successfully saved'
 
@@ -43,11 +38,19 @@ export default class ContentClient extends React.Component {
       edit_form_name:'',edit_form_address:'',edit_form_email:'',edit_form_contact:'',
       detail_modal:false,detail_header:null,detail_id:null,detail_data:[],
     }
+  }
+
+  //component did mount
+  componentDidMount(){
     this.push()
   }
 
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
+  //push
   push(){
-    fetch({query:`
+    this.fetch({query:`
       {
         organization(_id:"`+localStorage.getItem('organization')+`") {
           client{
@@ -223,7 +226,7 @@ export default class ContentClient extends React.Component {
   add_client_handler(){
     if (this.client_validation(client_add_form) === true) {
       var id = RDS.generate({length:32,charset:'alphabetic'})
-      fetch({query:`
+      this.fetch({query:`
         mutation { 
           client_add(
             _id:"`+id+`",
@@ -255,7 +258,7 @@ export default class ContentClient extends React.Component {
   edit_client_handler(){
     if (this.client_validation(client_edit_form) === true) {
       var id = this.state.detail_id
-      fetch({query:`
+      this.fetch({query:`
         mutation{
           client_edit(
             _id:"`+id.split('_')[0]+`",
@@ -382,19 +385,19 @@ export default class ContentClient extends React.Component {
 
   //detail delete
   detail_delete(){
-    Swal({
-      title:"Delete",
-      text:"This client will be deleted",
-      icon:"warning",
-      closeOnClickOutside:false,
-      buttons:true,
-      dangerMode:true,
-    }).then((willDelete) => {
-      if (willDelete) {
-        var id = this.state.detail_id
-        var temp = this.state.data.filter(function(item){ return item.id === id })
-        if (temp[0]['project'] === 0) {
-          fetch({query:`
+    var id = this.state.detail_id
+    var temp = this.state.data.filter(function(item){ return item.id === id })
+    if (temp[0]['project'] === 0) {
+      Swal({
+        title:"Delete",
+        text:"This client will be deleted",
+        icon:"warning",
+        closeOnClickOutside:false,
+        buttons:true,
+        dangerMode:true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          this.fetch({query:`
             mutation{
               client_delete(_id:"`+id.split('_')[0]+`"){_id}
             }`
@@ -403,16 +406,47 @@ export default class ContentClient extends React.Component {
           this.setState({data:data}) 
           this.detail_close()
           NotificationManager.success(success)
-        } else {
-          Swal({
-            title:"Failed",
-            text:"There are projects that are currently registered",
-            icon:"warning",
-            closeOnClickOutside:false,
-          })
         }
-      }
-    })
+      })
+    } else {
+      Swal({
+        title:"Not Available",
+        text:"There are projects that are currently registered",
+        icon:"warning",
+        closeOnClickOutside:false,
+      })
+    }
+    // Swal({
+    //   title:"Delete",
+    //   text:"This client will be deleted",
+    //   icon:"warning",
+    //   closeOnClickOutside:false,
+    //   buttons:true,
+    //   dangerMode:true,
+    // }).then((willDelete) => {
+    //   if (willDelete) {
+    //     var id = this.state.detail_id
+    //     var temp = this.state.data.filter(function(item){ return item.id === id })
+    //     if (temp[0]['project'] === 0) {
+    //       this.fetch({query:`
+    //         mutation{
+    //           client_delete(_id:"`+id.split('_')[0]+`"){_id}
+    //         }`
+    //       })
+    //       var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
+    //       this.setState({data:data}) 
+    //       this.detail_close()
+    //       NotificationManager.success(success)
+    //     } else {
+    //       Swal({
+    //         title:"Failed",
+    //         text:"There are projects that are currently registered",
+    //         icon:"warning",
+    //         closeOnClickOutside:false,
+    //       })
+    //     }
+    //   }
+    // })
   }
 
   //detail close
@@ -480,4 +514,5 @@ export default class ContentClient extends React.Component {
       </div>
     )
   }
+
 }

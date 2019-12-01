@@ -9,15 +9,14 @@ const breadcrumb = [
 ]
 
 export default class ViewMyProjects extends React.Component {
-  constructor(props){
-    super(props)
+  componentDidMount(){
     document.title = 'My Projects'
   }
   render() {
     return (
       <Container fluid>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-        <ContentMyProject/>
+        <ContentMyProject webservice={this.props.webservice}/>
       </Container>
     )
   }

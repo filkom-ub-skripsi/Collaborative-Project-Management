@@ -9,11 +9,6 @@ import LayoutCardContent from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 import ContentRequirement from './Requirement'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 //notification
 const success = 'Your changes have been successfully saved'
 
@@ -53,12 +48,19 @@ export default class ContentModule extends React.Component {
       edit_form_module:'',edit_form_name:'',edit_form_detail:'',
       requirement_modal:false,detail_modal:false,detail_id:null,
     }
+  }
+
+  //component did mount
+  componentDidMount(){
     this.push()
   }
 
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
   //push
   push(){
-    fetch({
+    this.fetch({
       query:`{
         project(_id:"`+this.props.id+`") {
           module {
@@ -211,7 +213,7 @@ export default class ContentModule extends React.Component {
     if (this.form_validation(module_add_form) === true) {
       var id = RDS.generate({length:32,charset:'alphabetic'})
       var project = this.state.project_id
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           module_add(
             _id:"`+id+`",
@@ -234,7 +236,7 @@ export default class ContentModule extends React.Component {
       var activity_code = 'M0'
       var activity_detail = document.getElementById('tambah_name').value
       var activity_date = new Date()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           activity_add(
             _id:"`+activity_id+`",
@@ -306,7 +308,7 @@ export default class ContentModule extends React.Component {
     if (this.form_validation(requirement_add_form) === true) {
       var id = RDS.generate({length:32,charset:'alphabetic'})
       var project = this.state.project_id 
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           requirement_add(
             _id:"`+id+`",
@@ -335,7 +337,7 @@ export default class ContentModule extends React.Component {
       var activity_code = 'R0'
       var activity_detail = document.getElementById('tambah_name_req').value+'_'+document.getElementById('tambah_module_req').value.split('_')[1]
       var activity_date = new Date()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           activity_add(
             _id:"`+activity_id+`",
@@ -358,7 +360,7 @@ export default class ContentModule extends React.Component {
     {name:'Detail',selector:'detail',sortable:true},
     {
       cell: (row) => <a href="#!" onClick={()=>{this.table_handler(row.id)}}><CheckCircle size={22}/></a>,
-      ignoreRowClick:true,allowOverflow:true,button:true,width:'6%'
+      ignoreRowClick:true,allowOverflow:true,button:true,width:"78px"
     },
   ]
 
@@ -433,7 +435,7 @@ export default class ContentModule extends React.Component {
       var id = this.state.detail_id
       var name = this.state.edit_form_name
       var detail = this.state.edit_form_detail
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           module_edit(
             _id:"`+id.split('_')[0]+`",
@@ -456,7 +458,7 @@ export default class ContentModule extends React.Component {
       var activity_code = 'M1'
       var activity_detail = name
       var activity_date = new Date()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           activity_add(
             _id:"`+activity_id+`",
@@ -475,19 +477,19 @@ export default class ContentModule extends React.Component {
 
   //detail delete
   detail_delete(){
-    Swal({
-      title:"Delete",
-      text:"This module will be deleted",
-      icon:"warning",
-      closeOnClickOutside:false,
-      buttons: true,
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) {
-        var id = this.state.detail_id
-        var temp = this.state.data.filter(function(item){ return item.id === id })
-        if (temp[0]['requirement'].length === 0) {
-          fetch({query:`
+    var id = this.state.detail_id
+    var temp = this.state.data.filter(function(item){ return item.id === id })
+    if (temp[0]['requirement'].length === 0) {
+      Swal({
+        title:"Delete",
+        text:"This module will be deleted",
+        icon:"warning",
+        closeOnClickOutside:false,
+        buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          this.fetch({query:`
             mutation {
               module_delete(_id:"`+id.split('_')[0]+`"){_id}
             }`
@@ -498,7 +500,7 @@ export default class ContentModule extends React.Component {
           var activity_code = 'M2'
           var activity_detail = temp[0]['name']
           var activity_date = new Date()
-          fetch({query:`
+          this.fetch({query:`
             mutation {
               activity_add(
                 _id:"`+activity_id+`",
@@ -512,16 +514,16 @@ export default class ContentModule extends React.Component {
           this.props.activity(activity_code,activity_detail,activity_date)
           this.detail_close()
           NotificationManager.success(success)
-        } else {
-          Swal({
-            title:"Failed",
-            text:"There are requirements that are being registered",
-            icon:"warning",
-            closeOnClickOutside:false,
-          })
         }
-      }
-    })
+      })
+    } else {
+      Swal({
+        title:"Not Available",
+        text:"There are requirements that are being registered",
+        icon:"warning",
+        closeOnClickOutside:false,
+      })
+    }
   }
 
   //requirement handler
@@ -608,7 +610,7 @@ export default class ContentModule extends React.Component {
       var edit_name = this.state.edit_form_name
       var edit_detail = this.state.edit_form_detail
       var edit_module = this.state.edit_form_module
-      fetch({query:`
+      this.fetch({query:`
         mutation{
           requirement_edit(
             _id:"`+id.split('_')[0]+`",
@@ -669,7 +671,7 @@ export default class ContentModule extends React.Component {
       var activity_code= 'R1'
       var activity_detail = edit_name+'_'+module_name
       var activity_date = new Date()
-      fetch({query:`
+      this.fetch({query:`
         mutation {
           activity_add(
             _id:"`+activity_id+`",
@@ -713,7 +715,7 @@ export default class ContentModule extends React.Component {
           })
         })
         this.setState({data:data})    
-        fetch({query:`
+        this.fetch({query:`
           mutation {
             requirement_delete(_id:"`+id.split('_')[0]+`"){_id}
           }`
@@ -722,7 +724,7 @@ export default class ContentModule extends React.Component {
         var activity_code = 'R2'
         var activity_detail = name+'_'+module_name
         var activity_date = new Date()
-        fetch({query:`
+        this.fetch({query:`
           mutation {
             activity_add(
               _id:"`+activity_id+`",
@@ -801,4 +803,5 @@ export default class ContentModule extends React.Component {
       </div>
     )
   }
+
 }

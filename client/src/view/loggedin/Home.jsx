@@ -8,8 +8,7 @@ const breadcrumb = [
 ]
 
 export default class ViewHome extends React.Component {
-  constructor(props){
-    super(props)
+  componentDidMount(){
     document.title = 'Home'
   }
   render() {

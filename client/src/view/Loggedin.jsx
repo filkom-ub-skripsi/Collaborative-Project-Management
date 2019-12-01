@@ -17,12 +17,30 @@ export default class Loggedin extends React.Component {
         <Navbar/>
         <Switch>
           <Route path="/" exact component = { Home }></Route>
-          <Route path="/my-projects" component = { MyProjects }></Route>
-          <Route path="/detail-project/:id" component = { DetailProject }></Route>
-          <Route path="/clients" component = { Client }></Route>
-          <Route path="/users" component = { Users }></Route>
-          <Route path="/profile" component = { Profile }></Route>
-          <Route path="*" component = { Error }></Route>
+          <Route
+            path="/my-projects"
+            render = {(props)=> <MyProjects {...props} webservice={this.props.webservice}/>}
+          />
+          <Route
+            path="/detail-project/:id"
+            render = {(props)=> <DetailProject  {...props} webservice={this.props.webservice}/>}
+          />
+          <Route
+            path="/clients"
+            render = {(props)=> <Client {...props} webservice={this.props.webservice}/>}
+          />
+          <Route
+            path="/users"
+            render = {(props)=> <Users {...props} webservice={this.props.webservice}/>}
+          />
+          <Route
+            path="/profile"
+            render = {(props)=> <Profile {...props} webservice={this.props.webservice}/>}
+          />
+          <Route
+            path="*"
+            component = { Error }
+          />
         </Switch>
       </div>
     )

@@ -1,17 +1,10 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
-import { createApolloFetch } from 'apollo-fetch'
 import { Button, Row, Col, Modal, Form } from 'react-bootstrap'
 import { HelpCircle, RefreshCcw } from 'react-feather'
 import LayoutCardContent  from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
-
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
 
 //notification
 const success = 'Your changes have been successfully saved'
@@ -23,56 +16,12 @@ export default class ContentDivision extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      header_button:true,
-      data:[],data_loading:true,
       add_division_modal:false, 
-      detail_modal:false,detail_id:null,detail_header:null,detail_data:[],
+      detail_modal:false,
+      detail_id:null,
+      detail_header:null,
+      detail_employee:[]
     }
-    this.push()
-  }
-
-  //push
-  push(){
-    fetch({
-      query:`{
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          division {
-            _id,
-            name,
-            employee {
-              name,
-              email,
-              contact
-            }
-          }
-        }
-      }`
-    }).then(result => {
-      var data = []
-      var temp = result.data.organization.division
-      temp.forEach(function(item){
-        data.push({
-          id:item._id+'_'+0,
-          division:item.name,
-          employee:item.employee.length,
-          data:item.employee
-        })
-      })
-      this.setState({
-        data:data,
-        data_loading:false,
-        header_button:false,
-      })
-    })
-  }
- 
-  //reload
-  reload(){
-    this.setState({
-      data_loading:true,
-      header_button:true,
-    })
-    this.push()
   }
 
   //add division modal
@@ -117,24 +66,8 @@ export default class ContentDivision extends React.Component {
     } else {
       document.getElementById('tambah_name').className = 'form-control is-valid'
       document.getElementById('tambah_fname').innerHTML = ''
-      var id = RDS.generate({length:32,charset:'alphabetic'})
-      fetch({query:`
-        mutation {
-          division_add(
-            _id:"`+id+`",
-            organization:"`+localStorage.getItem('organization')+`",
-            name:"`+document.getElementById('tambah_name').value+`"
-          ){_id}
-        }`
-      })
-      this.setState({
-        add_division_modal:false,
-        data: [...this.state.data,{
-          id: id+'_'+0,
-          division:document.getElementById('tambah_name').value,
-          employee:0
-        }] 
-      })
+      this.props.add(document.getElementById('tambah_name').value)
+      this.setState({add_division_modal:false})
       NotificationManager.success(success)
     }
   }
@@ -147,15 +80,19 @@ export default class ContentDivision extends React.Component {
       allowOverflow: true,
       button: true,
     },
-    {name:'Division',selector:'division',sortable:true},
-    {name:'Employee',selector:'employee',sortable:true},
+    {name:'Division',selector:'name',sortable:true},
+    {name:'Employee',selector:'member',sortable:true},
   ]
 
   //table handler
   table_handler(id){
-    var temp = this.state.data
-    var data = temp.filter(function(item){ return item.id === id })
-    this.setState({detail_modal:true,detail_id:id,detail_header:data[0]['division'],detail_data:data[0]['data']})
+    var data = this.props.data.filter(function(item){ return item.id === id })
+    this.setState({
+      detail_modal:true,
+      detail_id:data[0]['id'],
+      detail_header:data[0]['name'],
+      detail_employee:data[0]['employee']
+    })
   }
 
   //detail modal
@@ -164,6 +101,7 @@ export default class ContentDivision extends React.Component {
       {name:'Name',selector:'name',sortable:true},
       {name:'Email',selector:'email',sortable:true},
       {name:'Mobile number',selector:'contact',sortable:true},
+      {name:'Project',selector:'project',sortable:true},
     ]
     return (
       <Modal
@@ -199,7 +137,7 @@ export default class ContentDivision extends React.Component {
             <LayoutTable
               noHeader={true}
               columns={columns}
-              data={this.state.detail_data}
+              data={this.state.detail_employee}
             />
           </div>
         }
@@ -207,7 +145,7 @@ export default class ContentDivision extends React.Component {
           <LayoutTable
             noHeader={true}
             columns={columns}
-            data={this.state.detail_data}
+            data={this.state.detail_employee}
           />
         }
         {localStorage.getItem('leader') === '1' &&
@@ -226,7 +164,12 @@ export default class ContentDivision extends React.Component {
 
   //detail close
   detail_close(){
-    this.setState({detail_modal:false,detail_id:null,detail_header:null,detail_data:[]})
+    this.setState({
+      detail_modal:false,
+      detail_id:null,
+      detail_header:null,
+      detail_employee:[]
+    })
   }
 
   //detail edit
@@ -234,24 +177,7 @@ export default class ContentDivision extends React.Component {
     if (document.getElementById('detail_name').value === '') { document.getElementById('detail_name').className = 'form-control is-invalid' }
     else {
       document.getElementById('detail_name').className = 'form-control is-valid'
-      var id = this.state.detail_id
-      fetch({query:`
-        mutation {
-          division_edit(
-            _id:"`+id.split('_')[0]+`",
-            name:"`+document.getElementById('detail_name').value+`"
-          ){_id}
-        }`
-      })
-      var data = this.state.data
-      data.forEach(function(item){
-        if (item.id === id) {
-          var version = parseInt(item.id.split('_')[1])+1
-          item.id = item.id.split('_')[0]+'_'+version
-          item.division = document.getElementById('detail_name').value
-        }
-      })
-      this.setState({data:data})
+      this.props.edit(this.state.detail_id,document.getElementById('detail_name').value)
       this.detail_close()
       NotificationManager.success(success)
     }
@@ -259,38 +185,30 @@ export default class ContentDivision extends React.Component {
 
   //detail delete
   detail_delete(){
-    Swal({
-      title:"Delete",
-      text:"This division will be deleted",
-      icon:"warning",
-      closeOnClickOutside:false,
-      buttons:true,
-      dangerMode:true,
-    })
-    .then((willDelete) => {
-      if (willDelete) {
-        var id = this.state.detail_id
-        var temp = this.state.data.filter(function(item){ return item.id === id })
-        if (temp[0]['employee'] === 0) {
-          fetch({query:`
-            mutation {
-              division_delete(_id:"`+id.split('_')[0]+`"){_id}
-            }`
-          })
-          var data = this.state.data.filter(function(item){return(item.id!==id)})
-          this.setState({data:data})
+    if (this.state.detail_employee.length === 0) {
+      Swal({
+        title:"Delete",
+        text:"This division will be deleted",
+        icon:"warning",
+        closeOnClickOutside:false,
+        buttons:true,
+        dangerMode:true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          this.props.delete(this.state.detail_id)
           this.detail_close()
           NotificationManager.success(success)
-        } else {
-          Swal({
-            title:"Failed",
-            text:"There are members who are currently registered",
-            icon:"warning",
-            closeOnClickOutside:false,
-          })
         }
-      }
-    })
+      })
+    } else {
+      Swal({
+        title:"Not Available",
+        text:"There are members who are currently registered",
+        icon:"warning",
+        closeOnClickOutside:false,
+      })
+    }
   }
 
   //card header
@@ -305,7 +223,7 @@ export default class ContentDivision extends React.Component {
             <Button
               size="sm"
               variant="outline-dark"
-              disabled={this.state.header_button}
+              disabled={this.props.loading}
               onClick={()=>this.setState({add_division_modal:true})}
             >
               Add
@@ -315,8 +233,8 @@ export default class ContentDivision extends React.Component {
           <Button
             size="sm"
             variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.reload()}
+            disabled={this.props.loading}
+            onClick={()=>this.props.reload()}
           >
             <RefreshCcw size={15} style={{marginBottom:2}}/>
           </Button>
@@ -330,9 +248,9 @@ export default class ContentDivision extends React.Component {
     return (
       <LayoutTable
         noHeader={true}
-        loading={this.state.data_loading}
+        loading={this.props.loading}
         columns={this.table_columns}
-        data={this.state.data}
+        data={this.props.data}
       />
     )
   }
@@ -351,4 +269,5 @@ export default class ContentDivision extends React.Component {
       </div>
     )
   }
+  
 }

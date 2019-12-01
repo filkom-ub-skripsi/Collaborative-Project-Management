@@ -9,15 +9,14 @@ const breadcrumb = [
 ]
 
 export default class ViewProfile extends React.Component {
-  constructor(props){
-    super(props)
+  componentDidMount(){
     document.title = 'Profile'
   }
   render() {
     return (
       <Container fluid>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-        <ContentProfile/>
+        <ContentProfile webservice={this.props.webservice}/>
       </Container>
     )
   }

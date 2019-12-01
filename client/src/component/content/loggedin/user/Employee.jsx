@@ -1,18 +1,12 @@
 import React from 'react'
-import RDS from 'randomstring'
-import MD5 from 'md5'
+// import RDS from 'randomstring'
+// import MD5 from 'md5'
 import Swal from 'sweetalert'
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
 import { HelpCircle, RefreshCcw } from 'react-feather'
 import { NotificationManager } from 'react-notifications'
-import { createApolloFetch } from 'apollo-fetch'
 import LayoutCardContent  from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
-
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
 
 //notification
 const success = 'Your changes have been successfully saved'
@@ -32,88 +26,23 @@ export default class ContentEmployee extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      header_button:true,
-      data:[],data_division:[],data_loading:true,
+      data:[],
       add_employee_modal:false,
       detail_modal:false,detail_id:null,detail_header:null,
-      detail_optionValue:'',detail_form_edit_state:true,
+      detail_division:'',detail_division_default:''
     }
-    this.push()
   }
 
-  //push
-  push(){
-    fetch({
-      query:`
-      {
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          employee{
-            _id,
-            name,
-            contact,
-            email,
-            division {
-              name
-            },
-            organization {
-              leader {
-                leader 
-              }
-            }
-          }
-        }
-      }`
-    }).then(result => {
-      var data = []
-      var temp = result.data.organization.employee
-      temp.forEach(function(item){
-        if (item._id !== item.organization[0]['leader'][0]['leader']) {
-          data.push({
-            id:item._id+'_'+0,
-            name:item.name,
-            email:item.email,
-            contact:item.contact,
-            division:item.division[0]['name'],
-            project:'0'
-          })
-        }
-      })
-      this.setState({
-        data:data,
-        data_loading:false,
-        header_button:false
+  // component will receive props
+  componentWillReceiveProps(props){
+    var data = []
+    var temp = props.data
+    temp.forEach(function(item_d){
+      item_d.employee.forEach(function(item_e){
+        data.push(item_e)
       })
     })
-    fetch({
-      query:
-      `{
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          division {
-            _id,
-            name
-          }
-        }
-      }`
-    }).then(result => {
-      var data = []
-      var temp = result.data.organization.division
-      temp.forEach(function(item){
-        data.push({
-          value:item._id,
-          label:item.name
-        })
-      })
-      this.setState({data_division:data})
-    })
-  }
-
-  //reload
-  reload(){
-    this.setState({
-      data_loading:true,
-      header_button:true
-    })
-    this.push()
+    this.setState({data:data})
   }
 
   //add employee modal
@@ -150,8 +79,8 @@ export default class ContentEmployee extends React.Component {
               <Form.Label>Division</Form.Label>
               <Form.Control id="tambah_division" as="select" defaultValue="">
                 <option value="" hidden></option>
-                {this.state.data_division.map((item,index) => {
-                  return ( <option value={item.value+'_'+item.label} key={index}>{item.label}</option> )
+                {this.props.data.map((item,index) => {
+                  return ( <option value={item.id} key={index}>{item.name}</option> )
                 })}
               </Form.Control>
               <div id="tambah_fdivision" className="invalid-feedback d-block"/>
@@ -191,33 +120,15 @@ export default class ContentEmployee extends React.Component {
   //add employee handler
   add_employee_handler(){
     if (this.add_employee_validation() === true) {
-      var temp = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
-      if (temp.length === 0) {
-        var id = RDS.generate({length:32,charset:'alphabetic'})
-        fetch({query:`
-          mutation {
-            employee_add(
-              _id:"`+id+`",
-              password:"`+MD5('1234')+`",
-              organization:"`+localStorage.getItem('organization')+`",
-              division:"`+document.getElementById('tambah_division').value.split('_')[0]+`",
-              name:"`+document.getElementById('tambah_name').value+`",
-              contact:"`+document.getElementById('tambah_contact').value+`",
-              email:"`+document.getElementById('tambah_email').value+`"
-            ){_id}
-          }`
-        })
-        this.setState({
-          add_employee_modal:false,
-          data: [...this.state.data,{
-            id:id+'_'+0,
-            name:document.getElementById('tambah_name').value,
-            email:document.getElementById('tambah_email').value,
-            contact:document.getElementById('tambah_contact').value,
-            division:document.getElementById('tambah_division').value.split('_')[1],
-            project:'0'
-          }] 
-        })
+      var check = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
+      if (check.length === 0) {
+        this.props.add(
+          document.getElementById('tambah_name').value,
+          document.getElementById('tambah_email').value,
+          document.getElementById('tambah_contact').value,
+          document.getElementById('tambah_division').value,
+        )
+        this.setState({add_employee_modal:false})
         NotificationManager.success(success)
         NotificationManager.info('Default password is 1234')
       } else {
@@ -238,32 +149,20 @@ export default class ContentEmployee extends React.Component {
     {name:'Name',selector:'name',sortable:true},
     {name:'Email',selector:'email',sortable:true},
     {name:'Mobile Number',selector:'contact',sortable:true,width:'15%'},
-    {name:'Division',selector:'division',sortable:true,width:'15%'},
+    {name:'Division',selector:'division_name',sortable:true,width:'15%'},
     {name:'Project',selector:'project',sortable:true,width:'15%'},
   ]
 
   //table handler
   table_handler(id){
     if (id.split('_')[0] !== localStorage.getItem('user')){
-      var temp = this.state.data
-      var data = temp.filter(function(item){ return item.id === id })
-      this.setState({detail_modal:true,detail_id:id,detail_header:data[0]['name']})
-      fetch({query:
-        `{
-          employee(_id:"`+id.split('_')[0]+`") {
-            division {
-              _id,
-              name
-            }
-          }
-        }`
-      }).then(result => {
-        var optionValue = result.data.employee.division[0]['_id']+'_'+result.data.employee.division[0]['name']
-        this.setState({
-          detail_optionValue:optionValue,
-          detail_form_edit_state:false,
-          detail_btn_edit_state:false,
-        })
+      var data = this.state.data.filter(function(item){ return item.id === id })
+      this.setState({
+        detail_modal:true,
+        detail_id:data[0]['id'],
+        detail_header:data[0]['name'],
+        detail_division:data[0]['division_id'],
+        detail_division_default:data[0]['division_id'],
       })
     }
   }
@@ -287,17 +186,16 @@ export default class ContentEmployee extends React.Component {
             <Form>
               <Form.Row>
                 <Col lg={10}>
-                  <Form.Control id="sunting_division" as="select" value={this.state.detail_optionValue} onChange={(e)=>this.setState({detail_optionValue:e.target.value})} disabled={this.state.detail_form_edit_state}>
+                  <Form.Control id="sunting_division" as="select" value={this.state.detail_division} onChange={(e)=>this.setState({detail_division:e.target.value})}>
                     <option value="" hidden></option>
-                    {this.state.data_division.map((item,index) => {
-                      return ( <option value={item.value+'_'+item.label} key={index}>{item.label}</option> )
+                    {this.props.data.map((item,index) => {
+                      return ( <option value={item.id.split('_')[0]} key={index}>{item.name}</option> )
                     })}
                   </Form.Control>
                 </Col>
                 <Col lg={2}>
                   <Button
                     variant="outline-dark" block
-                    disabled={this.state.detail_btn_edit_state}
                     onClick={()=>this.detail_edit()}
                   >
                     Edit
@@ -311,7 +209,7 @@ export default class ContentEmployee extends React.Component {
           <Modal.Footer>
               <Button
                 variant="info"
-                onClick={()=>this.detail_resetPassword()}
+                onClick={()=>this.detail_reset()}
               >
                 Reset Password
               </Button>
@@ -331,36 +229,21 @@ export default class ContentEmployee extends React.Component {
   detail_close(){
     this.setState({
       detail_modal:false,detail_id:null,detail_header:null,
-      detail_optionValue:'',detail_form_edit_state:true,detail_btn_edit_state:true,
+      detail_division:'',detail_division_default:''
     })
   }
 
   //detail edit
   detail_edit(){
-    var id = this.state.detail_id
-    fetch({query:`
-      mutation {
-        employee_edit(
-          _id:"`+id.split('_')[0]+`",
-          division:"`+document.getElementById('sunting_division').value.split('_')[0]+`"
-        ){_id}
-      }`
-    })
-    var data = this.state.data
-    data.forEach(function(item){
-      if (item.id === id) {
-        var version = parseInt(item.id.split('_')[1])+1
-        item.id = item.id.split('_')[0]+'_'+version
-        item.division = document.getElementById('sunting_division').value.split('_')[1]
-      }
-    })
-    this.setState({data:data})
-    this.detail_close()
-    NotificationManager.success(success)
+    if (this.state.detail_division !== this.state.detail_division_default) {
+      this.props.edit(this.state.detail_id,this.state.detail_division_default,this.state.detail_division)
+      this.detail_close()
+      NotificationManager.success(success)
+    }
   }
 
-  //detail reset password
-  detail_resetPassword(){
+  //detail reset
+  detail_reset(){
     Swal({
       title:"Reset Password",
       text:"This member's password will return to default",
@@ -370,15 +253,7 @@ export default class ContentEmployee extends React.Component {
       dangerMode:true,
     }).then((willReset) => {
       if (willReset) {
-        var id = this.state.detail_id
-        fetch({query:`
-          mutation {
-            employee_edit(
-              _id:"`+id.split('_')[0]+`",
-              password:"`+MD5('1234')+`"
-            ){_id}
-          }`
-        })
+        this.props.reset(this.state.detail_id)
         this.detail_close()
         NotificationManager.success(success)
         NotificationManager.info('Default password is 1234')
@@ -397,14 +272,7 @@ export default class ContentEmployee extends React.Component {
       dangerMode:true,
     }).then((willDelete) => {
       if (willDelete) {
-        var id = this.state.detail_id
-        fetch({query:`
-          mutation {
-            employee_delete(_id:"`+id.split('_')[0]+`"){_id}
-          }`
-        })
-        var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
-        this.setState({data:data})
+        this.props.delete(this.state.detail_id)
         this.detail_close()
         NotificationManager.success(success)
       }
@@ -423,10 +291,8 @@ export default class ContentEmployee extends React.Component {
             <Button
               size="sm"
               variant="outline-dark"
-              disabled={this.state.header_button}
-              onClick={()=>{
-                this.setState({add_employee_modal:true})
-              }}
+              disabled={this.props.loading}
+              onClick={()=>this.setState({add_employee_modal:true})}
             >
               Add
             </Button>
@@ -435,8 +301,8 @@ export default class ContentEmployee extends React.Component {
           <Button
             size="sm"
             variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.reload()}
+            disabled={this.props.loading}
+            onClick={()=>this.props.reload()}
           >
             <RefreshCcw size={15} style={{marginBottom:2}}/>
           </Button>
@@ -450,7 +316,7 @@ export default class ContentEmployee extends React.Component {
     return (
       <LayoutTable
         noHeader={true}
-        loading={this.state.data_loading}
+        loading={this.props.loading}
         columns={this.table_columns}
         data={this.state.data}
       />
@@ -471,4 +337,5 @@ export default class ContentEmployee extends React.Component {
       </div>
     )
   }
+  
 }

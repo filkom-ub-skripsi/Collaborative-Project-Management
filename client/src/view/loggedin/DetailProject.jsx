@@ -7,11 +7,6 @@ import ContentModule from '../../component/content/loggedin/detailproject/Module
 import ContentActivity from '../../component/content/loggedin/detailproject/Activity'
 import ContentSetting from '../../component/content/loggedin/detailproject/Setting'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 const breadcrumb = [
 	{name:'Main',link:'#!'},
 	{name:'My Projects',link:'/my-projects'},
@@ -28,15 +23,22 @@ export default class ViewDetailProject extends React.Component {
       loading:'block',header:'none',password:'',status:'',
       activity:[]
     }
-    this.push()
     this.activity = this.activity.bind(this)
     this.start = this.start.bind(this)
     this.edit = this.edit.bind(this)
   }
 
+  //component did mount
+  componentDidMount(){
+    this.push()
+  }
+
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
   //push
   push(){
-    fetch({
+    this.fetch({
       query:`{
         project(_id:"`+this.props.match.params.id+`") {
           code,
@@ -93,7 +95,7 @@ export default class ViewDetailProject extends React.Component {
 
   //start
   start(){
-    fetch({query:`
+    this.fetch({query:`
       mutation {
         project_status(
           _id:"`+this.props.match.params.id+`",
@@ -106,7 +108,7 @@ export default class ViewDetailProject extends React.Component {
 
   //edit
   edit(code,name,client,start,end){
-    fetch({query:`
+    this.fetch({query:`
       mutation {
         project_edit(
           _id:"`+this.props.match.params.id+`",
@@ -141,33 +143,27 @@ export default class ViewDetailProject extends React.Component {
         <LayoutBreadcrumb breadcrumb={this.state.breadcrumb}/>
         <Tab.Container defaultActiveKey="TAB1">
           <Row>
-            <Col lg="2">
+            <Col lg="2" className="de_project-menu">
               <Nav variant="pills" className="flex-column">
                 <Nav.Item>
                   <Nav.Link eventKey="TAB1">Overview</Nav.Link>
                 </Nav.Item>
-                {this.state.status !== '1' &&
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB2">Requirement</Nav.Link>
-                  </Nav.Item>
-                }
-                {this.state.status === '1' &&
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB3">Requirement</Nav.Link>
-                  </Nav.Item>
-                }
                 <Nav.Item>
-                  <Nav.Link eventKey="TAB4">Activity</Nav.Link>
+                  <Nav.Link eventKey="TAB2">Requirement</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="TAB5">Setting</Nav.Link>
+                  <Nav.Link eventKey="TAB3">Activity</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="TAB4">Setting</Nav.Link>
                 </Nav.Item>
               </Nav>
             </Col>
-            <Col lg="10">
+            <Col lg="10" className="de_project-content">
               <Tab.Content>
                 <Tab.Pane eventKey="TAB1">
                   <ContentOverview
+                    webservice={this.props.webservice}
                     id={this.props.match.params.id}
                     status={this.state.status}
                     data={this.state.overview}
@@ -176,25 +172,22 @@ export default class ViewDetailProject extends React.Component {
                     activity={this.activity}
                   />
                 </Tab.Pane>
-                {this.state.status !== '1' &&
-                  <Tab.Pane eventKey="TAB2">
+                <Tab.Pane eventKey="TAB2">
+                  {this.state.status === '0' &&
                     <ContentModule
+                      webservice={this.props.webservice}
                       id={this.props.match.params.id}
                       activity={this.activity}
                     />
-                  </Tab.Pane>
-                }
-                {this.state.status === '1' &&
-                  <Tab.Pane eventKey="TAB3">
-                    Please be patient, this feature is in the works
-                  </Tab.Pane>
-                }
-                <Tab.Pane eventKey="TAB4">
+                  }
+                </Tab.Pane>
+                <Tab.Pane eventKey="TAB3">
                   <ContentActivity data={this.state.activity}/>
                 </Tab.Pane>
-                <Tab.Pane eventKey="TAB5">
+                <Tab.Pane eventKey="TAB4">
                   <ContentSetting
                     id={this.props.match.params.id}
+                    webservice={this.props.webservice}
                     status={this.state.status}
                     data={this.state.overview}
                     pass={this.state.password}
@@ -210,4 +203,5 @@ export default class ViewDetailProject extends React.Component {
       </Container>
     )
   }
+
 }

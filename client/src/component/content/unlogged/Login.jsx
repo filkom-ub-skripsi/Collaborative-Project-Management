@@ -4,22 +4,13 @@ import { Form, Col, Button, Spinner } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import MD5 from 'md5'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
-//array
+//misc
+const button_name = 'Login'
+const spinner = <Spinner animation="border" size="sm"/>
 const form = [
   {field:'login_email'},
   {field:'login_password'},
 ]
-
-//spinner
-const spinner = <Spinner animation="border" size="sm"/>
-
-//button
-const button_name = 'Login'
 
 //class
 export default class ContentLogin extends React.Component {
@@ -32,6 +23,9 @@ export default class ContentLogin extends React.Component {
       button:button_name
     }
   }
+
+  //graphql
+  fetch = createApolloFetch({uri:this.props.webservice})
 
   //validate
   validate() {
@@ -52,13 +46,10 @@ export default class ContentLogin extends React.Component {
   //login
   login() {
     if (this.validate() === true) {
-      this.setState({
-        disabled:true,
-        button:spinner
-      })
+      this.setState({disabled:true,button:spinner})
       var email = document.getElementById('login_email').value
       var password = MD5(document.getElementById('login_password').value)
-      fetch({
+      this.fetch({
         query:`{
           employee (email:"`+email+`") {
             _id,
@@ -77,19 +68,19 @@ export default class ContentLogin extends React.Component {
           button:button_name
         })
         if (result.data.employee === null) {
-          NotificationManager.error('Email not registered')
           form.forEach(function(item){
             document.getElementById(item.field).className = 'form-control is-invalid'
           })
+          NotificationManager.error('Email not registered')
         } else {
           document.getElementById('login_email').className = 'form-control is-valid'
           if (password === result.data.employee.password) {
-            NotificationManager.success('Login successful','',1000)
             document.getElementById('login_password').className = 'form-control is-valid'
             localStorage.setItem('user', result.data.employee._id)
             localStorage.setItem('organization', result.data.employee.organization[0]['_id'])
-            if (result.data.employee.organization[0]['leader'][0]['leader'] === result.data.employee._id) { localStorage.setItem('leader',1) }
-            else { localStorage.setItem('leader',0) }
+            if (result.data.employee.organization[0]['leader'][0]['leader'] === result.data.employee._id) { localStorage.setItem('leader', 1 ) }
+            else { localStorage.setItem('leader', 0 ) }
+            NotificationManager.success('Login successful','',1000)
             setTimeout(()=>{window.location.reload()},1500)
           } else {
             NotificationManager.error('Incorrect password')
@@ -122,4 +113,5 @@ export default class ContentLogin extends React.Component {
       </Form.Row>
     )
   }
+
 }

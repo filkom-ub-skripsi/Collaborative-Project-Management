@@ -7,11 +7,6 @@ import { createApolloFetch } from 'apollo-fetch'
 import { NotificationManager } from 'react-notifications'
 import LayoutCardContent from '../../../layout/CardContent'
 
-//fetch
-const fetch = createApolloFetch({
-  uri: 'http://localhost:4000/graphql',
-})
-
 //validation
 const wrong = 'Wrong password'
 const success = 'Your changes have been successfully saved'
@@ -45,12 +40,19 @@ export default class ContentProfile extends React.Component {
       division:'',
       password:''
     }
+  }
+
+  //component did mount
+  componentDidMount(){
     this.push()
   }
 
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
   //push
   push(){
-    fetch({
+    this.fetch({
       query:`{
         employee(_id:"`+localStorage.getItem('user')+`") {
           name,
@@ -130,7 +132,7 @@ export default class ContentProfile extends React.Component {
       var pass = MD5(document.getElementById('organization_password').value)
       if (pass === this.state.password) {
         document.getElementById('organization_password').className = 'form-control is-valid'
-        fetch({query:`
+        this.fetch({query:`
           mutation {
             organization_edit(
               _id:"`+localStorage.getItem('organization')+`",
@@ -156,7 +158,7 @@ export default class ContentProfile extends React.Component {
       var pass = MD5(document.getElementById('name_password').value)
       if (pass === this.state.password) {
         document.getElementById('name_password').className = 'form-control is-valid'
-        fetch({query:`
+        this.fetch({query:`
           mutation {
             employee_edit(
               _id:"`+localStorage.getItem('user')+`",
@@ -183,12 +185,12 @@ export default class ContentProfile extends React.Component {
       if (pass === this.state.password) {
         this.loading(true)
         document.getElementById('email_password').className = 'form-control is-valid'
-        fetch({
+        this.fetch({
           query:`{employee(email:"`+email+`"){name}}`
         }).then(result => {
           this.loading(false)
           if (result.data.employee === null) {
-            fetch({query:`
+            this.fetch({query:`
               mutation {
                 employee_edit(
                   _id:"`+localStorage.getItem('user')+`",
@@ -224,7 +226,7 @@ export default class ContentProfile extends React.Component {
       var pass = MD5(document.getElementById('contact_password').value)
       if (pass === this.state.password) {
         document.getElementById('contact_password').className = 'form-control is-valid'
-        fetch({query:`
+        this.fetch({query:`
           mutation {
             employee_edit(
               _id:"`+localStorage.getItem('user')+`",
@@ -250,7 +252,7 @@ export default class ContentProfile extends React.Component {
       var pass2 = MD5(document.getElementById('password_2').value)
       if (pass2 === this.state.password) {
         document.getElementById('password_2').className = 'form-control is-valid'
-        fetch({query:`
+        this.fetch({query:`
           mutation {
             employee_edit(
               _id:"`+localStorage.getItem('user')+`",
