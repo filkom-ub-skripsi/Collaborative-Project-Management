@@ -197,6 +197,8 @@ export default class ViewUsers extends React.Component {
         var employee = item.employee.filter(function(filter){ return filter.id !== id })
         item.employee = employee
       }
+    })
+    data.forEach(function(item){
       if (item.id.split('_')[0] === newDivision) {
         var addVersionDivision = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+addVersionDivision
