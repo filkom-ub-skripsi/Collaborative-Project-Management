@@ -92,7 +92,7 @@ export default class ContentSetting extends React.Component {
       dangerMode:true,
     }).then((willStart) => {
       if (willStart) {
-        NotificationManager.info('Checking all requirements...')
+        NotificationManager.info('Checking all requirements')
         this.fetch({
           query:`
           {
@@ -140,6 +140,7 @@ export default class ContentSetting extends React.Component {
                 icon:"warning",
                 closeOnClickOutside:false,
               })
+              NotificationManager.error('Please complete your requirements!')
             }
           } else {
             Swal({
@@ -345,12 +346,9 @@ export default class ContentSetting extends React.Component {
   delete_project(){
     if (this.delete_validation() === true) {
       this.setState({delete_button:spinner,delete_state:true})
-      this.fetch({
-        query:`{
+      this.fetch({query:`{
           project(_id:"`+this.props.id+`") {
-            module {
-              _id
-            }
+            module {_id}
           }
         }`
       }).then(result => {
@@ -359,27 +357,18 @@ export default class ContentSetting extends React.Component {
           this.fetch({
             query:`{
               project(_id:"`+this.props.id+`") {
-                activity {
-                  _id
-                }
+                activity{_id}
               }
             }`
           }).then(result => {
+            const delActivity = (query) => this.fetch({query:query})
             result.data.project.activity.forEach(function(item){
-              this.fetch({query:`
-                mutation {
-                  activity_delete(_id:"`+item._id+`"){
-                    _id
-                  }
-                }`
-              })
+              delActivity('mutation{activity_delete(_id:"'+item._id+'"){_id}}')
             })
           })
           this.fetch({query:`
             mutation {
-              project_delete(_id:"`+this.props.id+`") {
-                _id
-              }
+              project_delete(_id:"`+this.props.id+`"){_id}
             }`
           })
           Swal({
@@ -393,7 +382,7 @@ export default class ContentSetting extends React.Component {
         } else {
           Swal({
             title:"Failed",
-            text:"Requirements must be empty",
+            text:"Project requirement must be empty",
             icon:"warning",
             closeOnClickOutside:false,
           })
@@ -451,4 +440,5 @@ export default class ContentSetting extends React.Component {
       </div>
     )
   }
+
 }
