@@ -14,10 +14,12 @@ export default class ViewMyProjects extends React.Component {
   }
   render() {
     return (
-      <Container fluid>
+      <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-        <ContentMyProject webservice={this.props.webservice}/>
-      </Container>
+        <Container fluid>
+          <ContentMyProject webservice={this.props.webservice}/>
+        </Container>
+      </div>
     )
   }
 }

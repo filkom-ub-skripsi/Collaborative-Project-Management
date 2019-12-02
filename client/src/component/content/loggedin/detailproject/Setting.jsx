@@ -54,7 +54,7 @@ export default class ContentSetting extends React.Component {
   }
 
   //component will receive props
-  componentWillReceiveProps(props){
+  UNSAFE_componentWillReceiveProps(props){
     this.setState({
       code:props.data[0]['code'],name:props.data[0]['name'],client_id:props.data[0]['client_id'],start:props.data[0]['start'],end:props.data[0]['end'],
       password:props.pass,status:props.status

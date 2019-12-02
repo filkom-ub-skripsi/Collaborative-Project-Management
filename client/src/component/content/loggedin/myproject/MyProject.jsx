@@ -50,8 +50,7 @@ export default class ContentMyProject extends React.Component {
 
   //push
   push(){
-    this.fetch({
-      query:`{
+    this.fetch({query:`{
         myProject(employee:"`+localStorage.getItem('user')+`") {
           _id,
           code,

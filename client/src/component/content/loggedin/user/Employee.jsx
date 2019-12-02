@@ -34,7 +34,7 @@ export default class ContentEmployee extends React.Component {
   }
 
   // component will receive props
-  componentWillReceiveProps(props){
+  UNSAFE_componentWillReceiveProps(props){
     var data = []
     var temp = props.data
     temp.forEach(function(item_d){

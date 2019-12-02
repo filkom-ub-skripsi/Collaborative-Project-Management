@@ -35,7 +35,7 @@ export default class ContentOverview extends React.Component {
   }
 
   //component will receive props
-  componentWillReceiveProps(props){
+  UNSAFE_componentWillReceiveProps(props){
     this.setState({
       loading:props.loading,header:props.header,status:props.status,
       code:props.data[0]['code'],name:props.data[0]['name'],client:props.data[0]['client'],start:props.data[0]['start'],end:props.data[0]['end'],
@@ -263,4 +263,5 @@ export default class ContentOverview extends React.Component {
       </div>
     )
   }
+  
 }

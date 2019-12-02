@@ -40,6 +40,7 @@ export default class ViewHome extends React.Component {
           left={this.appbar_left()}
           right={this.appbar_right()}
         />
+        <div style={{paddingBottom:35}}/>
         <Container>
           <Row>
             <Col lg={6}>

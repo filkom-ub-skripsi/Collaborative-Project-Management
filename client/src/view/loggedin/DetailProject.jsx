@@ -139,68 +139,70 @@ export default class ViewDetailProject extends React.Component {
   //render
   render() {
     return (
-      <Container fluid>
+      <div>
         <LayoutBreadcrumb breadcrumb={this.state.breadcrumb}/>
-        <Tab.Container defaultActiveKey="TAB1">
-          <Row>
-            <Col lg="2" className="de_project-menu">
-              <Nav variant="pills" className="flex-column">
-                <Nav.Item>
-                  <Nav.Link eventKey="TAB1">Overview</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="TAB2">Requirement</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="TAB3">Activity</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="TAB4">Setting</Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </Col>
-            <Col lg="10" className="de_project-content">
-              <Tab.Content>
-                <Tab.Pane eventKey="TAB1">
-                  <ContentOverview
-                    webservice={this.props.webservice}
-                    id={this.props.match.params.id}
-                    status={this.state.status}
-                    data={this.state.overview}
-                    loading={this.state.loading}
-                    header={this.state.header}
-                    activity={this.activity}
-                  />
-                </Tab.Pane>
-                <Tab.Pane eventKey="TAB2">
-                  {this.state.status === '0' &&
-                    <ContentModule
+        <Container fluid>
+          <Tab.Container defaultActiveKey="TAB1">
+            <Row>
+              <Col lg="2" className="de_project-menu">
+                <Nav variant="pills" className="flex-column">
+                  <Nav.Item>
+                    <Nav.Link eventKey="TAB1">Overview</Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="TAB2">Requirement</Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="TAB3">Activity</Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="TAB4">Setting</Nav.Link>
+                  </Nav.Item>
+                </Nav>
+              </Col>
+              <Col lg="10" className="de_project-content">
+                <Tab.Content>
+                  <Tab.Pane eventKey="TAB1">
+                    <ContentOverview
                       webservice={this.props.webservice}
                       id={this.props.match.params.id}
+                      status={this.state.status}
+                      data={this.state.overview}
+                      loading={this.state.loading}
+                      header={this.state.header}
                       activity={this.activity}
                     />
-                  }
-                </Tab.Pane>
-                <Tab.Pane eventKey="TAB3">
-                  <ContentActivity data={this.state.activity}/>
-                </Tab.Pane>
-                <Tab.Pane eventKey="TAB4">
-                  <ContentSetting
-                    id={this.props.match.params.id}
-                    webservice={this.props.webservice}
-                    status={this.state.status}
-                    data={this.state.overview}
-                    pass={this.state.password}
-                    activity={this.activity}
-                    start={this.start}
-                    edit={this.edit}
-                  />
-                </Tab.Pane>
-              </Tab.Content>
-            </Col>
-          </Row>
-        </Tab.Container>
-      </Container>
+                  </Tab.Pane>
+                  <Tab.Pane eventKey="TAB2">
+                    {this.state.status === '0' &&
+                      <ContentModule
+                        webservice={this.props.webservice}
+                        id={this.props.match.params.id}
+                        activity={this.activity}
+                      />
+                    }
+                  </Tab.Pane>
+                  <Tab.Pane eventKey="TAB3">
+                    <ContentActivity data={this.state.activity}/>
+                  </Tab.Pane>
+                  <Tab.Pane eventKey="TAB4">
+                    <ContentSetting
+                      id={this.props.match.params.id}
+                      webservice={this.props.webservice}
+                      status={this.state.status}
+                      data={this.state.overview}
+                      pass={this.state.password}
+                      activity={this.activity}
+                      start={this.start}
+                      edit={this.edit}
+                    />
+                  </Tab.Pane>
+                </Tab.Content>
+              </Col>
+            </Row>
+          </Tab.Container>
+        </Container>
+      </div>
     )
   }
 

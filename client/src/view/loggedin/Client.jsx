@@ -14,10 +14,12 @@ export default class ViewClient extends React.Component {
   }
   render() {
     return (
-      <Container fluid>
+      <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-        <ContentClient webservice={this.props.webservice}/>
-      </Container>
+        <Container fluid>
+          <ContentClient webservice={this.props.webservice}/>
+        </Container>
+      </div>
     )
   }
 }

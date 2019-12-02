@@ -14,10 +14,12 @@ export default class ViewProfile extends React.Component {
   }
   render() {
     return (
-      <Container fluid>
+      <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-        <ContentProfile webservice={this.props.webservice}/>
-      </Container>
+        <Container fluid>
+          <ContentProfile webservice={this.props.webservice}/>
+        </Container>
+      </div>
     )
   }
 }

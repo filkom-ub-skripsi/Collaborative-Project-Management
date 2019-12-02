@@ -1,5 +1,4 @@
 import React from 'react'
-import { Container } from 'react-bootstrap'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 
 const breadcrumb = [
@@ -13,9 +12,9 @@ export default class ViewHome extends React.Component {
   }
   render() {
     return (
-      <Container fluid>
+      <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
-      </Container>
+      </div>
     )
   }
 }
