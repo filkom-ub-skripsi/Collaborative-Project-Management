@@ -277,6 +277,14 @@ const RootQuery = new GraphQLObjectType({
       }
     },
 
+    myProject: {
+      type : new GraphQLList(ProjectType),
+      args: { employee: { type: GraphQLString } },
+      resolve(parent, args){
+        return Project.find({employee:args.employee})
+      }
+    },
+
     activity: {
       type: ActivityType,
       args: { _id: { type: GraphQLString } },

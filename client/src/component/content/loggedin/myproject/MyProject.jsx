@@ -52,31 +52,29 @@ export default class ContentMyProject extends React.Component {
   push(){
     this.fetch({
       query:`{
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          project {
-            _id,
-            code,
-            name,
-            status,
-            start,
-            end,
-            client {
-              name
-            },
-            employee {
-              _id
-            },
-            module {
-              requirement {
-                status
-              }
+        myProject(employee:"`+localStorage.getItem('user')+`") {
+          _id,
+          code,
+          name,
+          status,
+          start,
+          end,
+          client {
+            name
+          },
+          employee {
+            _id
+          },
+          module {
+            requirement {
+              status
             }
           }
         }
       }`
     }).then(result => {
       var data = []
-      var temp = result.data.organization.project
+      var temp = result.data.myProject
       var counter = 0
       temp.forEach(function(item_project,index_project){
         if (item_project.employee[0]['_id'] === localStorage.getItem('user')) {  
@@ -710,4 +708,5 @@ export default class ContentMyProject extends React.Component {
       </div>
     )
   }
+  
 }
