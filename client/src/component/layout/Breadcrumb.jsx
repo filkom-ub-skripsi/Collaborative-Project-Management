@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 export default class LayoutBreadcrumb extends React.Component {
   render() {
     return (
-      <nav style={{paddingBottom:15}}>
+      <nav>
         <ol className="breadcrumb">
           {
             this.props.breadcrumb.map((item,index) => {

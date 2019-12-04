@@ -1,18 +1,13 @@
 import React from 'react'
 import { Box, Trash, Plus, Edit2 } from 'react-feather'
-import { VerticalTimeline, VerticalTimelineElement }  from 'react-vertical-timeline-component'
-import 'react-vertical-timeline-component/style.min.css'
-
-//timeline
-const timeline_class = "vertical-timeline-element--work"
-const timeline_title = "vertical-timeline-element-title"
-const timeline_paser = {paddingBottom:10}
+import { Timeline, TimelineEvent } from 'react-event-timeline'
 
 //class
 export default class ContentActivity extends React.Component {
 
   //render
   render() {
+    var size = 18
     var temp = this.props.data
     var data = []
     for (var i = temp.length - 1 ; i >= 0 ; i-- ) {
@@ -80,59 +75,39 @@ export default class ContentActivity extends React.Component {
     }
     return (
       <div className="activities">
-        <VerticalTimeline layout="1-column">
+        <Timeline>
           {
             data.map((item,index) => {
               var icon = null
-              var pallete = null
-              var timeline_style = null
-              var timeline_icons = null
-              var timeline_arrow = null
+              var iconColor = null
               if (item.type === 0) {
-                icon = <Box/>
-                pallete = '60,179,113'
-                timeline_style = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_icons = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_arrow = {borderRight:'7px solid rgb('+pallete+')'}
+                icon = <Box size={size}/>
+                iconColor = 'rgb(60,179,113)'
               }
               else if (item.type === 1) {
-                icon = <Plus/>
-                pallete = '70,130,180'
-                timeline_style = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_icons = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_arrow = {borderRight:'7px solid rgb('+pallete+')'}
+                icon = <Plus size={size}/>
+                iconColor = 'rgb(70,130,180)'
               }
               else if (item.type === 2) {
-                icon = <Edit2/>
-                pallete = '255,127,80'
-                timeline_style = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_icons = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_arrow = {borderRight:'7px solid rgb('+pallete+')'}
+                icon = <Edit2 size={size}/>
+                iconColor = 'rgb(255,127,80)'
               }
               else if (item.type === 3) {
-                icon = <Trash/>
-                pallete = '178,34,34'
-                timeline_style = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_icons = {background:'rgb('+pallete+')',color:'#fff'}
-                timeline_arrow = {borderRight:'7px solid rgb('+pallete+')'}
+                icon = <Trash size={size}/>
+                iconColor = 'rgb(178,34,34)'
               }
               return (
-                <VerticalTimelineElement
-                  className={timeline_class}
-                  contentStyle={timeline_style}
-                  contentArrowStyle={timeline_arrow}
+                <TimelineEvent
+                  title={<b>{item.date}</b>}
+                  createdAt={<h6>{item.detail}</h6>}
                   icon={icon}
-                  iconStyle={timeline_icons}
-                  date={item.date}
+                  iconColor={iconColor}
                   key={index}
-                >
-                  <div style={timeline_paser}/>
-                  <h5 className={timeline_title}>{item.detail}</h5>
-                </VerticalTimelineElement>
+                />
               )
             })
           }
-        </VerticalTimeline>
+        </Timeline>
       </div>
     )
   }

@@ -1,7 +1,7 @@
 import React from 'react'
 import RDS from 'randomstring'
 import MD5 from 'md5'
-import { Container, Tab, Row, Col, Nav } from 'react-bootstrap'
+import { Container, Tabs, Tab } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 import ContentDivision from '../../component/content/loggedin/user/Division'
@@ -253,47 +253,31 @@ export default class ViewUsers extends React.Component {
       <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
         <Container fluid>
-          <Tab.Container defaultActiveKey="TAB1">
-            <Row>
-              <Col lg="2" className="de_user-menu">
-                <Nav variant="pills" className="flex-column">
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB1">Division</Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB2">Employee</Nav.Link>
-                  </Nav.Item>
-                </Nav>
-              </Col>
-              <Col lg="10" className="de_user-content">
-                <Tab.Content>
-                  <Tab.Pane eventKey="TAB1">
-                    <ContentDivision
-                      webservice={this.props.webservice}
-                      data={this.state.data}
-                      loading={this.state.loading}
-                      reload={this.reload}
-                      add={this.division_add}
-                      edit={this.division_edit}
-                      delete={this.division_delete}
-                    />
-                  </Tab.Pane>
-                  <Tab.Pane eventKey="TAB2">
-                    <ContentEmployee
-                      webservice={this.props.webservice}
-                      data={this.state.data}
-                      loading={this.state.loading}
-                      reload={this.reload}
-                      add={this.employee_add}
-                      edit={this.employee_edit}
-                      reset={this.employee_reset}
-                      delete={this.employee_delete}
-                    />
-                  </Tab.Pane>
-                </Tab.Content>
-              </Col>
-            </Row>
-          </Tab.Container>
+          <Tabs defaultActiveKey="TAB1">
+            <Tab eventKey="TAB1" title="Division">
+              <ContentDivision
+                webservice={this.props.webservice}
+                data={this.state.data}
+                loading={this.state.loading}
+                reload={this.reload}
+                add={this.division_add}
+                edit={this.division_edit}
+                delete={this.division_delete}
+              />
+            </Tab>
+            <Tab eventKey="TAB2" title="Employee">
+              <ContentEmployee
+                webservice={this.props.webservice}
+                data={this.state.data}
+                loading={this.state.loading}
+                reload={this.reload}
+                add={this.employee_add}
+                edit={this.employee_edit}
+                reset={this.employee_reset}
+                delete={this.employee_delete}
+              />
+            </Tab>
+          </Tabs>
         </Container>
       </div>
     )

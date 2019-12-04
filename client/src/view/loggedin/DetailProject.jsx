@@ -1,6 +1,7 @@
 import React from 'react'
-import { Container, Row, Col, Nav, Tab } from 'react-bootstrap'
+import { Container, Tabs, Tab } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
+import { FileText, Box, Activity, Settings } from 'react-feather'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 import ContentOverview from '../../component/content/loggedin/detailproject/Overview'
 import ContentModule from '../../component/content/loggedin/detailproject/Module'
@@ -142,65 +143,48 @@ export default class ViewDetailProject extends React.Component {
       <div>
         <LayoutBreadcrumb breadcrumb={this.state.breadcrumb}/>
         <Container fluid>
-          <Tab.Container defaultActiveKey="TAB1">
-            <Row>
-              <Col lg="2" className="de_project-menu">
-                <Nav variant="pills" className="flex-column">
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB1">Overview</Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB2">Requirement</Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB3">Activity</Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="TAB4">Setting</Nav.Link>
-                  </Nav.Item>
-                </Nav>
-              </Col>
-              <Col lg="10" className="de_project-content">
-                <Tab.Content>
-                  <Tab.Pane eventKey="TAB1">
-                    <ContentOverview
-                      webservice={this.props.webservice}
-                      id={this.props.match.params.id}
-                      status={this.state.status}
-                      data={this.state.overview}
-                      loading={this.state.loading}
-                      header={this.state.header}
-                      activity={this.activity}
-                    />
-                  </Tab.Pane>
-                  <Tab.Pane eventKey="TAB2">
-                    {this.state.status === '0' &&
-                      <ContentModule
-                        webservice={this.props.webservice}
-                        id={this.props.match.params.id}
-                        activity={this.activity}
-                      />
-                    }
-                  </Tab.Pane>
-                  <Tab.Pane eventKey="TAB3">
-                    <ContentActivity data={this.state.activity}/>
-                  </Tab.Pane>
-                  <Tab.Pane eventKey="TAB4">
-                    <ContentSetting
-                      id={this.props.match.params.id}
-                      webservice={this.props.webservice}
-                      status={this.state.status}
-                      data={this.state.overview}
-                      pass={this.state.password}
-                      activity={this.activity}
-                      start={this.start}
-                      edit={this.edit}
-                    />
-                  </Tab.Pane>
-                </Tab.Content>
-              </Col>
-            </Row>
-          </Tab.Container>
+          <Tabs defaultActiveKey="TAB1">
+            <Tab eventKey="TAB1" title={<FileText/>}>
+              <ContentOverview
+                webservice={this.props.webservice}
+                id={this.props.match.params.id}
+                status={this.state.status}
+                data={this.state.overview}
+                loading={this.state.loading}
+                header={this.state.header}
+                activity={this.activity}
+              />
+            </Tab>
+            <Tab eventKey="TAB2" title={<Box/>}>
+              {this.state.status === '0' &&
+                <ContentModule
+                  webservice={this.props.webservice}
+                  id={this.props.match.params.id}
+                  activity={this.activity}
+                />
+              }
+              {this.state.status === '1' &&
+                <div>
+                  Please be patient, this feature is on progress...
+                </div>
+              }
+            </Tab>
+            <Tab eventKey="TAB3" title={<Activity/>}>
+              <ContentActivity data={this.state.activity}/>
+            </Tab>
+            <Tab eventKey="TAB4" title={<Settings/>}>
+              <ContentSetting
+                id={this.props.match.params.id}
+                webservice={this.props.webservice}
+                status={this.state.status}
+                data={this.state.overview}
+                pass={this.state.password}
+                activity={this.activity}
+                start={this.start}
+                edit={this.edit}
+              />
+            </Tab>
+          </Tabs>
         </Container>
       </div>
     )
