@@ -42,8 +42,8 @@ export default class ContentModule extends React.Component {
     super(props)
     this.state = {
       project_id:this.props.id,
-      header_button:
-      true,data:[],data_loading:true,
+      header_button:true,
+      data:[],data_loading:true,
       add_module_modal:false,add_requirement_modal:false,
       edit_form_module:'',edit_form_name:'',edit_form_detail:'',
       requirement_modal:false,detail_modal:false,detail_id:null,
@@ -62,7 +62,7 @@ export default class ContentModule extends React.Component {
   push(){
     this.fetch({
       query:`{
-        project(_id:"`+this.props.id+`") {
+        project(_id:"`+this.state.project_id+`") {
           module {
             _id,
             name,
@@ -356,7 +356,7 @@ export default class ContentModule extends React.Component {
 
   //table columns
   table_columns = [
-    {name:'Requirement',selector:'name',sortable:true,width:'25%'},
+    {name:'Requirement',selector:'name',sortable:true,width:'20%'},
     {name:'Detail',selector:'detail',sortable:true},
     {
       cell: (row) => <a href="#!" onClick={()=>{this.table_handler(row.id)}}><CheckCircle size={22}/></a>,
@@ -668,7 +668,7 @@ export default class ContentModule extends React.Component {
       }
       this.setState({data:data})
       var activity_id = RDS.generate({length:32,charset:'alphabetic'})
-      var activity_code= 'R1'
+      var activity_code = 'R1'
       var activity_detail = edit_name+'_'+module_name
       var activity_date = new Date()
       this.fetch({query:`

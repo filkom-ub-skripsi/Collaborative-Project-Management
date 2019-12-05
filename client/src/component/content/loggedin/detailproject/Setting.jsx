@@ -92,7 +92,7 @@ export default class ContentSetting extends React.Component {
       dangerMode:true,
     }).then((willStart) => {
       if (willStart) {
-        NotificationManager.info('Checking all requirements')
+        NotificationManager.info('Checking all requirements...')
         this.fetch({
           query:`
           {
@@ -149,6 +149,7 @@ export default class ContentSetting extends React.Component {
               icon:"warning",
               closeOnClickOutside:false,
             })
+            NotificationManager.error('Please add a few requirements before you start the project!')
           }
         })
       }
@@ -419,8 +420,8 @@ export default class ContentSetting extends React.Component {
         }
         {this.state.status === '1' &&
           <ListGroup.Item action>
-            <div style={div}>Finish Project</div>
-            <small style={small}>Entering the project review stage. After the project has finished, all data in this project cannot be changed and deleted, but you can still download the report of this project</small>
+            <div style={div}>Close Project</div>
+            <small style={small}>Entering the project review stage. After the project has closed, all data in this project cannot be changed and deleted, but you can still download the report of this project</small>
           </ListGroup.Item>
         }
       </ListGroup>

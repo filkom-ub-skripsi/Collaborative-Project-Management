@@ -738,6 +738,19 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    requirement_status: {
+      type: RequirementType,
+      args: {
+        _id: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = { status:args.status };
+        let requirement = Requirement.findByIdAndUpdate(args._id, update, {new: true})
+        return requirement
+      }
+    },
+
   }
 })
 

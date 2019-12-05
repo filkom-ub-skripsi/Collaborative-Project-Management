@@ -5,6 +5,7 @@ import { FileText, Box, Activity, Settings } from 'react-feather'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 import ContentOverview from '../../component/content/loggedin/detailproject/Overview'
 import ContentModule from '../../component/content/loggedin/detailproject/Module'
+import ContentModuleProgress from '../../component/content/loggedin/detailproject/ModuleProgress'
 import ContentActivity from '../../component/content/loggedin/detailproject/Activity'
 import ContentSetting from '../../component/content/loggedin/detailproject/Setting'
 
@@ -21,9 +22,10 @@ export default class ViewDetailProject extends React.Component {
     this.state = {
       breadcrumb:breadcrumb,
       overview:[{code:'',name:'',client:'',client_id:'',start:'',end:''}],
-      loading:'block',header:'none',password:'',status:'',
+      loading:'block',header:'none',password:'',status:'',progress:'(%)',
       activity:[]
     }
+    this.progress = this.progress.bind(this)
     this.activity = this.activity.bind(this)
     this.start = this.start.bind(this)
     this.edit = this.edit.bind(this)
@@ -81,6 +83,11 @@ export default class ViewDetailProject extends React.Component {
         }]
       })
     })
+  }
+
+  //progress
+  progress(progress){
+    this.setState({progress:progress})
   }
 
   //activity
@@ -149,6 +156,7 @@ export default class ViewDetailProject extends React.Component {
                 webservice={this.props.webservice}
                 id={this.props.match.params.id}
                 status={this.state.status}
+                progress={this.state.progress}
                 data={this.state.overview}
                 loading={this.state.loading}
                 header={this.state.header}
@@ -164,9 +172,12 @@ export default class ViewDetailProject extends React.Component {
                 />
               }
               {this.state.status === '1' &&
-                <div>
-                  Please be patient, this feature is on progress...
-                </div>
+                <ContentModuleProgress
+                  webservice={this.props.webservice}
+                  id={this.props.match.params.id}
+                  activity={this.activity}
+                  progress={this.progress}
+                />
               }
             </Tab>
             <Tab eventKey="TAB3" title={<Activity/>}>

@@ -71,6 +71,18 @@ export default class ContentActivity extends React.Component {
           detail:'You deleted '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
           type:3
         })
+      } else if (temp[i]['code'] === 'R3') {
+        data.push({
+          date:temp[i]['date'],
+          detail:'You finished the '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
+          type:2
+        })
+      } else if (temp[i]['code'] === 'R4') {
+        data.push({
+          date:temp[i]['date'],
+          detail:'You undo finished the '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
+          type:2
+        })
       }
     }
     return (

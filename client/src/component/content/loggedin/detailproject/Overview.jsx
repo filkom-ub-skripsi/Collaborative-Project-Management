@@ -24,7 +24,7 @@ export default class ContentOverview extends React.Component {
       header_button:true,
       loading:this.props.loading,header:this.props.header,
       code:props.data[0]['code'],name:props.data[0]['name'],client:props.data[0]['client'],start:props.data[0]['start'],end:props.data[0]['end'],
-      problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,status:props.status,status_text:'-',
+      problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,status:props.status,status_text:'-',progress:props.progress,
       update_problem:'',update_goal:'',update_objective:'',update_success:'',update_obstacle:'',update_project_modal:false,
     }
   }
@@ -37,7 +37,7 @@ export default class ContentOverview extends React.Component {
   //component will receive props
   UNSAFE_componentWillReceiveProps(props){
     this.setState({
-      loading:props.loading,header:props.header,status:props.status,
+      loading:props.loading,header:props.header,status:props.status,progress:props.progress,
       code:props.data[0]['code'],name:props.data[0]['name'],client:props.data[0]['client'],start:props.data[0]['start'],end:props.data[0]['end'],
     })
     if (props.status === '0') { this.setState({status_text:'Status : Preparing'}) }
@@ -224,7 +224,7 @@ export default class ContentOverview extends React.Component {
           <div style={header}>{this.state.name+' ['+this.state.code+']'}</div>
           <div style={header}>{this.state.client}</div>
           <div style={header}>{this.date_reformatter(this.state.start)+' - '+this.date_reformatter(this.state.end)}</div>
-          <div style={header}>{this.state.status_text}</div>
+          <div style={header}>{this.state.status_text} {this.state.status === '1' && this.state.progress}</div>
         </ListGroup.Item>
         <ListGroup.Item>
           <div style={title}>Problem</div>
