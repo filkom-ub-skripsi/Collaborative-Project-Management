@@ -1,6 +1,4 @@
 import React from 'react'
-// import RDS from 'randomstring'
-// import MD5 from 'md5'
 import Swal from 'sweetalert'
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
 import { HelpCircle, RefreshCcw } from 'react-feather'
@@ -29,7 +27,7 @@ export default class ContentEmployee extends React.Component {
       data:[],
       add_employee_modal:false,
       detail_modal:false,detail_id:null,detail_header:null,
-      detail_division:'',detail_division_default:''
+      detail_leader:null,detail_division:'',detail_division_default:''
     }
   }
 
@@ -155,20 +153,55 @@ export default class ContentEmployee extends React.Component {
 
   //table handler
   table_handler(id){
-    if (id.split('_')[0] !== localStorage.getItem('user')){
-      var data = this.state.data.filter(function(item){ return item.id === id })
-      this.setState({
-        detail_modal:true,
-        detail_id:data[0]['id'],
-        detail_header:data[0]['name'],
-        detail_division:data[0]['division_id'],
-        detail_division_default:data[0]['division_id'],
-      })
-    }
+    var data = this.state.data.filter(function(item){ return item.id === id })
+    var leader = null
+    if (data[0]['division_id'] === this.props.leader) { leader = true }
+    else { leader = false }
+    this.setState({
+      detail_modal:true,
+      detail_id:data[0]['id'],
+      detail_header:data[0]['name'],
+      detail_division:data[0]['division_id'],
+      detail_division_default:data[0]['division_id'],
+      detail_leader:leader
+    })
   }
 
   //detail modal
   detail_modal(){
+    var data = []
+    var temp = []
+    var id = this.state.detail_id
+    this.props.data.forEach(function(item_d){
+      item_d.employee.forEach(function(item_e){
+        if (item_e.id === id) { temp.push(item_e)}
+      })
+    })
+    temp.forEach(function(item_temp){
+      item_temp.data.forEach(function(item){
+        var progress = null
+        if (item.status === '0') { progress = 'Preparing' }
+        else if (item.status === '2') { progress = 'Finished' }
+        else if (item.status === '1') {
+          var counter = 0
+          item.module.forEach(function(module){
+            var done = module.requirement.filter(function(search){ return search.status === '1' })
+            if (module.requirement.length === done.length) { counter++ }
+          })
+          progress = 'On Progress ('+Math.round(counter/item.module.length*100)+'%)'
+        }
+        data.push({
+          project:'['+item.code+'] '+item.name,
+          leader:item.employee[0]['name'],
+          progress:progress
+        })
+      })
+    })
+    const columns = [
+      {name:'Project',selector:'project',sortable:true},
+      {name:'Leader',selector:'leader',sortable:true,width:'25%'},
+      {name:'Progress',selector:'progress',sortable:true,width:'25%'},
+    ]
     return (
       <Modal
         size="lg"
@@ -181,7 +214,7 @@ export default class ContentEmployee extends React.Component {
         <Modal.Header closeButton>
           <Modal.Title>{this.state.detail_header}</Modal.Title>
         </Modal.Header>
-        {localStorage.getItem('leader') === '1' &&
+        {localStorage.getItem('leader') === '1' && this.state.detail_leader === false &&
           <Modal.Body>
             <Form>
               <Form.Row>
@@ -205,20 +238,27 @@ export default class ContentEmployee extends React.Component {
             </Form>
           </Modal.Body>
         }
+        <LayoutTable
+          noHeader={true}
+          columns={columns}
+          data={data}
+        />
         {localStorage.getItem('leader') === '1' &&
           <Modal.Footer>
-              <Button
-                variant="info"
-                onClick={()=>this.detail_reset()}
-              >
-                Reset Password
-              </Button>
+            <Button
+              variant="info"
+              onClick={()=>this.detail_reset()}
+            >
+              Reset Password
+            </Button>
+            {this.state.detail_leader === false &&
               <Button
                 variant="danger"
                 onClick={()=>this.detail_delete()}
               >
                 Delete
               </Button>
+            }
           </Modal.Footer>
         } 
       </Modal>
@@ -229,7 +269,7 @@ export default class ContentEmployee extends React.Component {
   detail_close(){
     this.setState({
       detail_modal:false,detail_id:null,detail_header:null,
-      detail_division:'',detail_division_default:''
+      detail_leader:null,detail_division:'',detail_division_default:''
     })
   }
 
@@ -263,20 +303,31 @@ export default class ContentEmployee extends React.Component {
 
   //detail delete
   detail_delete(){
-    Swal({
-      title:"Delete",
-      text:"This employee will be deleted",
-      icon:"warning",
-      closeOnClickOutside:false,
-      buttons:true,
-      dangerMode:true,
-    }).then((willDelete) => {
-      if (willDelete) {
-        this.props.delete(this.state.detail_id)
-        this.detail_close()
-        NotificationManager.success(success)
-      }
-    })
+    var id = this.state.detail_id
+    var check = this.state.data.filter(function(item){ return item.id === id })
+    if (check[0]['project'] === 0) {
+      Swal({
+        title:"Delete",
+        text:"This employee will be deleted",
+        icon:"warning",
+        closeOnClickOutside:false,
+        buttons:true,
+        dangerMode:true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          this.props.delete(id)
+          this.detail_close()
+          NotificationManager.success(success)
+        }
+      })
+    } else {
+      Swal({
+        title:"Not Available",
+        text:"There are projects that are currently registered",
+        icon:"warning",
+        closeOnClickOutside:false,
+      })
+    }
   }
 
   //card header

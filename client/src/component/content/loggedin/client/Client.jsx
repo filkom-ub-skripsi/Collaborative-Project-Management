@@ -50,32 +50,30 @@ export default class ContentClient extends React.Component {
 
   //push
   push(){
-    this.fetch({query:`
-      {
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          client{
-            _id,
+    this.fetch({query:`{
+      organization(_id:"`+localStorage.getItem('organization')+`") {
+        client{
+          _id,
+          name,
+          email,
+          contact,
+          address,
+          project {
+            code,
             name,
-            email,
-            contact,
-            address,
-            project {
-              code,
-              name,
-              status,
-              employee {
-                name
-              },
-              module {
-                requirement {
-                  status
-                }
+            status,
+            employee {
+              name
+            },
+            module {
+              requirement {
+                status
               }
             }
           }
         }
-      }`
-    }).then(result => {
+      }
+    }`}).then(result => {
       var data = []
       var temp = result.data.organization.client
       temp.forEach(function(item){

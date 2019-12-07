@@ -5,8 +5,18 @@ const Rule = require('./model/Rule')
 const RuleType = new GraphQLObjectType({
   name: 'Rule',
   fields: () => ({
-    organization: { type : GraphQLString },
-    leader: { type : GraphQLString },
+    organization: {
+      type : new GraphQLList(OrganizationType),
+      resolve(parent, args){
+        return Organization.find({_id:parent.organization})
+      }
+    },
+    leader: {
+      type : new GraphQLList(EmployeeType),
+      resolve(parent, args){
+        return Employee.find({_id:parent.leader})
+      }
+    },
   })
 })
 
@@ -54,7 +64,12 @@ const DivisionType = new GraphQLObjectType({
   name: 'Division',
   fields: () => ({
     _id: { type : GraphQLString },
-    organization: { type : GraphQLString },
+    organization: {
+      type : new GraphQLList(OrganizationType),
+      resolve(parent, args){
+        return Organization.find({_id:parent.organization})
+      }
+    },
     name: { type : GraphQLString },
     employee : {
       type : new GraphQLList(EmployeeType),
@@ -86,6 +101,18 @@ const EmployeeType = new GraphQLObjectType({
     name: { type : GraphQLString },
     contact: { type : GraphQLString },
     email: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({employee:parent._id})
+      }
+    },
+    collaborator : {
+      type : new GraphQLList(CollaboratorType),
+      resolve(parent, args){
+        return Collaborator.find({employee:parent._id})
+      }
+    },
   })
 })
 
@@ -136,6 +163,16 @@ const ProjectType = new GraphQLObjectType({
         return Client.find({_id:parent.client})
       }
     },
+    code: { type : GraphQLString },
+    name: { type : GraphQLString },
+    start: { type : GraphQLString },
+    end: { type : GraphQLString },
+    problem: { type : GraphQLString },
+    goal: { type : GraphQLString },
+    objective: { type : GraphQLString },
+    success: { type : GraphQLString },
+    obstacle: { type : GraphQLString },
+    status: { type : GraphQLString },
     module : {
       type : new GraphQLList(ModuleType),
       resolve(parent, args){
@@ -154,16 +191,12 @@ const ProjectType = new GraphQLObjectType({
         return Activity.find({project:parent._id})
       }
     },
-    code: { type : GraphQLString },
-    name: { type : GraphQLString },
-    start: { type : GraphQLString },
-    end: { type : GraphQLString },
-    problem: { type : GraphQLString },
-    goal: { type : GraphQLString },
-    objective: { type : GraphQLString },
-    success: { type : GraphQLString },
-    obstacle: { type : GraphQLString },
-    status: { type : GraphQLString },
+    collaborator : {
+      type : new GraphQLList(CollaboratorType),
+      resolve(parent, args){
+        return Collaborator.find({project:parent._id})
+      }
+    },
   })
 })
 
@@ -225,6 +258,27 @@ const RequirementType = new GraphQLObjectType({
     },
     name: { type : GraphQLString },
     detail: { type : GraphQLString },
+    status: { type : GraphQLString },
+  })
+})
+
+const Collaborator = require('./model/Collaborator')
+const CollaboratorType = new GraphQLObjectType({
+  name: 'Collaborator',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({_id:parent.project})
+      }
+    },
+    employee : {
+      type : new GraphQLList(EmployeeType),
+      resolve(parent, args){
+        return Employee.find({_id:parent.employee})
+      }
+    },
     status: { type : GraphQLString },
   })
 })
@@ -306,6 +360,14 @@ const RootQuery = new GraphQLObjectType({
       args: { _id: { type: GraphQLString } },
       resolve(parent, args){
         return Requirement.findById(args._id)
+      }
+    },
+
+    collaborator: {
+      type: CollaboratorType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Collaborator.findById(args._id)
       }
     },
 
@@ -748,6 +810,34 @@ const Mutation = new GraphQLObjectType({
         let update = { status:args.status };
         let requirement = Requirement.findByIdAndUpdate(args._id, update, {new: true})
         return requirement
+      }
+    },
+
+    collaborator_add: {
+      type: CollaboratorType,
+      args: {
+        _id: { type : GraphQLString },
+        project: { type : GraphQLString },
+        employee: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let collaborator = new Collaborator({
+          _id:args._id,
+          project:args.project,
+          employee:args.employee,
+          status:args.status,
+        });
+        return collaborator.save();
+      }
+    },
+
+    collaborator_delete: {
+      type: CollaboratorType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let collaborator = Collaborator.findByIdAndDelete(args._id)
+        return collaborator
       }
     },
 

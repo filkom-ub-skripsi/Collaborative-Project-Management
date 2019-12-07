@@ -57,7 +57,9 @@ export default class ContentLogin extends React.Component {
             organization {
               _id,
               leader {
-                leader
+                leader {
+                  _id
+                }
               }
             }
           }
@@ -78,7 +80,7 @@ export default class ContentLogin extends React.Component {
             document.getElementById('login_password').className = 'form-control is-valid'
             localStorage.setItem('user', result.data.employee._id)
             localStorage.setItem('organization', result.data.employee.organization[0]['_id'])
-            if (result.data.employee.organization[0]['leader'][0]['leader'] === result.data.employee._id) { localStorage.setItem('leader', 1 ) }
+            if (result.data.employee.organization[0]['leader'][0]['leader'][0]['_id'] === result.data.employee._id) { localStorage.setItem('leader', 1 ) }
             else { localStorage.setItem('leader', 0 ) }
             NotificationManager.success('Login successful','',1000)
             setTimeout(()=>{window.location.reload()},1500)

@@ -1,11 +1,12 @@
 import React from 'react'
 import { Container, Tabs, Tab } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
-import { FileText, Box, Activity, Settings } from 'react-feather'
+import { FileText, Box, Activity, Settings, Users } from 'react-feather'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 import ContentOverview from '../../component/content/loggedin/detailproject/Overview'
 import ContentModule from '../../component/content/loggedin/detailproject/Module'
 import ContentModuleProgress from '../../component/content/loggedin/detailproject/ModuleProgress'
+import ContentCollaborator from '../../component/content/loggedin/detailproject/Collaborator'
 import ContentActivity from '../../component/content/loggedin/detailproject/Activity'
 import ContentSetting from '../../component/content/loggedin/detailproject/Setting'
 
@@ -163,38 +164,51 @@ export default class ViewDetailProject extends React.Component {
                 activity={this.activity}
               />
             </Tab>
-            <Tab eventKey="TAB2" title={<Box/>}>
-              {this.state.status === '0' &&
-                <ContentModule
+            {this.state.status !== '' &&
+              <Tab eventKey="TAB2" title={<Box/>}>
+                {this.state.status === '0' &&
+                  <ContentModule
+                    webservice={this.props.webservice}
+                    id={this.props.match.params.id}
+                    activity={this.activity}
+                  />
+                }
+                {this.state.status === '1' &&
+                  <ContentModuleProgress
+                    webservice={this.props.webservice}
+                    id={this.props.match.params.id}
+                    activity={this.activity}
+                    progress={this.progress}
+                  />
+                }
+              </Tab>
+            }
+            {this.state.status === '1' &&
+              <Tab eventKey="TAB3" title={<Users/>}>
+                <ContentCollaborator
                   webservice={this.props.webservice}
                   id={this.props.match.params.id}
                   activity={this.activity}
                 />
-              }
-              {this.state.status === '1' &&
-                <ContentModuleProgress
-                  webservice={this.props.webservice}
-                  id={this.props.match.params.id}
-                  activity={this.activity}
-                  progress={this.progress}
-                />
-              }
-            </Tab>
-            <Tab eventKey="TAB3" title={<Activity/>}>
+              </Tab>
+            }
+            <Tab eventKey="TAB4" title={<Activity/>}>
               <ContentActivity data={this.state.activity}/>
             </Tab>
-            <Tab eventKey="TAB4" title={<Settings/>}>
-              <ContentSetting
-                id={this.props.match.params.id}
-                webservice={this.props.webservice}
-                status={this.state.status}
-                data={this.state.overview}
-                pass={this.state.password}
-                activity={this.activity}
-                start={this.start}
-                edit={this.edit}
-              />
-            </Tab>
+            {this.state.status !== '' &&
+              <Tab eventKey="TAB5" title={<Settings/>}>
+                <ContentSetting
+                  id={this.props.match.params.id}
+                  webservice={this.props.webservice}
+                  status={this.state.status}
+                  data={this.state.overview}
+                  pass={this.state.password}
+                  activity={this.activity}
+                  start={this.start}
+                  edit={this.edit}
+                />
+              </Tab>
+            }
           </Tabs>
         </Container>
       </div>

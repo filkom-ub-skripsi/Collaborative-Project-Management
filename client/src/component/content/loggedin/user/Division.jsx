@@ -17,10 +17,8 @@ export default class ContentDivision extends React.Component {
     super(props)
     this.state = {
       add_division_modal:false, 
-      detail_modal:false,
-      detail_id:null,
-      detail_header:null,
-      detail_employee:[]
+      detail_modal:false,detail_id:null,detail_header:null,
+      detail_employee:[],detail_leader:null,
     }
   }
 
@@ -87,11 +85,15 @@ export default class ContentDivision extends React.Component {
   //table handler
   table_handler(id){
     var data = this.props.data.filter(function(item){ return item.id === id })
+    var leader = null
+    if (id === this.props.leader) { leader = true }
+    else { leader = false }
     this.setState({
       detail_modal:true,
       detail_id:data[0]['id'],
       detail_header:data[0]['name'],
-      detail_employee:data[0]['employee']
+      detail_employee:data[0]['employee'],
+      detail_leader:leader
     })
   }
 
@@ -117,23 +119,25 @@ export default class ContentDivision extends React.Component {
         </Modal.Header>
         {localStorage.getItem('leader') === '1' &&
           <div>
-            <Modal.Body>
-              <Form autoComplete="off">
-                <Form.Row>
-                  <Col lg={10}>
-                    <Form.Control type="text" id="detail_name" placeholder="Change the division name"/>
-                  </Col>
-                  <Col lg={2}>
-                    <Button
-                      variant="outline-dark" block
-                      onClick={()=>this.detail_edit()}
-                    >
-                      Edit
-                    </Button>
-                  </Col>
-                </Form.Row>
-              </Form>
-            </Modal.Body>
+            {this.state.detail_leader === false &&
+              <Modal.Body>
+                <Form autoComplete="off">
+                  <Form.Row>
+                    <Col lg={10}>
+                      <Form.Control type="text" id="detail_name" placeholder="Change the division name"/>
+                    </Col>
+                    <Col lg={2}>
+                      <Button
+                        variant="outline-dark" block
+                        onClick={()=>this.detail_edit()}
+                      >
+                        Edit
+                      </Button>
+                    </Col>
+                  </Form.Row>
+                </Form>
+              </Modal.Body>
+            }
             <LayoutTable
               noHeader={true}
               columns={columns}
@@ -148,7 +152,7 @@ export default class ContentDivision extends React.Component {
             data={this.state.detail_employee}
           />
         }
-        {localStorage.getItem('leader') === '1' &&
+        {localStorage.getItem('leader') === '1' && this.state.detail_leader === false &&
           <Modal.Footer>
             <Button
               variant="danger"
@@ -165,10 +169,8 @@ export default class ContentDivision extends React.Component {
   //detail close
   detail_close(){
     this.setState({
-      detail_modal:false,
-      detail_id:null,
-      detail_header:null,
-      detail_employee:[]
+      detail_modal:false,detail_id:null,detail_header:null,
+      detail_employee:[],detail_leader:null,
     })
   }
 

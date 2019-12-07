@@ -13,6 +13,10 @@ const breadcrumb = [
 	{name:'Users',link:'/users'}
 ]
 
+//leader
+const leader_id = 'leader'
+const leader_name = 'Leader of Organization'
+
 //class
 export default class ViewUsers extends React.Component {
 
@@ -41,33 +45,130 @@ export default class ViewUsers extends React.Component {
 
   //push
   push(){
-    this.fetch({
-      query:`{
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          division {
+    this.fetch({query:`{
+      organization(_id:"`+localStorage.getItem('organization')+`") {
+        leader {
+          leader {
             _id,
             name,
-            employee {
-              _id,
+            email,
+            contact
+            project {
+              code,
               name,
-              email,
-              contact
+              status,
+              employee {
+                name
+              },
+              module {
+                requirement {
+                  status
+                }
+              }
+            },
+            collaborator {
+              project {
+                code,
+                name,
+                status,
+                employee {
+                  name
+                },
+                module {
+                  requirement {
+                    status
+                  }
+                }
+              },
+              status
             }
           }
         }
-      }`
-    }).then(result => {
+        division {
+          _id,
+          name,
+          employee {
+            _id,
+            name,
+            email,
+            contact,
+            project {
+              code,
+              name,
+              status,
+              employee {
+                name
+              },
+              module {
+                requirement {
+                  status
+                }
+              }
+            },
+            collaborator {
+              project {
+                code,
+                name,
+                status,
+                employee {
+                  name
+                },
+                module {
+                  requirement {
+                    status
+                  }
+                }
+              },
+              status
+            }
+          }
+        }
+      }
+    }`}).then(result => {
       var data = []
+      result.data.organization.leader.forEach(function(item_d){
+        var employee = []
+        item_d.leader.forEach(function(item_e){
+          var data = []
+          var l_proj = item_e.project
+          var l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          l_coll.forEach(function(item){ data = data.concat(item.project) })
+          data = data.concat(l_proj)
+          employee.push({
+            id:item_e._id+'_'+0,
+            name:item_e.name,
+            email:item_e.email,
+            contact:item_e.contact,
+            division_id:leader_id,
+            division_name:leader_name,
+            project:l_proj.length+l_coll.length,
+            data:data
+          })
+        })
+        data.push({
+          id:leader_id,
+          name:leader_name,
+          member:1,
+          employee:employee
+        })
+      })
       result.data.organization.division.forEach(function(item_d){
         var employee = []
         item_d.employee.forEach(function(item_e){
+          var data = []
+          var l_proj = item_e.project
+          var l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          l_coll.forEach(function(item){ data = data.concat(item.project) })
+          data = data.concat(l_proj)
           employee.push({
             id:item_e._id+'_'+0,
             name:item_e.name,
             email:item_e.email,
             contact:item_e.contact,
             division_id:item_d._id,
-            division_name:item_d.name
+            division_name:item_d.name,
+            project:l_proj.length+l_coll.length,
+            data:data
           })
         })
         data.push({
@@ -169,7 +270,8 @@ export default class ViewUsers extends React.Component {
           email:email,
           contact:contact,
           division_id:item_d.id.split('_')[0],
-          division_name:item_d.name
+          division_name:item_d.name,
+          project:0
         }]
       }
     })
@@ -257,6 +359,7 @@ export default class ViewUsers extends React.Component {
             <Tab eventKey="TAB1" title="Division">
               <ContentDivision
                 webservice={this.props.webservice}
+                leader={leader_id}
                 data={this.state.data}
                 loading={this.state.loading}
                 reload={this.reload}
@@ -268,6 +371,7 @@ export default class ViewUsers extends React.Component {
             <Tab eventKey="TAB2" title="Employee">
               <ContentEmployee
                 webservice={this.props.webservice}
+                leader={leader_id}
                 data={this.state.data}
                 loading={this.state.loading}
                 reload={this.reload}

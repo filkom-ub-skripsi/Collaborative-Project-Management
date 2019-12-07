@@ -5,3 +5,8 @@
   max-height: 81.8vh;
   overflow-y: auto;
 }
+.vertical-center {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
