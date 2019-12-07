@@ -6,7 +6,7 @@ import 'react-notifications/lib/notifications.css'
 import Unlogged from './view/Unlogged'
 import Loggedin from './view/Loggedin'
 
-const webservice = 'https://skripsi-cpm-server.herokuapp.com/graphql'
+const webservice = 'http://localhost:4000/graphql'
 
 function App() {
   if (localStorage.getItem('user') === null) {
