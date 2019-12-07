@@ -41,8 +41,8 @@ export default class ContentOverview extends React.Component {
       code:props.data[0]['code'],name:props.data[0]['name'],client:props.data[0]['client'],start:props.data[0]['start'],end:props.data[0]['end'],
     })
     if (props.status === '0') { this.setState({status_text:'Status : Preparing'}) }
-    else if (props.status === '2') { this.setState({status_text:'Status : Finished'}) }
     else if (props.status === '1') { this.setState({status_text:'Status : On Progress'}) }
+    else if (props.status === '2') { this.setState({status_text:'Status : Closed'}) }
   }
 
   //fetch

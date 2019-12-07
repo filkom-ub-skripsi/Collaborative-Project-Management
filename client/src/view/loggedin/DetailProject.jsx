@@ -12,7 +12,7 @@ import ContentSetting from '../../component/content/loggedin/detailproject/Setti
 
 const breadcrumb = [
 	{name:'Main',link:'#!'},
-	{name:'My Projects',link:'/my-projects'},
+	{name:'Projects',link:'/projects'},
 ]
 
 export default class ViewDetailProject extends React.Component {

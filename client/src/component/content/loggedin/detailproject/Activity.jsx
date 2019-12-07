@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX } from 'react-feather'
+import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus } from 'react-feather'
 import { Timeline, TimelineEvent } from 'react-event-timeline'
 
 //class
@@ -95,6 +95,18 @@ export default class ContentActivity extends React.Component {
           detail:'You cancelled invitation on '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division to become a collaborator',
           type:7
         })
+      } else if (temp[i]['code'] === 'I2') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' accepted your invitation',
+          type:8
+        })
+      } else if (temp[i]['code'] === 'I3') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' declined your invitation',
+          type:9
+        })
       }
     }
     return (
@@ -126,6 +138,12 @@ export default class ContentActivity extends React.Component {
                 icon = <UserPlus size={size}/>
                 iconColor = 'rgb(70,130,180)'
               } else if (item.type === 7) {
+                icon = <UserMinus size={size}/>
+                iconColor = 'rgb(255,127,80)'
+              } else if (item.type === 8) {
+                icon = <UserCheck size={size}/>
+                iconColor = 'rgb(60,179,113)'
+              } else if (item.type === 9) {
                 icon = <UserX size={size}/>
                 iconColor = 'rgb(178,34,34)'
               } 

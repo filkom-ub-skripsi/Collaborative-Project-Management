@@ -841,6 +841,19 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    collaborator_status: {
+      type: CollaboratorType,
+      args: {
+        _id: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = { status:args.status };
+        let collaborator = Collaborator.findByIdAndUpdate(args._id, update, {new: true})
+        return collaborator
+      }
+    },
+
   }
 })
 

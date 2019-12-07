@@ -181,7 +181,7 @@ export default class ContentEmployee extends React.Component {
       item_temp.data.forEach(function(item){
         var progress = null
         if (item.status === '0') { progress = 'Preparing' }
-        else if (item.status === '2') { progress = 'Finished' }
+        else if (item.status === '2') { progress = 'Closed' }
         else if (item.status === '1') {
           var counter = 0
           item.module.forEach(function(module){

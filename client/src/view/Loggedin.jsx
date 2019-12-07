@@ -5,7 +5,7 @@ import Navbar from '../component/content/loggedin/Navbar'
 import Error from './Error'
 import Home from './loggedin/Home'
 import Client from './loggedin/Client'
-import MyProjects from './loggedin/MyProjects'
+import Projects from './loggedin/Projects'
 import DetailProject from './loggedin/DetailProject'
 import Users from './loggedin/Users'
 import Profile from './loggedin/Profile'
@@ -14,12 +14,12 @@ export default class Loggedin extends React.Component {
   render() {
     return (
       <div>
-        <Navbar/>
+        <Navbar webservice={this.props.webservice}/>
         <Switch>
           <Route path="/" exact component = { Home }></Route>
           <Route
-            path="/my-projects"
-            render = {(props)=> <MyProjects {...props} webservice={this.props.webservice}/>}
+            path="/projects"
+            render = {(props)=> <Projects {...props} webservice={this.props.webservice}/>}
           />
           <Route
             path="/detail-project/:id"

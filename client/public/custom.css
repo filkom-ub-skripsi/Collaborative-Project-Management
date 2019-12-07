@@ -10,3 +10,12 @@
   top: 50%;
   transform: translateY(-50%);
 }
+.clipped {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.list-group-notification {
+  padding: 10px 15px;
+  line-height: 1.2em
+}

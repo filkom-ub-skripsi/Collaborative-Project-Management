@@ -380,7 +380,7 @@ export default class ContentSetting extends React.Component {
             closeOnClickOutside:false,
             button:false
           })
-          setTimeout(()=>{window.location.href='/my-projects'},1500)
+          setTimeout(()=>{window.location.href='/projects'},1500)
         } else {
           Swal({
             title:"Failed",

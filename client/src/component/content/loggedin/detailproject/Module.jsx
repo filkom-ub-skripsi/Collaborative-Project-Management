@@ -139,13 +139,10 @@ export default class ContentModule extends React.Component {
   //menu add
   menu_add(){
     return (
-      <Popover size="lg">
-        <Popover.Title>What do you want to add?</Popover.Title>
+      <Popover>
         <Popover.Content>
           <Button
-            size="sm"
-            variant="dark"
-            block
+            size="sm" variant="outline-dark" block
             onClick={()=>{
               this.setState({add_module_modal:true})
               this.refs.overlay.handleHide()
@@ -154,9 +151,7 @@ export default class ContentModule extends React.Component {
             Module
           </Button>
           <Button
-            size="sm"
-            variant="dark"
-            block
+            size="sm" variant="outline-dark" block
             onClick={()=>{
               this.setState({add_requirement_modal:true})
               this.refs.overlay.handleHide()

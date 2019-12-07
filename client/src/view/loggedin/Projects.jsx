@@ -5,12 +5,12 @@ import ContentMyProject from '../../component/content/loggedin/myproject/MyProje
 
 const breadcrumb = [
 	{name:'Main',link:'#!'},
-	{name:'My Projects',link:'/my-projects'}
+	{name:'Projects',link:'/projects'}
 ]
 
 export default class ViewMyProjects extends React.Component {
   componentDidMount(){
-    document.title = 'My Projects'
+    document.title = 'Projects'
   }
   render() {
     return (

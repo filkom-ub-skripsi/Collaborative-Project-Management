@@ -356,7 +356,7 @@ export default class ContentCollaborator extends React.Component {
               <Tab.Pane eventKey="TAB1">
                 <ListGroup variant="flush">
                   {this.state.data_collaborator.length === 0 &&
-                    <ListGroup.Item action>
+                    <ListGroup.Item>
                       <div style={{fontWeight:600}}>Empty</div>
                       <div>There is no collaborator in this project</div>
                     </ListGroup.Item>
@@ -365,7 +365,7 @@ export default class ContentCollaborator extends React.Component {
                     this.state.data_collaborator.length !== 0 &&
                     this.state.data_collaborator.map((item,index) => {
                       return (
-                        <ListGroup.Item action key={index}>
+                        <ListGroup.Item key={index}>
                           <div style={{fontWeight:600}}>{item.name}</div>
                           <small>{item.division_name} • {item.email} / {item.contact}</small>
                         </ListGroup.Item>
@@ -378,7 +378,7 @@ export default class ContentCollaborator extends React.Component {
                 <ListGroup variant="flush">
                   {
                     this.state.data_pending.length === 0 &&
-                    <ListGroup.Item action>
+                    <ListGroup.Item>
                       <div style={{fontWeight:600}}>Empty</div>
                       <div>There is no pending invitation in this project</div>
                     </ListGroup.Item>
@@ -387,7 +387,7 @@ export default class ContentCollaborator extends React.Component {
                     this.state.data_pending.length !== 0 &&
                     this.state.data_pending.map((item,index) => {
                       return (
-                        <ListGroup.Item action key={index}>
+                        <ListGroup.Item key={index}>
                           <Row>
                             <Col>
                               <div style={{fontWeight:600}}>{item.name}</div>

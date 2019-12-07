@@ -82,7 +82,7 @@ export default class ContentMyProject extends React.Component {
           var end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
           var status = null
           if (item_project.status === '0') { status = 'Preparing' }
-          else if (item_project.status === '2') { status = 'Finished' }
+          else if (item_project.status === '2') { status = 'Closed' }
           else if (item_project.status === '1') {
             item_project.module.forEach(function(item_progress,index_progress){
               var all = temp[index_project].module[index_progress]['requirement'].length
