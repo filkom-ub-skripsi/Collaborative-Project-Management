@@ -98,13 +98,13 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'I2') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail']+' accepted your invitation',
+          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division accepted your invitation',
           type:8
         })
       } else if (temp[i]['code'] === 'I3') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail']+' declined your invitation',
+          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division declined your invitation',
           type:9
         })
       }

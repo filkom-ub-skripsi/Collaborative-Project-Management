@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container } from 'react-bootstrap'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
-import ContentMyProject from '../../component/content/loggedin/myproject/MyProject'
+import ContentMyProject from '../../component/content/loggedin/project/MyProject'
 
 const breadcrumb = [
 	{name:'Main',link:'#!'},

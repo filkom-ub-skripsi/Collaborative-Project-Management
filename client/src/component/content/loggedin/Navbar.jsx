@@ -17,8 +17,7 @@ export default class ContentNavbar extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      data:[],
-      name:null
+      data:[],name:null,division:null
     }
   }
 
@@ -36,6 +35,9 @@ export default class ContentNavbar extends React.Component {
     this.fetch({query:`{
       employee(_id:"`+localStorage.getItem('user')+`") {
         name,
+        division {
+          name
+        }
         collaborator {
           _id,
           project {
@@ -53,9 +55,13 @@ export default class ContentNavbar extends React.Component {
       result.data.employee.collaborator.forEach(function(item){
         if (item.status === '0') { data.push(item) }
       })
+      var division = null
+      if (result.data.employee.division.length === 0) { division = 'Leader' }
+      else { division = result.data.employee.division[0]['name'] }
       this.setState({
         data:data,
-        name:result.data.employee.name
+        name:result.data.employee.name,
+        division:division
       })
     })
   }
@@ -177,15 +183,18 @@ export default class ContentNavbar extends React.Component {
               </ListGroup.Item>
             }
             {this.state.data.map((item,index) => {
+              var func_id = item._id
+              var func_project = item.project[0]['_id']
+              var func_detail = this.state.name+'_'+this.state.division
               return (
                 <ListGroup.Item key={index} className="list-group-notification">
                   <Row><Col lg={9}>
                     <div className="clipped" style={{fontWeight:500,width:350}}>{item.project[0]['name']}</div>
                     <small style={{color:'grey'}}>{item.project[0]['employee'][0]['email']}</small>
                   </Col><Col lg={3} className="text-right" style={{paddingTop:7}}>
-                    <X size={20} style={{color:'#BD2031'}} onClick={()=>this.decline(item._id,item.project[0]['_id'],this.state.name)}/>
+                    <X size={20} style={{color:'#BD2031'}} onClick={()=>this.decline(func_id,func_project,func_detail)}/>
                     <span style={{paddingLeft:10}}/>
-                    <Check size={20} style={{color:'#0B6623'}} onClick={()=>this.accept(item._id,item.project[0]['_id'],this.state.name)}/>
+                    <Check size={20} style={{color:'#0B6623'}} onClick={()=>this.accept(func_id,func_project,func_detail)}/>
                   </Col></Row>
                 </ListGroup.Item>
               )
