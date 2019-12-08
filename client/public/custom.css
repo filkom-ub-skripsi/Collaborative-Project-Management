@@ -1,0 +1,21 @@
+.dialog-overview {
+  min-width:92%;
+}
+.activities {
+  max-height: 81.8vh;
+  overflow-y: auto;
+}
+.vertical-center {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.clipped {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.list-group-notification {
+  padding: 10px 15px;
+  line-height: 1.2em
+}
