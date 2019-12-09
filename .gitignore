@@ -208,4 +208,9 @@ dist
 # yarn
 yarn-error.log
 lerna-debug.log
+yarn.lock
 
+# env
+.env
+
+data-backup
