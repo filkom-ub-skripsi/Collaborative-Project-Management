@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+    mongo:
+        image: 'mongo'
+        container_name: 'mongo-services'
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        volumes:
+            - ./db:/data/db
+        ports:
+            - '27017-27019:27017-27019'
+        networks: 
+            - mongo_network
+    backend:
+        image: 'node:12-alpine'
+        container_name: 'graphql-backend'
+        networks: 
+            - mongo_network
+    frontend:
+        image: 'node:alpine'
+networks: 
+    mongo_network:
