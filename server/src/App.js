@@ -10,6 +10,7 @@ const Schema = require('./Schema')
 App.use(Cors())
 App.use('/graphql', GraphQLHTTP({schema:Schema,graphiql:true}))
 App.listen(process.env.PORT || 4000, () => { console.log('Listening at port 4000') })
+console.log(config.get('mongo.uri'));
 
 Mongoose.connect(config.get('mongo.uri'),{useNewUrlParser:true,useUnifiedTopology:true,useFindAndModify:false})
 Mongoose.connection.once('open', () => { console.log('Conneted to database\n') })

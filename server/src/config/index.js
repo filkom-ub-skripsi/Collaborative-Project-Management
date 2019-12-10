@@ -1,6 +1,6 @@
 const convict = require('convict')
 const mongoUriFormat = require('./format/mongo-uri')
-
+require('dotenv').config()
 convict.addFormat(mongoUriFormat)
 
 const config = convict({
@@ -14,7 +14,7 @@ const config = convict({
         uri: {
             doc: 'mongo uri.',
             format: 'mongo-uri',
-            default: 'mongodb://localhost:27017',
+            default: 'mongodb://localhost',
             env: 'MONGO_URI'
         }
     }
