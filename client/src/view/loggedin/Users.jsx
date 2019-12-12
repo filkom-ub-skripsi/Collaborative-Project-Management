@@ -191,6 +191,22 @@ export default class ViewUsers extends React.Component {
     this.push()
   }
 
+  //division
+  division(){
+    return (
+      <ContentDivision
+        webservice={this.props.webservice}
+        leader={leader_id}
+        data={this.state.data}
+        loading={this.state.loading}
+        reload={this.reload}
+        add={this.division_add}
+        edit={this.division_edit}
+        delete={this.division_delete}
+      />
+    )
+  }
+
   //division add
   division_add(name){
     var id = RDS.generate({length:32,charset:'alphabetic'})
@@ -240,6 +256,23 @@ export default class ViewUsers extends React.Component {
     })
     var data = this.state.data.filter(function(item){return(item.id!==id)})
     this.setState({data:data})
+  }
+
+  //employee
+  employee(){
+    return (
+      <ContentEmployee
+        webservice={this.props.webservice}
+        leader={leader_id}
+        data={this.state.data}
+        loading={this.state.loading}
+        reload={this.reload}
+        add={this.employee_add}
+        edit={this.employee_edit}
+        reset={this.employee_reset}
+        delete={this.employee_delete}
+      />
+    )
   }
 
   //employee add
@@ -329,10 +362,16 @@ export default class ViewUsers extends React.Component {
 
   //employee delete
   employee_delete(id){
-    this.fetch({query:`
-      mutation {
-        employee_delete(_id:"`+id.split('_')[0]+`"){_id}
-      }`
+    const fetch = (query) => this.fetch({query:query})
+    this.fetch({query:`{
+      employee(_id:"`+id.split('_')[0]+`") {
+        collaborator {_id}
+      }
+    }`}).then(result => {
+      result.data.employee.collaborator.forEach(function(item){
+        fetch(`mutation{collaborator_delete(_id:"`+item._id+`"){_id}}`)
+      })
+      fetch(`mutation{employee_delete(_id:"`+id.split('_')[0]+`"){_id}}`)
     })
     var data = this.state.data
     data.forEach(function(item_d){
@@ -357,29 +396,10 @@ export default class ViewUsers extends React.Component {
         <Container fluid>
           <Tabs defaultActiveKey="TAB1">
             <Tab eventKey="TAB1" title="Division">
-              <ContentDivision
-                webservice={this.props.webservice}
-                leader={leader_id}
-                data={this.state.data}
-                loading={this.state.loading}
-                reload={this.reload}
-                add={this.division_add}
-                edit={this.division_edit}
-                delete={this.division_delete}
-              />
+              {this.division()}
             </Tab>
             <Tab eventKey="TAB2" title="Employee">
-              <ContentEmployee
-                webservice={this.props.webservice}
-                leader={leader_id}
-                data={this.state.data}
-                loading={this.state.loading}
-                reload={this.reload}
-                add={this.employee_add}
-                edit={this.employee_edit}
-                reset={this.employee_reset}
-                delete={this.employee_delete}
-              />
+              {this.employee()}
             </Tab>
           </Tabs>
         </Container>

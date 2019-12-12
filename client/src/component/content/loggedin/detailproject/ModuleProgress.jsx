@@ -52,10 +52,8 @@ export default class ContentModuleProgress extends React.Component {
         }
       }`
     }).then(result => {
-      var done = 0
       var data = []
-      var temp = result.data.project.module
-      temp.forEach(function(item_m){
+      result.data.project.module.forEach(function(item_m){
         var status_text = null
         var counter = 0
         var requirement = []
@@ -67,7 +65,6 @@ export default class ContentModuleProgress extends React.Component {
             status_text = 'Progress'
           }
           requirement.push({
-            number:'-',
             id:item_r._id,
             name:'['+status_text+'] '+item_r.name,
             detail:item_r.detail,
@@ -83,14 +80,12 @@ export default class ContentModuleProgress extends React.Component {
           progress:progress+'%',
           requirement:requirement,
         })
-        if (progress === 100) { done++ }
       })
       this.setState({
         data:data,
         data_loading:false,
         header_button:false
       })
-      this.props.progress('('+Math.round(done/temp.length*100)+'%)')
     })
   }
 
@@ -113,14 +108,14 @@ export default class ContentModuleProgress extends React.Component {
       })
       if (counter === module.requirement.length) { done++ }
     })
-    this.props.progress('('+Math.round(done/this.state.data.length*100)+'%)')
+    this.props.progress(Math.round(done/this.state.data.length*100)+'%')
   }
 
   //table columns
   table_columns = [
     {name:'Requirement',selector:'name',sortable:true,width:'20%'},
     {name:'Detail',selector:'detail',sortable:true},
-    {name:'Progress',selector:'progress',sortable:true,width:'140px'},
+    {name:'Progress',selector:'progress',sortable:true,width:'10%'},
   ]
 
   //requirement handler
@@ -286,14 +281,16 @@ export default class ContentModuleProgress extends React.Component {
   //card body
   card_body(){
     return (
-      <LayoutTable
-        noHeader={true}
-        loading={this.state.data_loading}
-        columns={this.table_columns}
-        data={this.state.data}
-        expandable={true}
-        component={<ContentRequirementProgress handler={id=>this.requirement_handler(id)}/>}
-      />
+      <div className="container-detail-project">
+        <LayoutTable
+          noHeader={true}
+          loading={this.state.data_loading}
+          columns={this.table_columns}
+          data={this.state.data}
+          expandable={true}
+          component={<ContentRequirementProgress handler={id=>this.requirement_handler(id)}/>}
+        />
+      </div>
     )
   }
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus } from 'react-feather'
+import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle } from 'react-feather'
 import { Timeline, TimelineEvent } from 'react-event-timeline'
 
 //class
@@ -86,13 +86,13 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'I0') {
         data.push({
           date:temp[i]['date'],
-          detail:'You invited '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division to become a collaborator',
+          detail:'You invited '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division',
           type:6
         })
       } else if (temp[i]['code'] === 'I1') {
         data.push({
           date:temp[i]['date'],
-          detail:'You cancelled invitation on '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division to become a collaborator',
+          detail:'You cancelled invitation on '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division',
           type:7
         })
       } else if (temp[i]['code'] === 'I2') {
@@ -107,10 +107,28 @@ export default class ContentActivity extends React.Component {
           detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division declined your invitation',
           type:9
         })
+      } else if (temp[i]['code'] === 'I4') {
+        data.push({
+          date:temp[i]['date'],
+          detail:'You kicked '+temp[i]['detail'].split('_')[0]+' from the '+temp[i]['detail'].split('_')[1]+' division',
+          type:9
+        })
+      } else if (temp[i]['code'] === 'S0') {
+        data.push({
+          date:temp[i]['date'],
+          detail:'The '+temp[i]['detail'].split('_')[0]+' issue added by '+temp[i]['detail'].split('_')[1],
+          type:10
+        })
+      } else if (temp[i]['code'] === 'S1') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail'].split('_')[0]+' edited '+temp[i]['detail'].split('_')[1]+' issue',
+          type:11
+        })
       }
     }
     return (
-      <div className="activities">
+      <div className="container-activity">
         <Timeline>
           {
             data.map((item,index) => {
@@ -146,7 +164,13 @@ export default class ContentActivity extends React.Component {
               } else if (item.type === 9) {
                 icon = <UserX size={size}/>
                 iconColor = 'rgb(178,34,34)'
-              } 
+              } else if (item.type === 10) {
+                icon = <AlertCircle size={size}/>
+                iconColor = 'rgb(70,130,180)'
+              } else if (item.type === 11) {
+                icon = <AlertCircle size={size}/>
+                iconColor = 'rgb(255,127,80)'
+              }
               return (
                 <TimelineEvent
                   title={<b>{item.date}</b>}

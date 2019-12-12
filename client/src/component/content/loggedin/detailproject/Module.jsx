@@ -206,6 +206,7 @@ export default class ContentModule extends React.Component {
   //add module handler
   add_module_handler(){
     if (this.form_validation(module_add_form) === true) {
+      const value = (id) => { return document.getElementById(id).value }
       var id = RDS.generate({length:32,charset:'alphabetic'})
       var project = this.state.project_id
       this.fetch({query:`
@@ -213,8 +214,8 @@ export default class ContentModule extends React.Component {
           module_add(
             _id:"`+id+`",
             project:"`+project+`",
-            name:"`+document.getElementById('tambah_name').value+`",
-            detail:"`+this.insert_replace(document.getElementById('tambah_detail').value)+`"
+            name:"`+value('tambah_name')+`",
+            detail:"`+this.insert_replace(value('tambah_detail'))+`"
           ){_id}
         }`
       })
@@ -222,14 +223,14 @@ export default class ContentModule extends React.Component {
         add_module_modal:false,
         data: [...this.state.data,{
           id:id+'_'+0,
-          name:document.getElementById('tambah_name').value,
-          detail:document.getElementById('tambah_detail').value,
+          name:value('tambah_name'),
+          detail:value('tambah_detail'),
           requirement:[]
         }] 
       })
       var activity_id = RDS.generate({length:32,charset:'alphabetic'})
       var activity_code = 'M0'
-      var activity_detail = document.getElementById('tambah_name').value
+      var activity_detail = value('tambah_name')
       var activity_date = new Date()
       this.fetch({query:`
         mutation {
@@ -301,6 +302,7 @@ export default class ContentModule extends React.Component {
   //add requirement handler
   add_requirement_handler(){
     if (this.form_validation(requirement_add_form) === true) {
+      const value = (id) => { return document.getElementById(id).value }
       var id = RDS.generate({length:32,charset:'alphabetic'})
       var project = this.state.project_id 
       this.fetch({query:`
@@ -308,29 +310,29 @@ export default class ContentModule extends React.Component {
           requirement_add(
             _id:"`+id+`",
             project:"`+project+`",
-            module:"`+document.getElementById('tambah_module_req').value.split('_')[0]+`",
-            name:"`+document.getElementById('tambah_name_req').value+`",
-            detail:"`+this.insert_replace(document.getElementById('tambah_detail_req').value)+`",
+            module:"`+value('tambah_module_req').split('_')[0]+`",
+            name:"`+value('tambah_name_req')+`",
+            detail:"`+this.insert_replace(value('tambah_detail_req'))+`",
             status:"0"
           ){_id}
         }`
       })
       var data = this.state.data
       data.forEach(function(item){
-        if (item.id.split('_')[0] === document.getElementById('tambah_module_req').value.split('_')[0]) {
+        if (item.id.split('_')[0] === value('tambah_module_req').split('_')[0]) {
           item.requirement = [...item.requirement,{
             number:'-',
             id:id,
-            name:document.getElementById('tambah_name_req').value,
-            detail:document.getElementById('tambah_detail_req').value,
-            module:document.getElementById('tambah_module_req').value.split('_')[0]
+            name:value('tambah_name_req'),
+            detail:value('tambah_detail_req'),
+            module:value('tambah_module_req').split('_')[0]
           }]
         }
       })
       this.setState({data:data})
       var activity_id = RDS.generate({length:32,charset:'alphabetic'})
       var activity_code = 'R0'
-      var activity_detail = document.getElementById('tambah_name_req').value+'_'+document.getElementById('tambah_module_req').value.split('_')[1]
+      var activity_detail = value('tambah_name_req')+'_'+value('tambah_module_req').split('_')[1]
       var activity_date = new Date()
       this.fetch({query:`
         mutation {
@@ -745,7 +747,7 @@ export default class ContentModule extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
-          <OverlayTrigger trigger="click" placement="bottom" rootClose overlay={this.menu_add()} ref='overlay'>
+          <OverlayTrigger trigger="click" placement="left" rootClose overlay={this.menu_add()} ref='overlay'>
             <Button
               size="sm"
               variant="outline-dark"
@@ -771,14 +773,16 @@ export default class ContentModule extends React.Component {
   //card body
   card_body(){
     return (
-      <LayoutTable
-        noHeader={true}
-        loading={this.state.data_loading}
-        columns={this.table_columns}
-        data={this.state.data}
-        expandable={true}
-        component={<ContentRequirement handler={id=>this.requirement_handler(id)}/>}
-      />
+      <div className="container-detail-project">
+        <LayoutTable
+          noHeader={true}
+          loading={this.state.data_loading}
+          columns={this.table_columns}
+          data={this.state.data}
+          expandable={true}
+          component={<ContentRequirement handler={id=>this.requirement_handler(id)}/>}
+        />
+      </div>
     )
   }
 
@@ -790,11 +794,13 @@ export default class ContentModule extends React.Component {
         {this.add_requirement_modal()}
         {this.requirement_modal()}
         {this.detail_modal()}
-        <LayoutCardContent
-          header={this.card_header()}
-          body={this.card_body()}
-          table={true}
-        />
+        <div className="container-detail-project">
+          <LayoutCardContent
+            header={this.card_header()}
+            body={this.card_body()}
+            table={true}
+          />
+        </div>
       </div>
     )
   }

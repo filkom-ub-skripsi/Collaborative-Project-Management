@@ -10,6 +10,10 @@ import Swal from 'sweetalert'
 import LayoutAppbar from '../../layout/Appbar'
 import ImageLogo from '../../image/logo.png'
 
+//refresh
+const refresh_loading = 'Loading...'
+const refresh_loaded = 'Reload'
+
 //class
 export default class ContentNavbar extends React.Component {
 
@@ -17,14 +21,14 @@ export default class ContentNavbar extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      data:[],name:null,division:null
+      data:[],name:null,division:null,
+      refresh_name:refresh_loading,refresh_state:'disabled'
     }
   }
 
   //component did mount
   componentDidMount(){
     this.push()
-    this.refresh()
   }
 
   //fetch
@@ -59,16 +63,21 @@ export default class ContentNavbar extends React.Component {
       if (result.data.employee.division.length === 0) { division = 'Leader' }
       else { division = result.data.employee.division[0]['name'] }
       this.setState({
-        data:data,
+        data:data,division:division,
         name:result.data.employee.name,
-        division:division
+        refresh_name:refresh_loaded,
+        refresh_state:''
       })
     })
   }
 
-  //refresh
-  refresh(){
-    setInterval(() => this.push(), 60000)
+  //reload
+  reload(){
+    this.setState({
+      refresh_name:refresh_loading,
+      refresh_state:'disabled'
+    })
+    this.push()
   }
   
   //accept
@@ -173,7 +182,10 @@ export default class ContentNavbar extends React.Component {
           </Dropdown.Toggle>
           <Dropdown.Menu style={{width:450}}>
             <Container>
-              <div style={{fontWeight:700,paddingBottom:8}}>Invitation</div>
+              <Row>
+                <Col><div style={{fontWeight:600,paddingBottom:8}}>Project Invitation</div></Col>
+                <Col className="text-right"><a href="#!" onClick={()=>this.reload()} className={this.state.refresh_state}>{this.state.refresh_name}</a></Col>
+              </Row>
             </Container>
             <ListGroup variant="flush">
             {this.state.data.length === 0 &&
@@ -200,6 +212,9 @@ export default class ContentNavbar extends React.Component {
               )
             })}
             </ListGroup>
+            <Container style={{paddingTop:8}}>
+              <div style={{fontSize:12.5,color:'grey'}}>Copyright © 2020 Bayu Kharisma.</div>
+            </Container>
           </Dropdown.Menu>
         </Dropdown>
         <Dropdown alignRight>

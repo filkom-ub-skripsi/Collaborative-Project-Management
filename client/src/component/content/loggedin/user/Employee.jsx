@@ -77,9 +77,13 @@ export default class ContentEmployee extends React.Component {
               <Form.Label>Division</Form.Label>
               <Form.Control id="tambah_division" as="select" defaultValue="">
                 <option value="" hidden></option>
-                {this.props.data.map((item,index) => {
-                  return ( <option value={item.id} key={index}>{item.name}</option> )
-                })}
+                {
+                  this.props.data
+                    .filter(item => item.id !== this.props.leader)
+                    .map((item,index) => {
+                    return <option value={item.id} key={index}>{item.name}</option>
+                  })
+                }
               </Form.Control>
               <div id="tambah_fdivision" className="invalid-feedback d-block"/>
             </Form.Group>
@@ -174,7 +178,7 @@ export default class ContentEmployee extends React.Component {
     var id = this.state.detail_id
     this.props.data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){
-        if (item_e.id === id) { temp.push(item_e)}
+        if (item_e.id === id) { temp.push(item_e) }
       })
     })
     temp.forEach(function(item_temp){

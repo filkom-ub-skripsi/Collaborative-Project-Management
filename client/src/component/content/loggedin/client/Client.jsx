@@ -104,6 +104,24 @@ export default class ContentClient extends React.Component {
     this.push()
   }
 
+  //form validation
+  form_validation(form){
+    var counter = 0
+    form.forEach(function(item){
+      if (document.getElementById(item.field).value === '') {
+        document.getElementById(item.field).className = 'form-control is-invalid'
+        document.getElementById(item.feedback).innerHTML = 'this field cannot be empty'
+      } else {
+        document.getElementById(item.field).className = 'form-control is-valid'
+        document.getElementById(item.feedback).innerHTML = ''
+        counter++
+      }
+    })
+    if (counter === form.length) {
+      return true
+    }
+  }
+
   //add client modal
   add_client_modal(){
     return (
@@ -202,37 +220,20 @@ export default class ContentClient extends React.Component {
     )
   }
 
-  //client validation
-  client_validation(form){
-    var counter = 0
-    form.forEach(function(item){
-      if (document.getElementById(item.field).value === '') {
-        document.getElementById(item.field).className = 'form-control is-invalid'
-        document.getElementById(item.feedback).innerHTML = 'this field cannot be empty'
-      } else {
-        document.getElementById(item.field).className = 'form-control is-valid'
-        document.getElementById(item.feedback).innerHTML = ''
-        counter++
-      }
-    })
-    if (counter === form.length) {
-      return true
-    }
-  }
-
   //add client handler
   add_client_handler(){
-    if (this.client_validation(client_add_form) === true) {
+    if (this.form_validation(client_add_form) === true) {
+      const value = (id) => { return document.getElementById(id).value }
       var id = RDS.generate({length:32,charset:'alphabetic'})
       this.fetch({query:`
         mutation { 
           client_add(
             _id:"`+id+`",
             organization:"`+localStorage.getItem('organization')+`",
-            name:"`+document.getElementById('tambah_name').value+`",
-            email:"`+document.getElementById('tambah_email').value+`",
-            contact:"`+document.getElementById('tambah_contact').value+`",
-            address:"`+document.getElementById('tambah_address').value+`"
+            name:"`+value('tambah_name')+`",
+            email:"`+value('tambah_email')+`",
+            contact:"`+value('tambah_contact')+`",
+            address:"`+value('tambah_address')+`"
           ){_id}
         }`
       })
@@ -240,10 +241,10 @@ export default class ContentClient extends React.Component {
         add_client_modal:false,
         data: [...this.state.data,{
           id:id+'_'+0,
-          name:document.getElementById('tambah_name').value,
-          email:document.getElementById('tambah_email').value,
-          contact:document.getElementById('tambah_contact').value,
-          address:document.getElementById('tambah_address').value,
+          name:value('tambah_name'),
+          email:value('tambah_email'),
+          contact:value('tambah_contact'),
+          address:value('tambah_address'),
           project:0,
           data:[]
         }] 
@@ -254,16 +255,17 @@ export default class ContentClient extends React.Component {
 
   //edit client handler
   edit_client_handler(){
-    if (this.client_validation(client_edit_form) === true) {
+    if (this.form_validation(client_edit_form) === true) {
+      const value = (id) => { return document.getElementById(id).value }
       var id = this.state.detail_id
       this.fetch({query:`
         mutation{
           client_edit(
             _id:"`+id.split('_')[0]+`",
-            name:"`+document.getElementById('sunting_name').value+`",
-            email:"`+document.getElementById('sunting_email').value+`",
-            contact:"`+document.getElementById('sunting_contact').value+`",
-            address:"`+document.getElementById('sunting_address').value+`"
+            name:"`+value('sunting_name')+`",
+            email:"`+value('sunting_email')+`",
+            contact:"`+value('sunting_contact')+`",
+            address:"`+value('sunting_address')+`"
           ){_id}
         }`
       })
@@ -272,10 +274,10 @@ export default class ContentClient extends React.Component {
         if (item.id === id) {
           var version = parseInt(item.id.split('_')[1])+1
           item.id = item.id.split('_')[0]+'_'+version
-          item.name = document.getElementById('sunting_name').value
-          item.email = document.getElementById('sunting_email').value
-          item.contact = document.getElementById('sunting_contact').value
-          item.address = document.getElementById('sunting_address').value
+          item.name = value('sunting_name')
+          item.email = value('sunting_email')
+          item.contact = value('sunting_contact')
+          item.address = value('sunting_address')
         }
       })
       this.setState({data:data})
@@ -414,37 +416,6 @@ export default class ContentClient extends React.Component {
         closeOnClickOutside:false,
       })
     }
-    // Swal({
-    //   title:"Delete",
-    //   text:"This client will be deleted",
-    //   icon:"warning",
-    //   closeOnClickOutside:false,
-    //   buttons:true,
-    //   dangerMode:true,
-    // }).then((willDelete) => {
-    //   if (willDelete) {
-    //     var id = this.state.detail_id
-    //     var temp = this.state.data.filter(function(item){ return item.id === id })
-    //     if (temp[0]['project'] === 0) {
-    //       this.fetch({query:`
-    //         mutation{
-    //           client_delete(_id:"`+id.split('_')[0]+`"){_id}
-    //         }`
-    //       })
-    //       var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
-    //       this.setState({data:data}) 
-    //       this.detail_close()
-    //       NotificationManager.success(success)
-    //     } else {
-    //       Swal({
-    //         title:"Failed",
-    //         text:"There are projects that are currently registered",
-    //         icon:"warning",
-    //         closeOnClickOutside:false,
-    //       })
-    //     }
-    //   }
-    // })
   }
 
   //detail close

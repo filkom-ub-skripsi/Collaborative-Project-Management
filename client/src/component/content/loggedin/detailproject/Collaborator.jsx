@@ -267,6 +267,44 @@ export default class ContentCollaborator extends React.Component {
     })
   }
 
+  //invite kick
+  invite_kick(id_employee,id_collaborator){
+    Swal({
+      title:"Kick Collaborator",
+      text:"This employee will be kicked from this project",
+      icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willKick) => {
+      if (willKick) {
+        this.fetch({query:`mutation {
+          collaborator_delete(_id:"`+id_collaborator+`"){_id}
+        }`})
+        var data_collaborator = this.state.data_collaborator.filter(function(item){ return item.id !== id_employee })
+        var employee = this.state.data_collaborator.filter(function(item){ return item.id === id_employee })
+        this.setState({
+          data_collaborator:data_collaborator,
+          employee:[...this.state.employee,employee[0]]
+        })
+        var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+        var activity_code = 'I4'
+        var activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
+        var activity_date = new Date()
+        this.fetch({query:`
+          mutation {
+            activity_add(
+              _id:"`+activity_id+`",
+              project:"`+this.state.project_id+`",
+              code:"`+activity_code+`",
+              detail:"`+activity_detail+`",
+              date:"`+activity_date+`"
+            ){_id}
+          }`
+        })
+        this.props.activity(activity_code,activity_detail,activity_date)
+        NotificationManager.success(success)
+      }
+    })
+  }
+
   //invite modal
   invite_modal(){
     return (
@@ -354,61 +392,76 @@ export default class ContentCollaborator extends React.Component {
             </Card.Header>
             <Tab.Content>
               <Tab.Pane eventKey="TAB1">
-                <ListGroup variant="flush">
-                  {this.state.data_collaborator.length === 0 &&
-                    <ListGroup.Item>
-                      <div style={{fontWeight:600}}>Empty</div>
-                      <div>There is no collaborator in this project</div>
-                    </ListGroup.Item>
-                  }
-                  {
-                    this.state.data_collaborator.length !== 0 &&
-                    this.state.data_collaborator.map((item,index) => {
-                      return (
-                        <ListGroup.Item key={index}>
-                          <div style={{fontWeight:600}}>{item.name}</div>
-                          <small>{item.division_name} • {item.email} / {item.contact}</small>
-                        </ListGroup.Item>
-                      )
-                    })
-                  }
-                </ListGroup>
-              </Tab.Pane>
-              <Tab.Pane eventKey="TAB2">
-                <ListGroup variant="flush">
-                  {
-                    this.state.data_pending.length === 0 &&
-                    <ListGroup.Item>
-                      <div style={{fontWeight:600}}>Empty</div>
-                      <div>There is no pending invitation in this project</div>
-                    </ListGroup.Item>
-                  }
-                  {
-                    this.state.data_pending.length !== 0 &&
-                    this.state.data_pending.map((item,index) => {
-                      return (
-                        <ListGroup.Item key={index}>
-                          <Row>
-                            <Col>
+                <div className="container-detail-project">
+                  <ListGroup variant="flush">
+                    {this.state.data_collaborator.length === 0 &&
+                      <ListGroup.Item>
+                        <div style={{fontWeight:600}}>Empty</div>
+                        <div>There is no collaborator in this project</div>
+                      </ListGroup.Item>
+                    }
+                    {
+                      this.state.data_collaborator.length !== 0 &&
+                      this.state.data_collaborator.map((item,index) => {
+                        return (
+                          <ListGroup.Item key={index}>
+                            <Row><Col>
                               <div style={{fontWeight:600}}>{item.name}</div>
                               <small>{item.division_name} • {item.email} / {item.contact}</small>
-                            </Col>
-                            <Col className="text-right vertical-center">
-                              <div style={{paddingRight:10}}>
+                            </Col><Col className="text-right">
+                              <div style={{paddingTop:8}}>
                                 <div
                                   className="btn btn-sm btn-outline-danger"
-                                  onClick={()=>this.invite_cancel(item.id,item.collaborator)}
+                                  onClick={()=>this.invite_kick(item.id,item.collaborator)}
                                 >
-                                  Cancel Invite
+                                  Kick
                                 </div>
                               </div>
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                      )
-                    })
-                  }
-                </ListGroup>
+                            </Col></Row>     
+                          </ListGroup.Item>
+                        )
+                      })
+                    }
+                  </ListGroup>
+                </div>
+              </Tab.Pane>
+              <Tab.Pane eventKey="TAB2">
+                <div className="container-detail-project">
+                  <ListGroup variant="flush">
+                    {
+                      this.state.data_pending.length === 0 &&
+                      <ListGroup.Item>
+                        <div style={{fontWeight:600}}>Empty</div>
+                        <div>There is no pending invitation in this project</div>
+                      </ListGroup.Item>
+                    }
+                    {
+                      this.state.data_pending.length !== 0 &&
+                      this.state.data_pending.map((item,index) => {
+                        return (
+                          <ListGroup.Item key={index}>
+                            <Row>
+                              <Col>
+                                <div style={{fontWeight:600}}>{item.name}</div>
+                                <small>{item.division_name} • {item.email} / {item.contact}</small>
+                              </Col>
+                              <Col className="text-right">
+                                <div style={{paddingTop:8}}>
+                                  <div
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={()=>this.invite_cancel(item.id,item.collaborator)}
+                                  >
+                                    Cancel Invite
+                                  </div>
+                                </div>
+                              </Col>
+                            </Row>
+                          </ListGroup.Item>
+                        )
+                      })
+                    }
+                  </ListGroup>
+                </div>
               </Tab.Pane>
             </Tab.Content>
           </Card>

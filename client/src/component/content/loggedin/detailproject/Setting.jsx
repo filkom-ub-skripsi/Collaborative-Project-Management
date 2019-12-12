@@ -41,10 +41,10 @@ export default class ContentSetting extends React.Component {
   constructor(props){
     super(props)
     this.state = { 
-      code:props.data[0]['code'],name:props.data[0]['name'],client_id:props.data[0]['client_id'],start:props.data[0]['start'],end:props.data[0]['end'],password:props.pass,
+      code:this.props.data[0]['code'],name:this.props.data[0]['name'],client_id:this.props.data[0]['client_id'],start:this.props.data[0]['start'],end:this.props.data[0]['end'],
       edit_modal:false,edit_code:'',edit_name:'',edit_client:'',edit_start:'',edit_end:'',
       delete_modal:false,delete_button:delete_button,delete_state:false,
-      client:[],status:props.status
+      client:[],status:null,password:null,
     }
   }
 
@@ -362,16 +362,15 @@ export default class ContentSetting extends React.Component {
               }
             }`
           }).then(result => {
-            const allActivity = result.data.project.activity
             const delActivity = (query) => this.fetch({query:query})
-            allActivity.forEach(function(item){
+            result.data.project.activity.forEach(function(item){
               delActivity('mutation{activity_delete(_id:"'+item._id+'"){_id}}')
             })
-          })
-          this.fetch({query:`
-            mutation {
-              project_delete(_id:"`+this.props.id+`"){_id}
-            }`
+            this.fetch({query:`
+              mutation {
+                project_delete(_id:"`+this.props.id+`"){_id}
+              }`
+            })
           })
           Swal({
             title:"Success",

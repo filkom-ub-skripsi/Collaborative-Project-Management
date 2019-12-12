@@ -176,8 +176,9 @@ export default class ContentDivision extends React.Component {
 
   //detail edit
   detail_edit(){
-    if (document.getElementById('detail_name').value === '') { document.getElementById('detail_name').className = 'form-control is-invalid' }
-    else {
+    if (document.getElementById('detail_name').value === '') {
+      document.getElementById('detail_name').className = 'form-control is-invalid'
+    } else {
       document.getElementById('detail_name').className = 'form-control is-valid'
       this.props.edit(this.state.detail_id,document.getElementById('detail_name').value)
       this.detail_close()
