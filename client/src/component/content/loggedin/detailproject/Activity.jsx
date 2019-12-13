@@ -14,115 +14,115 @@ export default class ContentActivity extends React.Component {
       if (temp[i]['code'] === 'P0') {
         data.push({
           date:temp[i]['date'],
-          detail:'You created this project',
+          detail:'This project is created',
           type:0
         })
       } else if (temp[i]['code'] === 'P1') {
         data.push({
           date:temp[i]['date'],
-          detail:'You updated the project overview',
+          detail:'Project overview is updated',
           type:0
         })
       } else if (temp[i]['code'] === 'P2') {
         data.push({
           date:temp[i]['date'],
-          detail:'You edited the project agreement',
+          detail:'Project agreement is edited',
           type:0
         })
       } else if (temp[i]['code'] === 'P3') {
         data.push({
           date:temp[i]['date'],
-          detail:'You started the project',
+          detail:'Project is started',
           type:0
         })
       } else if (temp[i]['code'] === 'M0') {
         data.push({
           date:temp[i]['date'],
-          detail:'You add '+temp[i]['detail']+' as a module',
+          detail:'Module '+temp[i]['detail']+' is added',
           type:1
         })
       } else if (temp[i]['code'] === 'M1') {
         data.push({
           date:temp[i]['date'],
-          detail:'You edited '+temp[i]['detail']+' module',
+          detail:'Module '+temp[i]['detail']+' is edited',
           type:2
         })
       } else if (temp[i]['code'] === 'M2') {
         data.push({
           date:temp[i]['date'],
-          detail:'You deleted '+temp[i]['detail']+' module',
+          detail:'Module '+temp[i]['detail']+' is deleted',
           type:3
         })
       } else if (temp[i]['code'] === 'R0') {
         data.push({
           date:temp[i]['date'],
-          detail:'You add '+temp[i]['detail'].split('_')[0]+' as a requirement of '+temp[i]['detail'].split('_')[1]+' module',
+          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' is added for '+temp[i]['detail'].split('_')[1]+' module',
           type:1
         })
       } else if (temp[i]['code'] === 'R1') {
         data.push({
           date:temp[i]['date'],
-          detail:'You edited '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
+          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' module is edited',
           type:2
         })
       } else if (temp[i]['code'] === 'R2') {
         data.push({
           date:temp[i]['date'],
-          detail:'You deleted '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
+          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' module is deleted',
           type:3
         })
       } else if (temp[i]['code'] === 'R3') {
         data.push({
           date:temp[i]['date'],
-          detail:'You finished the '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
+          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' module is finished',
           type:4
         })
       } else if (temp[i]['code'] === 'R4') {
         data.push({
           date:temp[i]['date'],
-          detail:'You undo finished the '+temp[i]['detail'].split('_')[0]+' requirement from '+temp[i]['detail'].split('_')[1]+' module',
+          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' is back to progress',
           type:5
         })
       } else if (temp[i]['code'] === 'I0') {
         data.push({
           date:temp[i]['date'],
-          detail:'You invited '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division',
+          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division is invited to this project',
           type:6
         })
       } else if (temp[i]['code'] === 'I1') {
         data.push({
           date:temp[i]['date'],
-          detail:'You cancelled invitation on '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division',
+          detail:'Invitation for '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division is cancelled',
           type:7
         })
       } else if (temp[i]['code'] === 'I2') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division accepted your invitation',
+          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division accepted the invitation',
           type:8
         })
       } else if (temp[i]['code'] === 'I3') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division declined your invitation',
+          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division declined the invitation',
           type:9
         })
       } else if (temp[i]['code'] === 'I4') {
         data.push({
           date:temp[i]['date'],
-          detail:'You kicked '+temp[i]['detail'].split('_')[0]+' from the '+temp[i]['detail'].split('_')[1]+' division',
+          detail:temp[i]['detail'].split('_')[0]+' from the '+temp[i]['detail'].split('_')[1]+' division is kicked',
           type:9
         })
       } else if (temp[i]['code'] === 'S0') {
         data.push({
           date:temp[i]['date'],
-          detail:'The '+temp[i]['detail'].split('_')[0]+' issue added by '+temp[i]['detail'].split('_')[1],
+          detail:temp[i]['detail'].split('_')[0]+' issue is added by '+temp[i]['detail'].split('_')[1],
           type:10
         })
       } else if (temp[i]['code'] === 'S1') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' edited '+temp[i]['detail'].split('_')[1]+' issue',
+          detail:temp[i]['detail'].split('_')[0]+' issue is edited by '+temp[i]['detail'].split('_')[1],
           type:11
         })
       }

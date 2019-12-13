@@ -401,6 +401,14 @@ const RootQuery = new GraphQLObjectType({
       }
     },
 
+    myCollaboration: {
+      type : new GraphQLList(CollaboratorType),
+      args: { employee: { type: GraphQLString } },
+      resolve(parent, args){
+        return Collaborator.find({employee:args.employee})
+      }
+    },
+
     activity: {
       type: ActivityType,
       args: { _id: { type: GraphQLString } },

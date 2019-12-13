@@ -52,19 +52,10 @@ export default class ContentClient extends React.Component {
   push(){
     this.fetch({query:`{
       organization(_id:"`+localStorage.getItem('organization')+`") {
-        client{
-          _id,
-          name,
-          email,
-          contact,
-          address,
-          project {
-            code,
-            name,
-            status,
-            employee {
-              name
-            },
+        client {
+          _id, name, email, contact, address,
+          project { 
+            code, name, status,
             module {
               requirement {
                 status
@@ -319,7 +310,6 @@ export default class ContentClient extends React.Component {
       }
       temp.push({
         project:'['+item.code+'] '+item.name,
-        leader:item.employee[0]['name'],
         progress:progress
       })
     })
@@ -330,7 +320,6 @@ export default class ContentClient extends React.Component {
   detail_modal(){
     const columns = [
       {name:'Project',selector:'project',sortable:true},
-      {name:'Leader',selector:'leader',sortable:true,width:'25%'},
       {name:'Progress',selector:'progress',sortable:true,width:'25%'},
     ]
     return (
@@ -350,20 +339,22 @@ export default class ContentClient extends React.Component {
           columns={columns}
           data={this.state.detail_data}
         />
-        <Modal.Footer>
-          <Button
-            variant="info"
-            onClick={()=>this.detail_edit()}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="danger"
-            onClick={()=>this.detail_delete()}
-          >
-            Delete
-          </Button>
-        </Modal.Footer>
+        {localStorage.getItem('leader') === '1' &&
+          <Modal.Footer>
+            <Button
+              variant="info"
+              onClick={()=>this.detail_edit()}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="danger"
+              onClick={()=>this.detail_delete()}
+            >
+              Delete
+            </Button>
+          </Modal.Footer>
+        }
       </Modal>
     )
   }
@@ -434,14 +425,16 @@ export default class ContentClient extends React.Component {
           <b style={{fontSize:20}}>Client List</b>
         </Col>
         <Col className="text-right">
-          <Button
-            size="sm"
-            variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.setState({add_client_modal:true})}
-          >
-            Add
-          </Button>
+          {localStorage.getItem('leader') === '1' &&
+            <Button
+              size="sm"
+              variant="outline-dark"
+              disabled={this.state.header_button}
+              onClick={()=>this.setState({add_client_modal:true})}
+            >
+              Add
+            </Button>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

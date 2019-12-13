@@ -57,9 +57,6 @@ export default class ViewUsers extends React.Component {
               code,
               name,
               status,
-              employee {
-                name
-              },
               module {
                 requirement {
                   status
@@ -96,9 +93,6 @@ export default class ViewUsers extends React.Component {
               code,
               name,
               status,
-              employee {
-                name
-              },
               module {
                 requirement {
                   status
@@ -110,9 +104,6 @@ export default class ViewUsers extends React.Component {
                 code,
                 name,
                 status,
-                employee {
-                  name
-                },
                 module {
                   requirement {
                     status
@@ -141,7 +132,7 @@ export default class ViewUsers extends React.Component {
             contact:item_e.contact,
             division_id:leader_id,
             division_name:leader_name,
-            project:l_proj.length+l_coll.length,
+            project:data.length,
             data:data
           })
         })
@@ -167,7 +158,7 @@ export default class ViewUsers extends React.Component {
             contact:item_e.contact,
             division_id:item_d._id,
             division_name:item_d.name,
-            project:l_proj.length+l_coll.length,
+            project:data.length,
             data:data
           })
         })

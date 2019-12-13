@@ -188,7 +188,7 @@ export default class ContentIssue extends React.Component {
         <div className="qa-message-list" style={padding}>
           {this.state.comment.map((item,index) => {
             return (
-              <div className="message-item animated faster fadeInUp" key={index}>
+              <div className="message-item animated faster fadeIn" key={index}>
                 <div className="message-inner">
                   <div className="message-head clearfix">
                     <div className="user-detail">

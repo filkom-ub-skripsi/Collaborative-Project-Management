@@ -42,37 +42,26 @@ export default class ContentMyProject extends React.Component {
 
   //component did mount
   componentDidMount(){
-    this.push()
+    if (localStorage.getItem('leader') === '1') { this.leader() }
+    else { this.collaborator() }
   }
 
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
 
-  //push
-  push(){
+  //leader
+  leader(){
     this.fetch({query:`{
-        myProject(employee:"`+localStorage.getItem('user')+`") {
-          _id,
-          code,
-          name,
-          status,
-          start,
-          end,
-          client {
-            _id
-            name
-          },
-          employee {
-            _id
-          },
-          module {
-            requirement {
-              status
-            }
+      myProject(employee:"`+localStorage.getItem('user')+`") {
+        _id, code, name, status, start, end,
+        client { name },
+        module {
+          requirement {
+            status
           }
         }
-      }`
-    }).then(result => {
+      }
+    }`}).then(result => {
       var data = []
       var temp = result.data.myProject
       var counter = 0
@@ -98,15 +87,7 @@ export default class ContentMyProject extends React.Component {
           project:'['+item_project.code+'] '+item_project.name,
           client:item_project.client[0]['name'],
           date:start_text+' - '+end_text,
-          progress:status,
-
-          code:item_project.code,
-          name:item_project.name,
-          client_id:item_project.client[0]['_id'],
-          status:item_project.status,
-          start:item_project.start,
-          end:item_project.end,
-          value:value,
+          progress:status
         })
         counter = 0
       })
@@ -119,10 +100,7 @@ export default class ContentMyProject extends React.Component {
     this.fetch({
       query:`{
         organization(_id:"`+localStorage.getItem('organization')+`") {
-          client {
-            _id,
-            name
-          }
+          client { _id, name }
         }
       }`
     }).then(result => {
@@ -137,6 +115,59 @@ export default class ContentMyProject extends React.Component {
       this.setState({data_client:data})
     })
   }
+
+  //collaborator
+  collaborator(){
+    this.fetch({query:`{
+      myCollaboration(employee:"`+localStorage.getItem('user')+`") {
+        project {
+          _id, code, name, status, start, end,
+          client { name },
+          module {
+            requirement {
+              status
+            }
+          }
+        }
+        status
+      }
+    }`}).then(result => {
+      var data = []
+      var temp = result.data.myCollaboration.filter(function(item){ return item.status === '1' })
+      var counter = 0
+      temp.forEach(function(item){
+        var start = new Date(item.project[0]['start']); var end = new Date(item.project[0]['end']);
+        var start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
+        var end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
+        var status = null
+        var value = null
+        if (item.project[0]['status'] === '0') { status = 'Preparing' }
+        else if (item.project[0]['status'] === '2') { status = 'Closed' }
+        else if (item.project[0]['status'] === '1') {
+          item.project[0].module.forEach(function(item_progress,index_progress){
+            var all = item.project[0].module[index_progress]['requirement'].length
+            var done = item_progress.requirement.filter(function(search){ return search.status === '1' })
+            if (all === done.length) { counter++ }
+          })
+          value = Math.round(counter/item.project[0].module.length*100)+'%'
+          status = 'On Progress ('+value+')'
+        }
+        data.push({
+          id:item.project[0]._id,
+          project:'['+item.project[0].code+'] '+item.project[0].name,
+          client:item.project[0].client[0]['name'],
+          date:start_text+' - '+end_text,
+          progress:status
+        })
+        counter = 0
+      })
+      this.setState({
+        data:data,
+        data_loading:false,
+        header_button:false
+      })
+    })
+  }
   
   //reload
   reload(){
@@ -144,7 +175,8 @@ export default class ContentMyProject extends React.Component {
       data_loading:true,
       header_button:true
     })
-    this.push()
+    if (localStorage.getItem('leader') === '1') { this.leader() }
+    else { this.collaborator() }
   }
 
   //replace \n
@@ -682,17 +714,20 @@ export default class ContentMyProject extends React.Component {
     return (
       <Row>
         <Col>
-          <b style={{fontSize:20}}>Project List</b>
+          {localStorage.getItem('leader') === '1' && <b style={{fontSize:20}}>Project List</b>}
+          {localStorage.getItem('leader') === '0' && <b style={{fontSize:20}}>Collaboration List</b>}
         </Col>
         <Col className="text-right">
-          <Button
-            size="sm"
-            variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.setState({add_project_modal:true})}
-          >
-            Add
-          </Button>
+          {localStorage.getItem('leader') === '1' &&
+            <Button
+              size="sm"
+              variant="outline-dark"
+              disabled={this.state.header_button}
+              onClick={()=>this.setState({add_project_modal:true})}
+            >
+              Add
+            </Button>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

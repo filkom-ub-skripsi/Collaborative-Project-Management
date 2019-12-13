@@ -17,8 +17,8 @@ export default class ViewIssue extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      project_id:null,data:[],comment:[],loading:'disabled',
-      myName:'Bayu Kharisma',breadcrumb:breadcrumb,
+      project_id:null,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',
+      data:[{name:null,detail:null,employee:null,employee_id:null,status:null}],
     }
     this.reload = this.reload.bind(this)
     this.save = this.save.bind(this)
@@ -78,6 +78,8 @@ export default class ViewIssue extends React.Component {
         loading:''
       })
     })
+    this.fetch({query:'{employee(_id:"'+localStorage.getItem('user')+'"){name}}'})
+    .then(result => { this.setState({myName:result.data.employee.name}) })
   }
 
   //reload
@@ -106,7 +108,7 @@ export default class ViewIssue extends React.Component {
         _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
         project:"`+this.state.project_id+`",
         code:"S1",
-        detail:"`+this.state.myName+'_'+name+`",
+        detail:"`+name+'_'+this.state.myName+`",
         date:"`+new Date()+`"
       ){_id}
     }`})

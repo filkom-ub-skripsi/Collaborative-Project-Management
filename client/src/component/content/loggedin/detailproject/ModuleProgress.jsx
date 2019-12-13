@@ -12,6 +12,10 @@ import ContentRequirementProgress from './RequirementProgress'
 //notification
 const success = 'Your changes have been successfully saved'
 
+//status text
+const status_1 = 'Finished'
+const status_0 = 'Progress'
+
 //class
 export default class ContentModuleProgress extends React.Component {
 
@@ -57,19 +61,21 @@ export default class ContentModuleProgress extends React.Component {
         var status_text = null
         var counter = 0
         var requirement = []
-        item_m.requirement.forEach(function(item_r){
+        item_m.requirement.forEach(function(item_r,index_r){
           if (item_r.status === '1') {
             counter++
-            status_text = 'Finished'
+            status_text = status_1
           } else {
-            status_text = 'Progress'
+            status_text = status_0
           }
           requirement.push({
             id:item_r._id,
-            name:'['+status_text+'] '+item_r.name,
+            name:item_r.name,
             detail:item_r.detail,
+            progress:status_text,
             status:item_r.status,
             module:item_m._id,
+            number:index_r+1+'.'
           })
         })
         var progress = Math.round(counter/requirement.length*100)
@@ -164,11 +170,11 @@ export default class ContentModuleProgress extends React.Component {
     data.forEach(function(module){
       module.requirement.forEach(function(requirement){
         if (requirement.id === id) {
-          requirement.name = '[Finished] '+requirement.name.split('] ')[1]
           requirement.status = '1'
+          requirement.progress = status_1
           temp_id = module.id
           temp_module = module.name
-          temp_requirement = requirement.name.split('] ')[1]
+          temp_requirement = requirement.name
         }
       })
     })
@@ -219,11 +225,11 @@ export default class ContentModuleProgress extends React.Component {
     data.forEach(function(module){
       module.requirement.forEach(function(requirement){
         if (requirement.id === id) {
-          requirement.name = '[Progress] '+requirement.name.split('] ')[1]
           requirement.status = '0'
+          requirement.progress = status_0
           temp_id = module.id
           temp_module = module.name
-          temp_requirement = requirement.name.split('] ')[1]
+          temp_requirement = requirement.name
         }
       })
     })

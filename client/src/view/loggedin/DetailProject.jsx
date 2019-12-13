@@ -44,6 +44,7 @@ export default class ViewDetailProject extends React.Component {
 
   //push
   push(){
+    //data
     this.fetch({
       query:`{
         project(_id:"`+this.state.project_id+`") {
@@ -81,6 +82,7 @@ export default class ViewDetailProject extends React.Component {
       })
       document.title = result.data.project.name
     })
+    //name
     this.fetch({query:`{
       employee(_id:"`+localStorage.getItem('user')+`"){name}
     }`}).then(result => {
@@ -228,7 +230,7 @@ export default class ViewDetailProject extends React.Component {
         <Container fluid>
           <Tabs defaultActiveKey="TAB1">
             <Tab eventKey="TAB1" title={<FileText/>}>{this.tab_overview()}</Tab>
-            {this.state.status !== '' &&
+            {this.state.status !== null &&
               <Tab eventKey="TAB2" title={<Box/>}>
                 {this.state.status === '0' && this.tab_module()}
                 {this.state.status === '1' && this.tab_moduleProgress()}
@@ -243,7 +245,7 @@ export default class ViewDetailProject extends React.Component {
             <Tab eventKey="TAB5" title={<Activity/>}>
               <ContentActivity data={this.state.activity}/>
             </Tab>
-            {this.state.status !== '' &&
+            {localStorage.getItem('leader') === '1' &&
               <Tab eventKey="TAB6" title={<Settings/>}>{this.tab_setting()}</Tab>
             }
           </Tabs>

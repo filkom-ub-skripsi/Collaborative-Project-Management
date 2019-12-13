@@ -196,14 +196,12 @@ export default class ContentEmployee extends React.Component {
         }
         data.push({
           project:'['+item.code+'] '+item.name,
-          leader:item.employee[0]['name'],
           progress:progress
         })
       })
     })
     const columns = [
       {name:'Project',selector:'project',sortable:true},
-      {name:'Leader',selector:'leader',sortable:true,width:'25%'},
       {name:'Progress',selector:'progress',sortable:true,width:'25%'},
     ]
     return (

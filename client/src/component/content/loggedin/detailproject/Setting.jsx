@@ -66,17 +66,11 @@ export default class ContentSetting extends React.Component {
 
   //push
   push(){
-    this.fetch({
-      query:`
-      { 
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          client {
-            _id,
-            name
-          }
-        }
-      }`
-    }).then(result => {
+    this.fetch({query:`{ 
+      organization(_id:"`+localStorage.getItem('organization')+`") {
+        client { _id, name }
+      }
+    }`}).then(result => {
       this.setState({client:result.data.organization.client})
     })
   }
@@ -86,25 +80,19 @@ export default class ContentSetting extends React.Component {
     Swal({
       title:"Start Project?",
       text:"The project will enter the implementation phase",
-      icon:"info",
-      closeOnClickOutside:false,
-      buttons:true,
-      dangerMode:true,
+      icon:"info",closeOnClickOutside:false,buttons:true,dangerMode:true,
     }).then((willStart) => {
       if (willStart) {
         NotificationManager.info('Checking all requirements...')
-        this.fetch({
-          query:`
-          {
-            project(_id:"`+this.props.id+`") {
-              module {
-                requirement {
-                  _id
-                }
+        this.fetch({query:`{
+          project(_id:"`+this.props.id+`") {
+            module {
+              requirement {
+                _id
               }
             }
-          }`
-        }).then(result => {
+          }
+        }`}).then(result => {
           if (result.data.project.module.length !== 0) {
             var data = result.data.project.module.filter(function(item){ return item.requirement.length === 0 })
             if (data.length === 0) {
@@ -348,11 +336,10 @@ export default class ContentSetting extends React.Component {
     if (this.delete_validation() === true) {
       this.setState({delete_button:spinner,delete_state:true})
       this.fetch({query:`{
-          project(_id:"`+this.props.id+`") {
-            module {_id}
-          }
-        }`
-      }).then(result => {
+        project(_id:"`+this.props.id+`") {
+          module {_id}
+        }
+      }`}).then(result => {
         this.setState({delete_button:delete_button,delete_state:false,delete_modal:false})
         if (result.data.project.module.length === 0) {
           this.fetch({
@@ -401,6 +388,12 @@ export default class ContentSetting extends React.Component {
   card_body() {
     return (
       <ListGroup variant="flush">
+        {this.state.status === null &&
+          <ListGroup.Item>
+            <div style={div}>Loading...</div>
+            <small style={small}>Settings menu is only available if project data has been loaded</small>
+          </ListGroup.Item>
+        }
         {this.state.status === '0' &&
           <div>
             <ListGroup.Item action onClick={()=>this.start_project()}>

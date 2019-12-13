@@ -13,10 +13,6 @@ const success = 'Your changes have been successfully saved'
 const refresh_default = <RefreshCcw size={15} style={{marginBottom:2}}/>
 const refresh_loading = 'Loading...'
 
-//leader
-const leader_id = 'leader'
-const leader_name = 'Leader of Organization'
-
 //class
 export default class ContentCollaborator extends React.Component {
 
@@ -46,17 +42,9 @@ export default class ContentCollaborator extends React.Component {
     //collaborator
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        collaborator {
-          _id,
-          employee {
-            _id,
-            name,
-            contact,
-            email,
-            division {
-              _id,
-              name
-            }
+        collaborator { _id,
+          employee { _id, name, contact, email,
+            division { _id, name }
           }
           status
         }
@@ -94,55 +82,31 @@ export default class ContentCollaborator extends React.Component {
       this.fetch({query:`{
         organization(_id:"`+localStorage.getItem('organization')+`") {
           division {
-            _id,
-            name,
+            _id, name,
+            employee { _id, name, contact, email }
           },
-          employee {
-            _id,
-            name,
-            contact,
-            email,
-            division {
-              _id,
-              name,
-            }
-          }
         }
       }`}).then(result => {
         var all = data_collaborator.concat(data_pending)
         var division = []
         var employee = []
-        var temp_division = result.data.organization.division
-        var temp_employee = result.data.organization.employee
-        all.forEach(function(all){
-          temp_employee.forEach(function(employee,index){
-            if (all.id === employee._id){ temp_employee.splice(index,1) }
+        result.data.organization.division.forEach(function(item_division){
+          division.push({id:item_division._id,name:item_division.name})
+          item_division.employee.forEach(function(item_employee){
+            employee.push({
+              id:item_employee._id,
+              name:item_employee.name,
+              email:item_employee.email,
+              contact:item_employee.contact,
+              division_id:item_division._id,
+              division_name:item_division.name,
+            })
           })
         })
-        division.push({id:leader_id,name:leader_name})
-        temp_division.forEach(function(item){
-          division.push({id:item._id,name:item.name})
-        })
-        temp_employee.forEach(function(item){
-          if (item._id !== localStorage.getItem('user')) {
-            var division_id = null
-            var division_name = null
-            if (item.division.length === 0) {
-              division_id = leader_id
-              division_name = leader_name
-            } else {
-              division_id = item.division[0]['_id']
-              division_name = item.division[0]['name']
-            }
-            employee.push({
-              id:item._id,
-              name:item.name,
-              email:item.email,
-              contact:item.contact,
-              division_id:division_id,
-              division_name:division_name,
-            })
-          }
+        all.forEach(function(all){
+          employee.forEach(function(item,index){
+            if (all.id === item.id){ employee.splice(index,1) }
+          })
         })
         this.setState({
           header_button:false,header_refresh:refresh_default,
@@ -370,14 +334,16 @@ export default class ContentCollaborator extends React.Component {
                   </Nav>
                 </Col>
                 <Col className="text-right">
-                  <Button
-                    size="sm"
-                    variant="outline-dark"
-                    disabled={this.state.header_button}
-                    onClick={()=>this.invite_open()}
-                  >
-                    Invite
-                  </Button>
+                  {localStorage.getItem('leader') === '1' &&
+                    <Button
+                      size="sm"
+                      variant="outline-dark"
+                      disabled={this.state.header_button}
+                      onClick={()=>this.invite_open()}
+                    >
+                      Invite
+                    </Button>
+                  }
                   <span style={{paddingRight:15}}/>
                   <Button
                     size="sm"
@@ -409,14 +375,16 @@ export default class ContentCollaborator extends React.Component {
                               <div style={{fontWeight:600}}>{item.name}</div>
                               <small>{item.division_name} • {item.email} / {item.contact}</small>
                             </Col><Col className="text-right">
-                              <div style={{paddingTop:8}}>
-                                <div
-                                  className="btn btn-sm btn-outline-danger"
-                                  onClick={()=>this.invite_kick(item.id,item.collaborator)}
-                                >
-                                  Kick
+                              {localStorage.getItem('leader') === '1' &&
+                                <div style={{paddingTop:8}}>
+                                  <div
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={()=>this.invite_kick(item.id,item.collaborator)}
+                                  >
+                                    Kick
+                                  </div>
                                 </div>
-                              </div>
+                              }
                             </Col></Row>     
                           </ListGroup.Item>
                         )
@@ -446,14 +414,16 @@ export default class ContentCollaborator extends React.Component {
                                 <small>{item.division_name} • {item.email} / {item.contact}</small>
                               </Col>
                               <Col className="text-right">
-                                <div style={{paddingTop:8}}>
-                                  <div
-                                    className="btn btn-sm btn-outline-danger"
-                                    onClick={()=>this.invite_cancel(item.id,item.collaborator)}
-                                  >
-                                    Cancel Invite
+                                {localStorage.getItem('leader') === '1' &&
+                                  <div style={{paddingTop:8}}>
+                                    <div
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={()=>this.invite_cancel(item.id,item.collaborator)}
+                                    >
+                                      Cancel Invite
+                                    </div>
                                   </div>
-                                </div>
+                                }
                               </Col>
                             </Row>
                           </ListGroup.Item>

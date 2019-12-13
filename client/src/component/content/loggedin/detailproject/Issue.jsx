@@ -29,7 +29,7 @@ export default class ContentIssue extends React.Component {
     this.state = {
       project_id:this.props.id,
       header_button:true,header_refresh:refresh_loading,
-      add_issue_modal:false,data:[],myName:null
+      add_issue_modal:false,data:[],myName:this.props.myName
     }
   }
 
