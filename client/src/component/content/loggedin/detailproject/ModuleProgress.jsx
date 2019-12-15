@@ -40,23 +40,21 @@ export default class ContentModuleProgress extends React.Component {
 
   //push
   push(){
-    this.fetch({
-      query:`{
-        project(_id:"`+this.state.project_id+`") {
-          module {
+    this.fetch({query:`{
+      project(_id:"`+this.state.project_id+`") {
+        module {
+          _id,
+          name,
+          detail,
+          requirement {
             _id,
             name,
             detail,
-            requirement {
-              _id,
-              name,
-              detail,
-              status
-            }
+            status
           }
         }
-      }`
-    }).then(result => {
+      }
+    }`}).then(result => {
       var data = []
       result.data.project.module.forEach(function(item_m){
         var status_text = null
@@ -156,14 +154,12 @@ export default class ContentModuleProgress extends React.Component {
 
   //set finish
   setFinish(id){
-    this.fetch({
-      query:`mutation {
-        requirement_status(
-          _id:"`+id+`",
-          status:"1"
-        ){_id}
-      }`
-    })
+    this.fetch({query:`mutation {
+      requirement_status(
+        _id:"`+id+`",
+        status:"1"
+      ){_id}
+    }`})
     var temp_id = null
     var temp_module = null
     var temp_requirement = null
@@ -211,14 +207,12 @@ export default class ContentModuleProgress extends React.Component {
 
   //set undo finish
   setUndoFinish(id){
-    this.fetch({
-      query:`mutation {
-        requirement_status(
-          _id:"`+id+`",
-          status:"0"
-        ){_id}
-      }`
-    })
+    this.fetch({query:`mutation {
+      requirement_status(
+        _id:"`+id+`",
+        status:"0"
+      ){_id}
+    }`})
     var temp_id = null
     var temp_module = null
     var temp_requirement = null
@@ -272,12 +266,14 @@ export default class ContentModuleProgress extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
-          <Link
-            to={'/gantt-chart/'+this.state.project_id}
-            className="btn btn-sm btn-outline-dark"
-          >
-            Gantt Chart
-          </Link>
+          {localStorage.getItem('leader') === '1' &&
+            <Link
+              to={'/gantt-chart/'+this.state.project_id}
+              className="btn btn-sm btn-outline-dark"
+            >
+              Gantt Chart
+            </Link>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"
