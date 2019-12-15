@@ -45,17 +45,15 @@ export default class ViewDetailProject extends React.Component {
   //push
   push(){
     //data
-    this.fetch({
-      query:`{
-        project(_id:"`+this.state.project_id+`") {
-          _id, code, name, start, end, status,
-          client { _id, name },
-          employee { password },
-          activity { code, detail, date },
-          module { requirement { status } },
-        }
-      }`
-    }).then(result => {
+    this.fetch({query:`{
+      project(_id:"`+this.state.project_id+`") {
+        _id, code, name, start, end, status,
+        client { _id, name },
+        employee { password },
+        activity { code, detail, date },
+        module { requirement { status } },
+      }
+    }`}).then(result => {
       var done = 0
       result.data.project.module.forEach(function(module){
         var finished = module.requirement.filter(function(item){ return item.status === '1' })
@@ -121,23 +119,21 @@ export default class ViewDetailProject extends React.Component {
 
   //edit
   edit(code,name,client,start,end){
-    this.fetch({query:`
-      mutation {
-        project_edit(
-          _id:"`+this.state.project_id+`",
-          code:"`+code+`",
-          name:"`+name+`",
-          client:"`+client+`",
-          start:"`+start+`",
-          end:"`+end+`"
-        )
-        {
-          client {
-            name
-          }
+    this.fetch({query:`mutation {
+      project_edit(
+        _id:"`+this.state.project_id+`",
+        code:"`+code+`",
+        name:"`+name+`",
+        client:"`+client+`",
+        start:"`+start+`",
+        end:"`+end+`"
+      )
+      {
+        client {
+          name
         }
-      }`
-    }).then(result => {
+      }
+    }`}).then(result => {
       this.setState({
         breadcrumb:[...breadcrumb,{name:name,link:'/detail-project/'+this.state.project_id}],
         overview:[{code:code,name:name,client:result.data.project_edit.client[0]['name'],client_id:client,start:start,end:end}],

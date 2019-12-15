@@ -2,8 +2,8 @@ a.disabled {
   pointer-events: none;
   cursor: default;
   color: gray;
-
 }
+
 .container-activity {
   max-height: 80vh;
   overflow-y: auto;

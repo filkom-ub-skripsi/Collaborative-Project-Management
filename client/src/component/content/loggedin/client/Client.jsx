@@ -5,7 +5,7 @@ import { NotificationManager } from 'react-notifications'
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
 import { RefreshCcw, HelpCircle } from 'react-feather'
 import { createApolloFetch } from 'apollo-fetch'
-import LayoutCardContent  from '../../../layout/CardContent'
+import LayoutCardContent from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 
 //notification

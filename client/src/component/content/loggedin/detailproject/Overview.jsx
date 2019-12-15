@@ -1,8 +1,9 @@
 import React from 'react'
 import RDS from 'randomstring'
+import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
-import { Download } from 'react-feather'
+import { FileText } from 'react-feather'
 import { Row, Col, Button, Spinner, Modal, Form, ListGroup } from 'react-bootstrap'
 import LayoutCardContent from '../../../layout/CardContent'
 
@@ -49,17 +50,15 @@ export default class ContentOverview extends React.Component {
 
   //push
   push(){
-    this.fetch({
-      query:`{
-        project(_id:"`+this.state.project_id+`") {
-          problem,
-          goal,
-          objective,
-          success,
-          obstacle
-        }
-      }`
-    }).then(result => {
+    this.fetch({query:`{
+      project(_id:"`+this.state.project_id+`") {
+        problem,
+        goal,
+        objective,
+        success,
+        obstacle
+      }
+    }`}).then(result => {
       var data = result.data.project
       this.setState({
         problem:data.problem,goal:data.goal,objective:data.objective,success:data.success,obstacle:data.obstacle,
@@ -192,13 +191,12 @@ export default class ContentOverview extends React.Component {
             </Button>
           }
           <span style={{paddingRight:15}}/>
-          <Button
-            size="sm"
-            variant="outline-dark"
-            disabled={disabled}
+          <Link
+            to={"/document/"+this.state.project_id}
+            className="btn btn-sm btn-outline-dark"
           >
-            <Download size={15} style={{marginBottom:2}}/>
-          </Button>
+            <FileText size={15} style={{marginBottom:2}}/>
+          </Link>
         </Col>
       </Row>
     )
