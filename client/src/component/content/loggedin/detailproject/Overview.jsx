@@ -190,13 +190,15 @@ export default class ContentOverview extends React.Component {
               Update
             </Button>
           }
-          <span style={{paddingRight:15}}/>
-          <Link
-            to={"/document/"+this.state.project_id}
-            className="btn btn-sm btn-outline-dark"
-          >
-            <FileText size={15} style={{marginBottom:2}}/>
-          </Link>
+            <span style={{paddingRight:15}}/>
+          {localStorage.getItem('leader') === '1' &&
+            <Link
+              to={"/document/"+this.state.project_id}
+              className="btn btn-sm btn-outline-dark"
+            >
+              <FileText size={15} style={{marginBottom:2}}/>
+            </Link>
+          }
         </Col>
       </Row>
     )

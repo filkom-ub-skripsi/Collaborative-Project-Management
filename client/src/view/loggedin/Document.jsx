@@ -103,7 +103,7 @@ export default class ViewIssue extends React.Component {
         <tr>
           <td></td>
           <td>- `+requirement.name+`</td>
-          <td>`+requirement.detail+`</td>
+          <td>- `+requirement.detail+`</td>
         </tr>
       `
       })
