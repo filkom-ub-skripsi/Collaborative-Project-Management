@@ -21,7 +21,7 @@ export default class ContentOverview extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      header_button:true,loading:props.loading,
+      project_id:this.props.id,header_button:true,loading:props.loading,
       code:this.props.data[0]['code'],name:this.props.data[0]['name'],client:this.props.data[0]['client'],start:this.props.data[0]['start'],end:this.props.data[0]['end'],
       problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,
       status:props.status,status_text:'',progress:props.progress,update_project_modal:false,
@@ -51,7 +51,7 @@ export default class ContentOverview extends React.Component {
   push(){
     this.fetch({
       query:`{
-        project(_id:"`+this.props.id+`") {
+        project(_id:"`+this.state.project_id+`") {
           problem,
           goal,
           objective,
@@ -125,7 +125,7 @@ export default class ContentOverview extends React.Component {
     this.fetch({query:`
       mutation {
         project_update(
-          _id:"`+this.props.id+`",
+          _id:"`+this.state.project_id+`",
           problem:"`+this.insert_replace(value('update_problem'))+`",
           goal:"`+this.insert_replace(value('update_goal'))+`",
           objective:"`+this.insert_replace(value('update_objective'))+`",
@@ -141,7 +141,7 @@ export default class ContentOverview extends React.Component {
       mutation {
         activity_add(
           _id:"`+activity_id+`",
-          project:"`+this.props.id+`",
+          project:"`+this.state.project_id+`",
           code:"`+activity_code+`",
           detail:"",
           date:"`+activity_date+`"

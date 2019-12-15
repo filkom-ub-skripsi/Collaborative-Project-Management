@@ -18,7 +18,7 @@ export default class ViewIssue extends React.Component {
     super(props)
     this.state = {
       project_id:null,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',
-      data:[{name:null,detail:null,employee:null,employee_id:null,status:null}],
+      data:[{name:'Loading...',detail:null,employee:null,employee_id:null,status:null}],
     }
     this.reload = this.reload.bind(this)
     this.save = this.save.bind(this)
@@ -28,7 +28,7 @@ export default class ViewIssue extends React.Component {
 
   //component did mount
   componentDidMount(){
-    document.title = 'Loading...'
+    document.title = 'Issue - Loading...'
     this.push()
   }
 
@@ -48,7 +48,7 @@ export default class ViewIssue extends React.Component {
         project { _id, name },
       }
     }`}).then(result => {
-      document.title = result.data.issue.name
+      document.title = 'Issue - '+result.data.issue.name
       var comment = []
       result.data.issue.comment.forEach(function(item){
         comment.push({
@@ -94,7 +94,7 @@ export default class ViewIssue extends React.Component {
   }
 
   //save
-  save(name,detail,status){
+  save(name,detail,status,type){
     this.fetch({query:`mutation {
       issue_edit(
         _id:"`+this.props.match.params.id+`",
@@ -103,20 +103,42 @@ export default class ViewIssue extends React.Component {
         status:"`+status+`"
       ){_id}
     }`})
-    this.fetch({query:`mutation {
-      activity_add(
-        _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
-        project:"`+this.state.project_id+`",
-        code:"S1",
-        detail:"`+name+'_'+this.state.myName+`",
-        date:"`+new Date()+`"
-      ){_id}
-    }`})
     var data = this.state.data
     data[0].name = name
     data[0].detail = detail
     data[0].status = status
     this.setState({data:data})
+    if (type === 0) {
+      this.fetch({query:`mutation {
+        activity_add(
+          _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
+          project:"`+this.state.project_id+`",
+          code:"S1",
+          detail:"`+name+`",
+          date:"`+new Date()+`"
+        ){_id}
+      }`})
+    } else if (type === 1) {
+      this.fetch({query:`mutation {
+        activity_add(
+          _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
+          project:"`+this.state.project_id+`",
+          code:"S2",
+          detail:"`+name+`",
+          date:"`+new Date()+`"
+        ){_id}
+      }`})
+    } else if (type === 2) {
+      this.fetch({query:`mutation {
+        activity_add(
+          _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
+          project:"`+this.state.project_id+`",
+          code:"S3",
+          detail:"`+name+`",
+          date:"`+new Date()+`"
+        ){_id}
+      }`})
+    }
   }
 
   //comment handler

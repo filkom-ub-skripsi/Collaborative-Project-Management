@@ -1,9 +1,10 @@
 {
-  "name": "cpm",
-  "version": "0.1.0",
+  "name": "client_cpm"
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "apollo-fetch": "^0.7.0",
+    "dhtmlx-gantt": "^6.3.2",
     "md5": "^2.2.1",
     "randomstring": "^1.1.5",
     "react": "^16.11.0",
@@ -14,7 +15,7 @@
     "react-feather": "^2.0.3",
     "react-notifications": "^1.4.3",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.2.0",
+    "react-scripts": "^3.3.0",
     "react-step-wizard": "^5.3.0",
     "styled-components": "^4.4.1",
     "sweetalert": "^2.1.2"

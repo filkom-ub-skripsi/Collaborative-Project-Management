@@ -209,6 +209,12 @@ const ProjectType = new GraphQLObjectType({
         return Issue.find({project:parent._id})
       }
     },
+    gantt : {
+      type : new GraphQLList(GanttType),
+      resolve(parent, args){
+        return Gantt.find({project:parent._id})
+      }
+    },
   })
 })
 
@@ -345,6 +351,24 @@ const CommentType = new GraphQLObjectType({
   })
 })
 
+const Gantt = require('./model/Gantt')
+const GanttType = new GraphQLObjectType({
+  name: 'Gantt',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({_id:parent.project})
+      }
+    },
+    name: { type : GraphQLString },
+    start: { type : GraphQLString },
+    duration: { type : GraphQLString },
+    parent: { type : GraphQLString },
+  })
+})
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -454,6 +478,14 @@ const RootQuery = new GraphQLObjectType({
       args: { _id: { type: GraphQLString } },
       resolve(parent, args){
         return Comment.findById(args._id)
+      }
+    },
+
+    gantt: {
+      type: GanttType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Gantt.findById(args._id)
       }
     },
 
@@ -1007,6 +1039,57 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args){
         let comment = Comment.findByIdAndDelete(args._id)
         return comment
+      }
+    },
+
+    gantt_add: {
+      type: GanttType,
+      args: {
+        _id: { type : GraphQLString },
+        project: { type : GraphQLString },
+        name: { type : GraphQLString },
+        start: { type : GraphQLString },
+        duration: { type : GraphQLString },
+        parent: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let gantt = new Gantt({
+          _id: args._id,
+          project:args.project,
+          name:args.name,
+          start:args.start,
+          duration:args.duration,
+          parent:args.parent,
+        });
+        return gantt.save();
+      }
+    },
+
+    gantt_edit: {
+      type: GanttType,
+      args: {
+        _id: { type : GraphQLString },
+        name: { type : GraphQLString },
+        start: { type : GraphQLString },
+        duration: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = {
+          name:args.name,
+          start:args.start,
+          duration:args.duration,
+        };
+        let gantt = Gantt.findByIdAndUpdate(args._id, update, {new: true})
+        return gantt
+      }
+    },
+
+    gantt_delete: {
+      type: GanttType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let gantt = Gantt.findByIdAndDelete(args._id)
+        return gantt
       }
     },
 

@@ -7,6 +7,7 @@ import Home from './loggedin/Home'
 import Client from './loggedin/Client'
 import Projects from './loggedin/Projects'
 import DetailProject from './loggedin/DetailProject'
+import GanttChart from './loggedin/GanttChart'
 import Issue from './loggedin/Issue'
 import Users from './loggedin/Users'
 import Profile from './loggedin/Profile'
@@ -25,6 +26,10 @@ export default class Loggedin extends React.Component {
           <Route
             path="/detail-project/:id"
             render = {(props)=> <DetailProject  {...props} webservice={this.props.webservice}/>}
+          />
+          <Route
+            path="/gantt-chart/:id"
+            render = {(props)=> <GanttChart  {...props} webservice={this.props.webservice}/>}
           />
           <Route
             path="/issue/:id"

@@ -3,6 +3,7 @@ import { createApolloFetch } from 'apollo-fetch'
 import { Row, Col, Button } from 'react-bootstrap'
 import { RefreshCcw } from 'react-feather'
 import { NotificationManager } from 'react-notifications'
+import { Link } from 'react-router-dom'
 import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import LayoutCardContent from '../../../layout/CardContent'
@@ -271,6 +272,13 @@ export default class ContentModuleProgress extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
+          <Link
+            to={'/gantt-chart/'+this.state.project_id}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Gantt Chart
+          </Link>
+          <span style={{paddingRight:15}}/>
           <Button
             size="sm"
             variant="outline-dark"

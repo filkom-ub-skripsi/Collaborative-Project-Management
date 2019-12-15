@@ -131,11 +131,11 @@ export default class ContentIssue extends React.Component {
   edit_save(){
     if (this.form_validation(issue_edit_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      this.props.save(
-        value('sunting_name'),
-        value('sunting_detail'),
-        value('sunting_status'),
-      )
+      var type = null
+      if (parseInt(this.state.status) === parseInt(value('sunting_status'))) { type = 0 }
+      else if (parseInt(this.state.status) < parseInt(value('sunting_status'))) { type = 1 }
+      else if (parseInt(this.state.status) > parseInt(value('sunting_status'))) { type = 2 }
+      this.props.save(value('sunting_name'),value('sunting_detail'),value('sunting_status'),type)
       this.setState({edit_modal:false})
       NotificationManager.success(success)
     }
@@ -143,9 +143,15 @@ export default class ContentIssue extends React.Component {
 
   //render
   render() {
+
     var status = null
     if (this.state.status === '0') { status = <Badge variant="warning">unsolved</Badge> }
     else if (this.state.status === '1') { status = <Badge variant="success">resolved</Badge> }
+
+    var reload = null
+    if (this.props.loading === 'disabled') { reload = 'Loading...' }
+    else if (this.props.loading === '') { reload = 'Reload' }
+
     return (
       <div>
         {this.edit_modal()}
@@ -158,7 +164,10 @@ export default class ContentIssue extends React.Component {
               </Col>
               <Col className="text-right">
                 {this.state.employee_id === localStorage.getItem('user') &&
-                  <div><a href="#!" onClick={()=>this.setState({edit_modal:true})} className={this.props.loading}>Edit</a> / <a href="#!" onClick={()=>this.props.reload()} className={this.props.loading}>Reload</a></div>
+                  <div>
+                    <a href="#!" onClick={()=>this.setState({edit_modal:true})} className={this.props.loading}>Edit </a>/
+                    <a href="#!" onClick={()=>this.props.reload()} className={this.props.loading}> {reload}</a>
+                  </div>
                 }
               </Col>
             </Row>
