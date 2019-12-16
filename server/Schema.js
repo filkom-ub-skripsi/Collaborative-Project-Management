@@ -1001,13 +1001,11 @@ const Mutation = new GraphQLObjectType({
         _id: { type : GraphQLString },
         name: { type : GraphQLString },
         detail: { type : GraphQLString },
-        status: { type : GraphQLString },
       },
       resolve(parent, args){
         let update = {
           name:args.name,
           detail:args.detail,
-          status:args.status
         };
         let issue = Issue.findByIdAndUpdate(args._id, update, {new: true})
         return issue

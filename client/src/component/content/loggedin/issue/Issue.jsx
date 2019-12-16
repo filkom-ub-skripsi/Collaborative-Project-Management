@@ -109,13 +109,6 @@ export default class ContentIssue extends React.Component {
               <Form.Control type="text" as="textarea" rows="5" id="sunting_detail" defaultValue={this.state.detail}/>
               <div id="sunting_fdetail" className="invalid-feedback d-block"/>
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Status</Form.Label>
-              <Form.Control as="select" id="sunting_status" defaultValue={this.state.status}>
-                <option value="0">Unsolved</option>
-                <option value="1">Resolved</option>
-              </Form.Control>
-            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -131,11 +124,7 @@ export default class ContentIssue extends React.Component {
   edit_save(){
     if (this.form_validation(issue_edit_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var type = null
-      if (parseInt(this.state.status) === parseInt(value('sunting_status'))) { type = 0 }
-      else if (parseInt(this.state.status) < parseInt(value('sunting_status'))) { type = 1 }
-      else if (parseInt(this.state.status) > parseInt(value('sunting_status'))) { type = 2 }
-      this.props.save(value('sunting_name'),value('sunting_detail'),value('sunting_status'),type)
+      this.props.save(value('sunting_name'),value('sunting_detail'))
       this.setState({edit_modal:false})
       NotificationManager.success(success)
     }

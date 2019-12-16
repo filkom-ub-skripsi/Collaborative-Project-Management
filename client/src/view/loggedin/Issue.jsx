@@ -17,7 +17,7 @@ export default class ViewIssue extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      project_id:null,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',
+      project_id:null,issue_id:this.props.match.params.id,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',
       data:[{name:'Loading...',detail:null,employee:null,employee_id:null,status:null}],
     }
     this.reload = this.reload.bind(this)
@@ -38,7 +38,7 @@ export default class ViewIssue extends React.Component {
   //push
   push(){
     this.fetch({query:`{
-      issue(_id:"`+this.props.match.params.id+`") {
+      issue(_id:"`+this.state.issue_id+`") {
         _id, name, detail, status,
         employee { _id, name },
         comment {
@@ -65,7 +65,7 @@ export default class ViewIssue extends React.Component {
           link:'/detail-project/'+result.data.issue.project[0]['_id'],
         },{
           name:result.data.issue.name,
-          link:'/issue/'+this.props.match.params.id
+          link:'/issue/'+this.state.issue_id
         }],
         data:[{
           name:result.data.issue.name,
@@ -94,51 +94,33 @@ export default class ViewIssue extends React.Component {
   }
 
   //save
-  save(name,detail,status,type){
+  save(name,detail){
     this.fetch({query:`mutation {
       issue_edit(
-        _id:"`+this.props.match.params.id+`",
+        _id:"`+this.state.issue_id+`",
         name:"`+name+`",
         detail:"`+this.insert_replace(detail)+`",
-        status:"`+status+`"
+      ){_id}
+    }`})
+    this.fetch({query:`mutation {
+      activity_add(
+        _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
+        project:"`+this.state.project_id+`",
+        code:"S1",
+        detail:"`+name+`",
+        date:"`+new Date()+`"
       ){_id}
     }`})
     var data = this.state.data
     data[0].name = name
     data[0].detail = detail
-    data[0].status = status
-    this.setState({data:data})
-    if (type === 0) {
-      this.fetch({query:`mutation {
-        activity_add(
-          _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
-          project:"`+this.state.project_id+`",
-          code:"S1",
-          detail:"`+name+`",
-          date:"`+new Date()+`"
-        ){_id}
-      }`})
-    } else if (type === 1) {
-      this.fetch({query:`mutation {
-        activity_add(
-          _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
-          project:"`+this.state.project_id+`",
-          code:"S2",
-          detail:"`+name+`",
-          date:"`+new Date()+`"
-        ){_id}
-      }`})
-    } else if (type === 2) {
-      this.fetch({query:`mutation {
-        activity_add(
-          _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
-          project:"`+this.state.project_id+`",
-          code:"S3",
-          detail:"`+name+`",
-          date:"`+new Date()+`"
-        ){_id}
-      }`})
-    }
+    this.setState({
+      data:data,
+      breadcrumb:[...this.state.breadcrumb.splice(0,3),{
+        name:name,
+        link:'/issue/'+this.state.issue_id
+      }]
+    })
   }
 
   //comment handler
@@ -147,7 +129,7 @@ export default class ViewIssue extends React.Component {
     this.fetch({query:`mutation {
       comment_add(
         _id:"`+id+`",
-        issue:"`+this.props.match.params.id+`",
+        issue:"`+this.state.issue_id+`",
         employee:"`+localStorage.getItem('user')+`",
         comment:"`+comment+`"
       ){_id}

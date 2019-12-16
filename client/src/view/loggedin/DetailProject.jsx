@@ -27,7 +27,6 @@ export default class ViewDetailProject extends React.Component {
       status:null,progress:null,loading:true,
       myName:null,password:null,activity:[]
     }
-    this.progress = this.progress.bind(this)
     this.activity = this.activity.bind(this)
     this.start = this.start.bind(this)
     this.edit = this.edit.bind(this)
@@ -86,11 +85,6 @@ export default class ViewDetailProject extends React.Component {
     }`}).then(result => {
       this.setState({myName:result.data.employee.name})
     })
-  }
-
-  //progress
-  progress(progress){
-    this.setState({progress:progress})
   }
 
   //activity
@@ -174,7 +168,6 @@ export default class ViewDetailProject extends React.Component {
         webservice={this.props.webservice}
         id={this.state.project_id}
         activity={this.activity}
-        progress={this.progress}
       />
     )
   }

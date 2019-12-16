@@ -2,16 +2,10 @@ import React from 'react'
 import { createApolloFetch } from 'apollo-fetch'
 import { Row, Col, Button } from 'react-bootstrap'
 import { RefreshCcw } from 'react-feather'
-import { NotificationManager } from 'react-notifications'
 import { Link } from 'react-router-dom'
-import RDS from 'randomstring'
-import Swal from 'sweetalert'
 import LayoutCardContent from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 import ContentRequirementProgress from './RequirementProgress'
-
-//notification
-const success = 'Your changes have been successfully saved'
 
 //status text
 const status_1 = 'Finished'
@@ -103,160 +97,12 @@ export default class ContentModuleProgress extends React.Component {
     this.push()
   }
 
-  //progress
-  progress(){
-    var done = 0
-    this.state.data.forEach(function(module){
-      var counter = 0
-      module.requirement.forEach(function(requirement){
-        if (requirement.status === '1') { counter++ }
-      })
-      if (counter === module.requirement.length) { done++ }
-    })
-    this.props.progress(Math.round(done/this.state.data.length*100)+'%')
-  }
-
   //table columns
   table_columns = [
     {name:'Requirement',selector:'name',sortable:true,width:'20%'},
     {name:'Detail',selector:'detail',sortable:true},
     {name:'Progress',selector:'progress',sortable:true,width:'10%'},
   ]
-
-  //requirement handler
-  requirement_handler(id){
-    const setFinish = (id) => this.setFinish(id)
-    const setUndoFinish = (id) => this.setUndoFinish(id)
-    this.state.data.forEach(function(module){
-      module.requirement.forEach(function(requirement){
-        if (requirement.id === id) {
-          if (requirement.status === '0') {
-            Swal({
-              title:"Finish",
-              text:"This requirement will be set to finished",
-              icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
-            }).then((willFinish) => {
-              if (willFinish) { setFinish(id) }
-            })
-          } else {
-            Swal({
-              title:"Undo Finish",
-              text:"This requirement will be set to progress",
-              icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
-            }).then((willUndoFinish) => {
-              if (willUndoFinish) { setUndoFinish(id) }
-            })
-          }
-        }
-      })
-    })
-  }
-
-  //set finish
-  setFinish(id){
-    this.fetch({query:`mutation {
-      requirement_status(
-        _id:"`+id+`",
-        status:"1"
-      ){_id}
-    }`})
-    var temp_id = null
-    var temp_module = null
-    var temp_requirement = null
-    var data = this.state.data
-    data.forEach(function(module){
-      module.requirement.forEach(function(requirement){
-        if (requirement.id === id) {
-          requirement.status = '1'
-          requirement.progress = status_1
-          temp_id = module.id
-          temp_module = module.name
-          temp_requirement = requirement.name
-        }
-      })
-    })
-    data.forEach(function(module){
-      if (module.id === temp_id) {
-        var version = parseInt(module.id.split('_')[1])+1
-        module.id = module.id.split('_')[0]+'_'+version
-        var counter = 0
-        module.requirement.forEach(function(requirement){ if (requirement.status === '1') { counter++ } })
-        module.progress = Math.round(counter/module.requirement.length*100)+'%'
-      }
-    })
-    this.setState({data:data})
-    var activity_id = RDS.generate({length:32,charset:'alphabetic'})
-    var activity_code = 'R3'
-    var activity_detail = temp_requirement+'_'+temp_module
-    var activity_date = new Date()
-    this.fetch({
-      query:`mutation {
-        activity_add(
-          _id:"`+activity_id+`",
-          project:"`+this.state.project_id+`",
-          code:"`+activity_code+`",
-          detail:"`+activity_detail+`",
-          date:"`+activity_date+`"
-        ){_id}
-      }`
-    })
-    this.props.activity(activity_code,activity_detail,activity_date)
-    this.progress()
-    NotificationManager.success(success)
-  }
-
-  //set undo finish
-  setUndoFinish(id){
-    this.fetch({query:`mutation {
-      requirement_status(
-        _id:"`+id+`",
-        status:"0"
-      ){_id}
-    }`})
-    var temp_id = null
-    var temp_module = null
-    var temp_requirement = null
-    var data = this.state.data
-    data.forEach(function(module){
-      module.requirement.forEach(function(requirement){
-        if (requirement.id === id) {
-          requirement.status = '0'
-          requirement.progress = status_0
-          temp_id = module.id
-          temp_module = module.name
-          temp_requirement = requirement.name
-        }
-      })
-    })
-    data.forEach(function(module){
-      if (module.id === temp_id) {
-        var version = parseInt(module.id.split('_')[1])+1
-        module.id = module.id.split('_')[0]+'_'+version
-        var counter = 0
-        module.requirement.forEach(function(requirement){ if (requirement.status === '1') { counter++ } })
-        module.progress = Math.round(counter/module.requirement.length*100)+'%'
-      }
-    })
-    this.setState({data:data})
-    var activity_id = RDS.generate({length:32,charset:'alphabetic'})
-    var activity_code = 'R4'
-    var activity_detail = temp_requirement+'_'+temp_module
-    var activity_date = new Date()
-    this.fetch({
-      query:`mutation {
-        activity_add(
-          _id:"`+activity_id+`",
-          project:"`+this.state.project_id+`",
-          code:"`+activity_code+`",
-          detail:"`+activity_detail+`",
-          date:"`+activity_date+`"
-        ){_id}
-      }`
-    })
-    this.props.activity(activity_code,activity_detail,activity_date)
-    this.progress()
-    NotificationManager.success(success)
-  }
 
   //card header
   card_header(){
@@ -266,6 +112,13 @@ export default class ContentModuleProgress extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
+          <Link
+            to={'/scrum-board/'+this.state.project_id}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Scrum Board
+          </Link>
+          <span style={{paddingRight:15}}/>
           <Link
             to={'/gantt-chart/'+this.state.project_id}
             className="btn btn-sm btn-outline-dark"
@@ -296,7 +149,7 @@ export default class ContentModuleProgress extends React.Component {
           columns={this.table_columns}
           data={this.state.data}
           expandable={true}
-          component={<ContentRequirementProgress handler={id=>this.requirement_handler(id)}/>}
+          component={<ContentRequirementProgress/>}
         />
       </div>
     )
