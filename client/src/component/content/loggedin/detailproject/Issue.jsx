@@ -29,7 +29,7 @@ export default class ContentIssue extends React.Component {
     this.state = {
       project_id:this.props.id,
       header_button:true,header_refresh:refresh_loading,
-      add_issue_modal:false,data:[],myName:this.props.myName
+      add_issue_modal:false,data:[],myName:null
     }
   }
 
@@ -38,27 +38,16 @@ export default class ContentIssue extends React.Component {
     this.push()
   }
 
-  //component will receive props
-  UNSAFE_componentWillReceiveProps(props){
-    this.setState({myName:props.myName})
-  }
-
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
 
   //push
   push(){
+    //data
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        issue {
-          _id,
-          name,
-          detail,
-          status,
-          employee {
-            _id,
-            name
-          }
+        issue { _id, name, detail, status,
+          employee { _id, name }
         }
       }
     }`}).then(result => {
@@ -78,6 +67,12 @@ export default class ContentIssue extends React.Component {
         header_button:false,
         header_refresh:refresh_default,
       })
+    })
+    //name
+    this.fetch({query:`{
+      employee(_id:"`+localStorage.getItem('user')+`"){name}
+    }`}).then(result => {
+      this.setState({myName:result.data.employee.name})
     })
   }
 

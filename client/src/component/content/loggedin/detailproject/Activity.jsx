@@ -1,4 +1,5 @@
 import React from 'react'
+import { createApolloFetch } from 'apollo-fetch'
 import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle } from 'react-feather'
 import { Timeline, TimelineEvent } from 'react-event-timeline'
 
@@ -9,6 +10,33 @@ const size = 18
 
 //class
 export default class ContentActivity extends React.Component {
+
+  //constructor
+  constructor(props){
+    super(props)
+    this.state = {
+      project_id:this.props.id,
+    }
+  }
+
+  //component did mound
+  componentDidMount(){
+    this.push()
+  }
+
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
+
+  //push
+  push(){
+    this.fetch({query:`{
+      project(_id:"`+this.state.project_id+`") {
+        activity { code, detail, date },
+      }
+    }`}).then(result => {
+      this.props.update(result.data.project.activity)
+    })
+  }
 
   //render
   render() {

@@ -49,6 +49,7 @@ export default class ContentModuleProgress extends React.Component {
         }
       }
     }`}).then(result => {
+      this.props.update(result.data.project.module)
       var data = []
       result.data.project.module.forEach(function(item_m){
         var status_text = null
@@ -112,13 +113,6 @@ export default class ContentModuleProgress extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
-          <Link
-            to={'/scrum-board/'+this.state.project_id}
-            className="btn btn-sm btn-outline-dark"
-          >
-            Scrum Board
-          </Link>
-          <span style={{paddingRight:15}}/>
           <Link
             to={'/gantt-chart/'+this.state.project_id}
             className="btn btn-sm btn-outline-dark"

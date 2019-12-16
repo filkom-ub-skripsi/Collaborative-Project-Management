@@ -41,11 +41,8 @@ export default class ContentSetting extends React.Component {
   constructor(props){
     super(props)
     this.state = { 
-      project_id:this.props.id,
+      project_id:this.props.id,edit_modal:false,delete_modal:false,delete_button:delete_button,delete_state:false,client:[],status:null,password:null,
       code:this.props.data[0]['code'],name:this.props.data[0]['name'],client_id:this.props.data[0]['client_id'],start:this.props.data[0]['start'],end:this.props.data[0]['end'],
-      edit_modal:false,edit_code:'',edit_name:'',edit_client:'',edit_start:'',edit_end:'',
-      delete_modal:false,delete_button:delete_button,delete_state:false,
-      client:[],status:null,password:null,
     }
   }
 
@@ -57,8 +54,8 @@ export default class ContentSetting extends React.Component {
   //component will receive props
   UNSAFE_componentWillReceiveProps(props){
     this.setState({
-      code:props.data[0]['code'],name:props.data[0]['name'],client_id:props.data[0]['client_id'],start:props.data[0]['start'],end:props.data[0]['end'],
-      password:props.pass,status:props.status
+      code:props.data[0]['code'],name:props.data[0]['name'],start:props.data[0]['start'],end:props.data[0]['end'],status:props.status,
+      client_id:props.data[0]['client_id'],password:null
     })
   }
 
@@ -67,12 +64,23 @@ export default class ContentSetting extends React.Component {
 
   //push
   push(){
+    //client
     this.fetch({query:`{ 
       organization(_id:"`+localStorage.getItem('organization')+`") {
         client { _id, name }
       }
     }`}).then(result => {
       this.setState({client:result.data.organization.client})
+    })
+    //password
+    this.fetch({query:`{
+      project(_id:"`+this.state.project_id+`") {
+        employee { password },
+      }
+    }`}).then(result => {
+      this.setState({
+        password:result.data.project.employee[0]['password'],
+      })
     })
   }
 
@@ -177,17 +185,17 @@ export default class ContentSetting extends React.Component {
           <Form autoComplete="off">
             <Form.Group>
               <Form.Label>Code</Form.Label>
-              <Form.Control type="text" id="edit_code" value={this.state.edit_code} onChange={(e)=>this.setState({edit_code:e.target.value})}/>
+              <Form.Control type="text" id="edit_code" defaultValue={this.state.code}/>
               <div id="edit_fcode" className="invalid-feedback d-block"/>
             </Form.Group>
             <Form.Group>
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" id="edit_name" value={this.state.edit_name} onChange={(e)=>this.setState({edit_name:e.target.value})}/>
+              <Form.Control type="text" id="edit_name" defaultValue={this.state.name}/>
               <div id="edit_fname" className="invalid-feedback d-block"/>
             </Form.Group>
             <Form.Group>
               <Form.Label>Client</Form.Label>
-              <Form.Control id="edit_client" as="select" value={this.state.edit_client} onChange={(e)=>this.setState({edit_client:e.target.value})}>
+              <Form.Control id="edit_client" as="select" defaultValue={this.state.client_id}>
                 {this.state.client.map((item,index) => {
                   return (
                     <option value={item._id} key={index}>{item.name}</option>
@@ -198,12 +206,12 @@ export default class ContentSetting extends React.Component {
             </Form.Group>
             <Form.Group>
               <Form.Label>Start</Form.Label>
-              <Form.Control type="date" id="edit_start" value={this.state.edit_start} onChange={(e)=>this.setState({edit_start:e.target.value})}/>
+              <Form.Control type="date" id="edit_start" defaultValue={this.state.start}/>
               <div id="edit_fstart" className="invalid-feedback d-block"/>
             </Form.Group>          
             <Form.Group>
               <Form.Label>End</Form.Label>
-              <Form.Control type="date" id="edit_end" value={this.state.edit_end} onChange={(e)=>this.setState({edit_end:e.target.value})}/>
+              <Form.Control type="date" id="edit_end" defaultValue={this.state.end}/>
               <div id="edit_fend" className="invalid-feedback d-block"/>
             </Form.Group>
           </Form>
@@ -218,18 +226,6 @@ export default class ContentSetting extends React.Component {
         </Modal.Footer>
       </Modal>
     )
-  }
-
-  //edit open modal
-  edit_open_modal(){
-    this.setState({
-      edit_code:this.state.code,
-      edit_name:this.state.name,
-      edit_client:this.state.client_id,
-      edit_start:this.state.start,
-      edit_end:this.state.end,
-      edit_modal:true,
-    })
   }
 
   //edit validation
@@ -253,6 +249,15 @@ export default class ContentSetting extends React.Component {
   //edit handler
   edit_project(){
     if (this.edit_validation() === true) {
+      this.setState({edit_modal:false})
+      const value = (id) => { return document.getElementById(id).value }
+      this.props.edit(
+        value('edit_code'),
+        value('edit_name'),
+        value('edit_client'),
+        value('edit_start'),
+        value('edit_end')
+      )
       var activity_id = RDS.generate({length:32,charset:'alphabetic'})
       var activity_code = 'P2'
       var activity_date = new Date()
@@ -267,8 +272,6 @@ export default class ContentSetting extends React.Component {
           ){_id}
         }`
       })
-      this.setState({edit_modal:false})
-      this.props.edit(this.state.edit_code,this.state.edit_name,this.state.edit_client,this.state.edit_start,this.state.edit_end)
       this.props.activity(activity_code,'',activity_date)
       NotificationManager.success(success)
     }
@@ -416,7 +419,7 @@ export default class ContentSetting extends React.Component {
               <div style={div}>Start Project</div>
               <small style={small}>Entering the project implementation stage. After the project has started, all requirements that have been initialized cannot be changed and deleted, nor can the project review.</small>
             </ListGroup.Item>
-            <ListGroup.Item action onClick={()=>this.edit_open_modal()}>
+            <ListGroup.Item action onClick={()=>this.setState({edit_modal:true})}>
               <div style={div}>Edit Project</div>
               <small style={small}>Editing project main data related to the agreement between the project manager and the client. Projects that can be edited are only projects that have not yet been started.</small>
             </ListGroup.Item>

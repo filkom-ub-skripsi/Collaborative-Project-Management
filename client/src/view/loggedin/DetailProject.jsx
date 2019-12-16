@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container, Tabs, Tab } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
-import { FileText, Box, Activity, Settings, Users, AlertCircle } from 'react-feather'
+import { FileText, Box, Activity, Settings, Users, AlertCircle, Trello } from 'react-feather'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 import ContentOverview from '../../component/content/loggedin/detailproject/Overview'
 import ContentModule from '../../component/content/loggedin/detailproject/Module'
@@ -24,10 +24,12 @@ export default class ViewDetailProject extends React.Component {
     this.state = {
       project_id:this.props.match.params.id,breadcrumb:breadcrumb,
       overview:[{code:null,name:null,client:null,client_id:null,start:null,end:null}],
-      status:null,progress:null,loading:true,
-      myName:null,password:null,activity:[]
+      status:null,progress:'...%',activity:[],
     }
-    this.activity = this.activity.bind(this)
+    this.overview_update = this.overview_update.bind(this)
+    this.activity_update = this.activity_update.bind(this)
+    this.moduleProgress_update = this.moduleProgress_update.bind(this)
+    this.activity_add = this.activity_add.bind(this)
     this.start = this.start.bind(this)
     this.edit = this.edit.bind(this)
   }
@@ -35,68 +37,10 @@ export default class ViewDetailProject extends React.Component {
   //component did mount
   componentDidMount(){
     document.title = 'Loading...'
-    this.push()
   }
 
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
-
-  //push
-  push(){
-    //data
-    this.fetch({query:`{
-      project(_id:"`+this.state.project_id+`") {
-        _id, code, name, start, end, status,
-        client { _id, name },
-        employee { password },
-        activity { code, detail, date },
-        module { requirement { status } },
-      }
-    }`}).then(result => {
-      var done = 0
-      result.data.project.module.forEach(function(module){
-        var finished = module.requirement.filter(function(item){ return item.status === '1' })
-        if (module.requirement.length === finished.length) { done++ }
-      })
-      var progress = Math.round(done/result.data.project.module.length*100)
-      this.setState({
-        loading:false,
-        activity:result.data.project.activity,
-        password:result.data.project.employee[0]['password'],
-        status:result.data.project.status,progress:progress+'%',
-        overview:[{
-          code:result.data.project.code,
-          name:result.data.project.name,
-          client:result.data.project.client[0]['name'],
-          client_id:result.data.project.client[0]['_id'],
-          start:result.data.project.start,
-          end:result.data.project.end
-        }],
-        breadcrumb: [...breadcrumb, {
-          name:result.data.project.name,
-          link:'/detail-project/'+result.data.project._id
-        }]
-      })
-      document.title = result.data.project.name
-    })
-    //name
-    this.fetch({query:`{
-      employee(_id:"`+localStorage.getItem('user')+`"){name}
-    }`}).then(result => {
-      this.setState({myName:result.data.employee.name})
-    })
-  }
-
-  //activity
-  activity(code,detail,date){
-    this.setState({
-      activity: [...this.state.activity,{
-        code:code,
-        detail:detail,
-        date:String(date),
-      }]
-    })
-  }
 
   //start
   start(){
@@ -135,76 +79,121 @@ export default class ViewDetailProject extends React.Component {
     })
   }
 
-  //tab overview
-  tab_overview(){
+  //overview update
+  overview_update(code,name,client,client_id,start,end,status){
+    document.title = name
+    this.setState({
+      overview:[{
+        code:code,
+        name:name,
+        client:client,
+        client_id:client_id,
+        start:start,
+        end:end
+      }],
+      breadcrumb: [...breadcrumb,{
+        name:name,
+        link:'/detail-project/'+this.state.project_id
+      }],
+      status:status
+    })
+  }
+
+  //overview tab
+  overview_tab(){
     return (
       <ContentOverview
         webservice={this.props.webservice}
-        loading={this.state.loading}
         id={this.state.project_id}
+        update={this.overview_update}
         status={this.state.status}
         progress={this.state.progress}
         data={this.state.overview}
-        activity={this.activity}
+        activity={this.activity_add}
       />
     )
   }
 
-  //tab module
-  tab_module(){
+  //module tab
+  module_tab(){
     return (
       <ContentModule
         webservice={this.props.webservice}
         id={this.state.project_id}
-        activity={this.activity}
+        activity={this.activity_add}
       />
     )
   }
 
-  //tab module progress
-  tab_moduleProgress(){
+  //module progress update
+  moduleProgress_update(data){
+    var done = 0
+    data.forEach(function(module){
+      var finished = module.requirement.filter(function(item){ return item.status === '1' })
+      if (module.requirement.length === finished.length) { done++ }
+    })
+    var progress = Math.round(done/data.length*100)
+    this.setState({progress:progress+'%'})
+  }
+
+  //module progress tab
+  moduleProgress_tab(){
     return (
       <ContentModuleProgress
         webservice={this.props.webservice}
         id={this.state.project_id}
-        activity={this.activity}
+        update={this.moduleProgress_update}
       />
     )
   }
 
-  //tab collaborator
-  tab_collaborator(){
+  //collaborator tab
+  collaborator_tab(){
     return (
       <ContentCollaborator
         webservice={this.props.webservice}
         id={this.state.project_id}
-        activity={this.activity}
+        activity={this.activity_add}
       />
     )
   }
 
   //tab issue
-  tab_issue(){
+  issue_tab(){
     return (
       <ContentIssue
         webservice={this.props.webservice}
         id={this.state.project_id}
-        myName={this.state.myName}
-        activity={this.activity}
+        activity={this.activity_add}
       />
     )
   }
 
+  //activity update
+  activity_update(activity){
+    this.setState({activity:activity})
+  }
+
+  //activity add
+  activity_add(code,detail,date){
+    this.setState({
+      activity: [...this.state.activity,{
+        code:code,
+        detail:detail,
+        date:String(date),
+      }]
+    })
+  }
+
   //tab setting
-  tab_setting(){
+  setting_tab(){
     return (
       <ContentSetting
-        id={this.state.project_id}
         webservice={this.props.webservice}
+        id={this.state.project_id}
         status={this.state.status}
         data={this.state.overview}
-        pass={this.state.password}
-        activity={this.activity}
+        activity={this.activity_add}
         start={this.start}
         edit={this.edit}
       />
@@ -218,24 +207,32 @@ export default class ViewDetailProject extends React.Component {
         <LayoutBreadcrumb breadcrumb={this.state.breadcrumb}/>
         <Container fluid>
           <Tabs defaultActiveKey="TAB1">
-            <Tab eventKey="TAB1" title={<FileText/>}>{this.tab_overview()}</Tab>
+            <Tab eventKey="TAB1" title={<FileText/>}>{this.overview_tab()}</Tab>
             {this.state.status !== null &&
               <Tab eventKey="TAB2" title={<Box/>}>
-                {this.state.status === '0' && this.tab_module()}
-                {this.state.status === '1' && this.tab_moduleProgress()}
+                {this.state.status === '0' && this.module_tab()}
+                {this.state.status === '1' && this.moduleProgress_tab()}
               </Tab>
             }
             {this.state.status === '1' &&
-              <Tab eventKey="TAB3" title={<Users/>}>{this.tab_collaborator()}</Tab>
+              <Tab eventKey="TAB3" title={<Trello/>}><div>test</div></Tab>
             }
             {this.state.status === '1' &&
-              <Tab eventKey="TAB4" title={<AlertCircle/>}>{this.tab_issue()}</Tab>
+              <Tab eventKey="TAB4" title={<Users/>}>{this.collaborator_tab()}</Tab>
             }
-            <Tab eventKey="TAB5" title={<Activity/>}>
-              <ContentActivity data={this.state.activity}/>
+            {this.state.status === '1' &&
+              <Tab eventKey="TAB5" title={<AlertCircle/>}>{this.issue_tab()}</Tab>
+            }
+            <Tab eventKey="TAB6" title={<Activity/>}>
+              <ContentActivity
+                webservice={this.props.webservice}
+                id={this.state.project_id}
+                update={this.activity_update}
+                data={this.state.activity}
+              />
             </Tab>
             {localStorage.getItem('leader') === '1' &&
-              <Tab eventKey="TAB6" title={<Settings/>}>{this.tab_setting()}</Tab>
+              <Tab eventKey="TAB7" title={<Settings/>}>{this.setting_tab()}</Tab>
             }
           </Tabs>
         </Container>

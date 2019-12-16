@@ -22,7 +22,7 @@ export default class ContentOverview extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      project_id:this.props.id,header_button:true,loading:props.loading,
+      project_id:this.props.id,header_button:true,
       code:this.props.data[0]['code'],name:this.props.data[0]['name'],client:this.props.data[0]['client'],start:this.props.data[0]['start'],end:this.props.data[0]['end'],
       problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,
       status:props.status,status_text:'',progress:props.progress,update_project_modal:false,
@@ -37,7 +37,7 @@ export default class ContentOverview extends React.Component {
   //component will receive props
   UNSAFE_componentWillReceiveProps(props){
     this.setState({
-      status:props.status,progress:props.progress,loading:props.loading,
+      status:props.status,progress:props.progress,
       code:props.data[0]['code'],name:props.data[0]['name'],client:props.data[0]['client'],start:props.data[0]['start'],end:props.data[0]['end'],
     })
     if (props.status === '0') { this.setState({status_text:'Status : Preparing '}) }
@@ -52,16 +52,28 @@ export default class ContentOverview extends React.Component {
   push(){
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        problem,
-        goal,
-        objective,
-        success,
-        obstacle
+        code, name, start, end, status,
+        problem, goal, objective, success, obstacle,
+        client { _id, name },
       }
     }`}).then(result => {
-      var data = result.data.project
+      var project = result.data.project
+      var client = project.client[0]
+      this.props.update(
+        project.code,
+        project.name,
+        client.name,
+        client._id,
+        project.start,
+        project.end,
+        project.status
+      )
       this.setState({
-        problem:data.problem,goal:data.goal,objective:data.objective,success:data.success,obstacle:data.obstacle,
+        problem:project.problem,
+        goal:project.goal,
+        objective:project.objective,
+        success:project.success,
+        obstacle:project.obstacle,
         header_button:false,
       })
     })
@@ -170,10 +182,7 @@ export default class ContentOverview extends React.Component {
   //card header
   card_header(){
     var disabled = true
-    if (
-      this.state.header_button === false &&
-      this.state.loading === false
-    ) { disabled = false }
+    if ( this.state.header_button === false) { disabled = false }
     return (
       <Row>
         <Col>
@@ -208,7 +217,7 @@ export default class ContentOverview extends React.Component {
   card_body(){
     var loading = null
     var loaded = null
-    if (this.state.loading === true) {
+    if (this.state.header_button === true) {
       loading = 'block'
       loaded = 'none'
     } else {
