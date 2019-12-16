@@ -266,14 +266,12 @@ export default class ContentModuleProgress extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
-          {localStorage.getItem('leader') === '1' &&
-            <Link
-              to={'/gantt-chart/'+this.state.project_id}
-              className="btn btn-sm btn-outline-dark"
-            >
-              Gantt Chart
-            </Link>
-          }
+          <Link
+            to={'/gantt-chart/'+this.state.project_id}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Gantt Chart
+          </Link>
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

@@ -54,29 +54,29 @@ export default class ViewIssue extends React.Component {
           link:'/document/'+this.state.project_id
         }],
         loading:false,content:`
-        <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
-          <div style="font-size:18px;"><strong>`+project.name+`</strong></div>
-          <div style="font-size:18px;"><strong>`+client.name+`</strong></div>
-          <div>`+client.address+` - `+client.email+` / `+client.contact+`</div><hr/>
-          <div style="font-size:14px;"><strong>Latar Belakang</strong></div><div>`+this.replaceNewLine(project.problem)+`</div><br/>
-          <div style="font-size:14px;"><strong>Tujuan</strong></div><div>`+this.replaceNewLine(project.goal)+`</div><br/>
-          <div style="font-size:14px;"><strong>Objektifitas</strong></div><div>`+this.replaceNewLine(project.objective)+`</div><br/>
-          <div style="font-size:14px;"><strong>Kriteria Sukses</strong></div><div>`+this.replaceNewLine(project.success)+`</div><br/>
-          <div style="font-size:14px;"><strong>Asumsi, Resiko, dan Tantangan</strong></div><div>`+this.replaceNewLine(project.obstacle)+`</div><br/>
-          <table class="table table-bordered table-striped table-sm" style="width: 100%;">
-            <thead>
-              <tr>
-	              <th style="width:2.5%;">No</td>
-	              <th style="width:47.5%;">Requirement</td>
-                <th style="width:50%;">Detail</td>
-              </tr>
-            </thead>
-            <tbody>
-              `+this.requirementIteration(reqs)+`
-            </tbody>
-          </table><hr/>
-          <p></p>
-        </span>
+          <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
+            <div style="font-size:18px;"><strong>`+project.name+`</strong></div>
+            <div style="font-size:18px;"><strong>`+client.name+`</strong></div>
+            <div>`+client.address+` - `+client.email+` / `+client.contact+`</div><hr/>
+            <div style="font-size:14px;"><strong>Latar Belakang</strong></div><div>`+this.replaceNewLine(project.problem)+`</div><br/>
+            <div style="font-size:14px;"><strong>Tujuan</strong></div><div>`+this.replaceNewLine(project.goal)+`</div><br/>
+            <div style="font-size:14px;"><strong>Objektifitas</strong></div><div>`+this.replaceNewLine(project.objective)+`</div><br/>
+            <div style="font-size:14px;"><strong>Kriteria Sukses</strong></div><div>`+this.replaceNewLine(project.success)+`</div><br/>
+            <div style="font-size:14px;"><strong>Asumsi, Resiko, dan Tantangan</strong></div><div>`+this.replaceNewLine(project.obstacle)+`</div><br/>
+            <table class="table table-bordered table-striped table-sm" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width:2.5%;">No</td>
+                  <th style="width:47.5%;">Requirement</td>
+                  <th style="width:50%;">Detail</td>
+                </tr>
+              </thead>
+              <tbody>
+                `+this.requirementIteration(reqs)+`
+              </tbody>
+            </table><hr/>
+            <p></p>
+          </span>
         `,
       })
     })

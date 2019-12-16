@@ -11,16 +11,20 @@ export default class ContentGanttChart extends React.Component {
     super(props)
     this.state = {
       data:{data:[]},
-      currentZoom:'Days'
+      currentZoom:'Days',
+    }
+  }
+
+  //component did mount
+  componentDidMount(){
+    if (localStorage.getItem('leader') === '0') {
+      gantt.config.readonly = true
     }
   }
 
   //component will receive props
   UNSAFE_componentWillReceiveProps(props){
-    gantt.parse({
-      data:props.data,
-      links:props.links,
-    })
+    gantt.parse({data:props.data,links:props.links})
     gantt.eachTask(function(task){ task.$open = true })
     gantt.render()
   }
