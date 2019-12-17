@@ -41,8 +41,7 @@ export default class ViewIssue extends React.Component {
       issue(_id:"`+this.state.issue_id+`") {
         _id, name, detail, status,
         employee { _id, name },
-        comment {
-          _id, comment,
+        comment { _id, comment,
           employee { _id, name }
         },
         project { _id, name },

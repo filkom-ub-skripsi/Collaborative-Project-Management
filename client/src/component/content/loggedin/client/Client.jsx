@@ -54,13 +54,8 @@ export default class ContentClient extends React.Component {
       organization(_id:"`+localStorage.getItem('organization')+`") {
         client {
           _id, name, email, contact, address,
-          project { 
-            code, name, status,
-            module {
-              requirement {
-                status
-              }
-            }
+          project { code, name, status,
+            module { requirement { status } }
           }
         }
       }

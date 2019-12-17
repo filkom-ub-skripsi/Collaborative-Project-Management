@@ -55,16 +55,9 @@ export default class ContentProfile extends React.Component {
     this.fetch({
       query:`{
         employee(_id:"`+localStorage.getItem('user')+`") {
-          name,
-          contact,
-          email,
-          password,
-          organization {
-            name
-          },
-          division {
-            name
-          }
+          name, contact, email, password,
+          organization { name },
+          division { name }
         }
       }`
     }).then(result => {

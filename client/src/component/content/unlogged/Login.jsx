@@ -52,16 +52,8 @@ export default class ContentLogin extends React.Component {
       this.fetch({
         query:`{
           employee (email:"`+email+`") {
-            _id,
-            password,
-            organization {
-              _id,
-              leader {
-                leader {
-                  _id
-                }
-              }
-            }
+            _id, password,
+            organization { _id, leader { leader { _id } } }
           }
         }`
       }).then(result => {

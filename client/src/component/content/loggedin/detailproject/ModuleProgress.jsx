@@ -36,16 +36,8 @@ export default class ContentModuleProgress extends React.Component {
   push(){
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        module {
-          _id,
-          name,
-          detail,
-          requirement {
-            _id,
-            name,
-            detail,
-            status
-          }
+        module { _id, name, detail,
+          requirement { _id, name, detail, status }
         }
       }
     }`}).then(result => {

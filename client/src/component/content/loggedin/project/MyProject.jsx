@@ -55,11 +55,7 @@ export default class ContentMyProject extends React.Component {
       myProject(employee:"`+localStorage.getItem('user')+`") {
         _id, code, name, status, start, end,
         client { name },
-        module {
-          requirement {
-            status
-          }
-        }
+        module { requirement { status } }
       }
     }`}).then(result => {
       var data = []

@@ -1,8 +1,9 @@
 import React from 'react'
 import Swal from 'sweetalert'
-import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
+import { Row, Col, Button, Modal, Form, Spinner } from 'react-bootstrap'
 import { HelpCircle, RefreshCcw } from 'react-feather'
 import { NotificationManager } from 'react-notifications'
+import { createApolloFetch } from 'apollo-fetch'
 import LayoutCardContent  from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 
@@ -17,6 +18,10 @@ const employee_add_form = [
   {field:'tambah_division',feedback:'tambah_fdivision'},
 ]
 
+//misc
+const add_default = 'Add'
+const add_loading = <Spinner animation="border" size="sm"/>
+
 //class
 export default class ContentEmployee extends React.Component {
 
@@ -25,7 +30,7 @@ export default class ContentEmployee extends React.Component {
     super(props)
     this.state = {
       data:[],
-      add_employee_modal:false,
+      add_employee_modal:false,add_button:add_default,add_state:false,
       detail_modal:false,detail_id:null,detail_header:null,
       detail_leader:null,detail_division:'',detail_division_default:''
     }
@@ -42,6 +47,9 @@ export default class ContentEmployee extends React.Component {
     })
     this.setState({data:data})
   }
+
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
 
   //add employee modal
   add_employee_modal(){
@@ -92,9 +100,10 @@ export default class ContentEmployee extends React.Component {
         <Modal.Footer>
           <Button
             variant="primary"
+            disabled={this.state.add_state}
             onClick={()=>this.add_employee_handler()}
           >
-            Add
+            {this.state.add_button}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -122,20 +131,31 @@ export default class ContentEmployee extends React.Component {
   //add employee handler
   add_employee_handler(){
     if (this.add_employee_validation() === true) {
+      this.setState({add_button:add_loading,add_state:true})
       var check = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
       if (check.length === 0) {
-        this.props.add(
-          document.getElementById('tambah_name').value,
-          document.getElementById('tambah_email').value,
-          document.getElementById('tambah_contact').value,
-          document.getElementById('tambah_division').value,
-        )
-        this.setState({add_employee_modal:false})
-        NotificationManager.success(success)
-        NotificationManager.info('Default password is 1234')
+        this.fetch({query:'{employee(email:"'+document.getElementById('tambah_email').value+'"){_id}}'})
+        .then(result => {
+          if (result.data.employee === null) {
+            this.props.add(
+              document.getElementById('tambah_name').value,
+              document.getElementById('tambah_email').value,
+              document.getElementById('tambah_contact').value,
+              document.getElementById('tambah_division').value,
+            )
+            this.setState({add_employee_modal:false,add_button:add_default,add_state:false})
+            NotificationManager.success(success)
+            NotificationManager.info('Default password is 1234')
+          } else {
+            document.getElementById('tambah_email').className = 'form-control is-invalid'
+            document.getElementById('tambah_femail').innerHTML = 'this email has already been used in another organization'
+            this.setState({add_button:add_default,add_state:false})
+          }
+        })
       } else {
         document.getElementById('tambah_email').className = 'form-control is-invalid'
-        document.getElementById('tambah_femail').innerHTML = 'this email is already in use'
+        document.getElementById('tambah_femail').innerHTML = 'this email is already being used at this organization'
+        this.setState({add_button:add_default,add_state:false})
       }
     }
   }

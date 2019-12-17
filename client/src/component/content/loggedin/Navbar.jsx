@@ -39,17 +39,10 @@ export default class ContentNavbar extends React.Component {
     this.fetch({query:`{
       employee(_id:"`+localStorage.getItem('user')+`") {
         name,
-        division {
-          name
-        }
-        collaborator {
-          _id,
-          project {
-            _id,
-            name,
-            employee {
-              email
-            },
+        division { name }
+        collaborator { _id,
+          project { _id, name,
+            employee { email },
           },
           status
         }

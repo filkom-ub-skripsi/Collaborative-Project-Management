@@ -48,67 +48,28 @@ export default class ViewUsers extends React.Component {
     this.fetch({query:`{
       organization(_id:"`+localStorage.getItem('organization')+`") {
         leader {
-          leader {
-            _id,
-            name,
-            email,
-            contact
-            project {
-              code,
-              name,
-              status,
-              module {
-                requirement {
-                  status
-                }
-              }
+          leader { _id, name, email, contact
+            project { code, name, status,
+              module { requirement { status } }
             },
             collaborator {
               project {
-                code,
-                name,
-                status,
-                employee {
-                  name
-                },
-                module {
-                  requirement {
-                    status
-                  }
-                }
+                code, name, status,
+                employee { name },
+                module { requirement { status } }
               },
               status
             }
           }
         }
-        division {
-          _id,
-          name,
-          employee {
-            _id,
-            name,
-            email,
-            contact,
-            project {
-              code,
-              name,
-              status,
-              module {
-                requirement {
-                  status
-                }
-              }
+        division { _id, name,
+          employee { _id, name, email, contact,
+            project { code, name, status,
+              module { requirement { status } }
             },
             collaborator {
-              project {
-                code,
-                name,
-                status,
-                module {
-                  requirement {
-                    status
-                  }
-                }
+              project { code, name, status,
+                module { requirement { status } }
               },
               status
             }
@@ -186,7 +147,6 @@ export default class ViewUsers extends React.Component {
   division(){
     return (
       <ContentDivision
-        webservice={this.props.webservice}
         leader={leader_id}
         data={this.state.data}
         loading={this.state.loading}
@@ -295,7 +255,8 @@ export default class ViewUsers extends React.Component {
           contact:contact,
           division_id:item_d.id.split('_')[0],
           division_name:item_d.name,
-          project:0
+          project:0,
+          data:[]
         }]
       }
     })

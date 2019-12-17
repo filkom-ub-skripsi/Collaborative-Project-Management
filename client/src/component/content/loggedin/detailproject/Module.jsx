@@ -63,15 +63,8 @@ export default class ContentModule extends React.Component {
     this.fetch({
       query:`{
         project(_id:"`+this.state.project_id+`") {
-          module {
-            _id,
-            name,
-            detail,
-            requirement {
-              _id,
-              name,
-              detail
-            }
+          module { _id, name, detail,
+            requirement { _id, name, detail }
           }
         }
       }`
