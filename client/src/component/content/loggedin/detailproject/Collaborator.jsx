@@ -50,6 +50,7 @@ export default class ContentCollaborator extends React.Component {
         }
       }
     }`}).then(result => {
+      this.props.update(result.data.project.collaborator)
       var temp = result.data.project.collaborator
       temp.forEach(function(item){
         if (item.status === '1') {

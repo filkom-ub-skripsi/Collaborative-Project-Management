@@ -51,6 +51,7 @@ export default class ContentIssue extends React.Component {
         }
       }
     }`}).then(result => {
+      this.props.update(result.data.project.issue)
       var data = []
       result.data.project.issue.forEach(function(item){
         data.push({

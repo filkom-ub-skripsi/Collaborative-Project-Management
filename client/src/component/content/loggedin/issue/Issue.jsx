@@ -24,22 +24,23 @@ export default class ContentIssue extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      name:'Loading...',detail:null,employee:null,employee_id:null,status:null,
+      issue:{name:'Loading...',detail:null,employee:null,employee_id:null,status:null},
       comment:[],edit_modal:false,
     }
   }
 
-  //component will receive props
-  UNSAFE_componentWillReceiveProps(props){
-    this.setState({
-      name:props.data[0]['name'],
-      detail:props.data[0]['detail'],
-      employee:props.data[0]['employee'],
-      employee_id:props.data[0]['employee_id'],
-      status:props.data[0]['status'],
-      comment:props.comment,
-      loading:props.loading
-    })
+  //get derived state from props
+  static getDerivedStateFromProps(props,state) {
+    if (props.data[0] !== state.issue) {
+      return { issue:props.data[0] }
+    }
+    if (props.comment !== state.comment) {
+      return { comment:props.comment }
+    }
+    if (props.loading !== state.loading) {
+      return { loading:props.loading }
+    }
+    return null
   }
 
   //form validation
@@ -66,7 +67,6 @@ export default class ContentIssue extends React.Component {
     if (field.value.length !== 0) {
       this.props.commentHandler(field.value)
       field.value = ''
-      NotificationManager.success(success)
     }
   }
 
@@ -78,7 +78,6 @@ export default class ContentIssue extends React.Component {
     }).then((willDelete) => {
       if (willDelete) {
         this.props.commentDelete(id)
-        NotificationManager.success(success)
       }
     })
   }
@@ -101,12 +100,12 @@ export default class ContentIssue extends React.Component {
           <Form autoComplete="off">
             <Form.Group>
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" id="sunting_name" defaultValue={this.state.name}/>
+              <Form.Control type="text" id="sunting_name" defaultValue={this.state.issue.name}/>
               <div id="sunting_fname" className="invalid-feedback d-block"/>
             </Form.Group>
             <Form.Group>
               <Form.Label>Detail</Form.Label>
-              <Form.Control type="text" as="textarea" rows="5" id="sunting_detail" defaultValue={this.state.detail}/>
+              <Form.Control type="text" as="textarea" rows="5" id="sunting_detail" defaultValue={this.state.issue.detail}/>
               <div id="sunting_fdetail" className="invalid-feedback d-block"/>
             </Form.Group>
           </Form>
@@ -134,8 +133,8 @@ export default class ContentIssue extends React.Component {
   render() {
 
     var status = null
-    if (this.state.status === '0') { status = <Badge variant="warning">unsolved</Badge> }
-    else if (this.state.status === '1') { status = <Badge variant="success">resolved</Badge> }
+    if (this.state.issue.status === '0') { status = <Badge variant="warning">unsolved</Badge> }
+    else if (this.state.issue.status === '1') { status = <Badge variant="success">resolved</Badge> }
 
     var reload = null
     if (this.props.loading === 'disabled') { reload = 'Loading...' }
@@ -148,11 +147,11 @@ export default class ContentIssue extends React.Component {
           <Card.Body>
             <Row>
               <Col>
-                <div style={{fontWeight:600}}>{this.state.name} {status}</div>
-                <small className="text-muted">Created by {this.state.employee}</small>
+                <div style={{fontWeight:600}}>{this.state.issue.name} {status}</div>
+                <small className="text-muted">Created by {this.state.issue.employee}</small>
               </Col>
               <Col className="text-right">
-                {this.state.employee_id === localStorage.getItem('user') &&
+                {this.state.issue.employee_id === localStorage.getItem('user') &&
                   <div>
                     <a href="#!" onClick={()=>this.setState({edit_modal:true})} className={this.props.loading}>Edit </a>/
                     <a href="#!" onClick={()=>this.props.reload()} className={this.props.loading}> {reload}</a>
@@ -161,7 +160,7 @@ export default class ContentIssue extends React.Component {
               </Col>
             </Row>
             <hr style={{marginTop:10,marginBottom:10}}/>
-            <div style={prewrap}>{this.state.detail}</div>
+            <div style={prewrap}>{this.state.issue.detail}</div>
           </Card.Body>
         </Card>
         <Form autoComplete="off" style={padding} className="animated faster fadeIn">

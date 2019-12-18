@@ -10,8 +10,8 @@ export default class ContentGanttChart extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      data:{data:[]},
-      currentZoom:'Days',
+      data:[],links:[],
+      currentZoom:'Days'
     }
   }
 
@@ -22,11 +22,13 @@ export default class ContentGanttChart extends React.Component {
     }
   }
 
-  //component will receive props
-  UNSAFE_componentWillReceiveProps(props){
-    gantt.parse({data:props.data,links:props.links})
-    gantt.eachTask(function(task){ task.$open = true })
-    gantt.render()
+  //component did update
+  componentDidUpdate(props,state) {
+    if (props.data !== state.data && props.links !== state.links) {
+      this.setState({data:props.data,links:props.links})
+      gantt.parse({data:props.data,links:props.links})
+      gantt.eachTask(function(task){ task.$open = true })
+    }
   }
 
   //handle zoom change
@@ -45,6 +47,10 @@ export default class ContentGanttChart extends React.Component {
 
   //render
   render(){
+    const data = {
+      data:this.state.data,
+      links:this.state.links
+    }
     const { currentZoom } = this.state
     return (
       <div>
@@ -56,7 +62,7 @@ export default class ContentGanttChart extends React.Component {
         </div>
         <div className="gantt-container">
           <Gantt
-            tasks={this.state.data}
+            tasks={data}
             zoom={currentZoom}
             onDataUpdated={this.logDataUpdate}
           />

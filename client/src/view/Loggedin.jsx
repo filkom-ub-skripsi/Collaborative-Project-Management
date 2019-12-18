@@ -19,7 +19,11 @@ export default class Loggedin extends React.Component {
       <div>
         <Navbar webservice={this.props.webservice}/>
         <Switch>
-          <Route path="/" exact component = { Home }></Route>
+          <Route
+            exact
+            path="/"
+            render = {(props)=> <Home {...props} webservice={this.props.webservice}/>}
+          />
           <Route
             path="/projects"
             render = {(props)=> <Projects {...props} webservice={this.props.webservice}/>}

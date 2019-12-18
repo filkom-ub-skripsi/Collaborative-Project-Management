@@ -36,16 +36,16 @@ export default class ContentEmployee extends React.Component {
     }
   }
 
-  // component will receive props
-  UNSAFE_componentWillReceiveProps(props){
+  //get derived state from props
+  static getDerivedStateFromProps(props,state) {
     var data = []
-    var temp = props.data
-    temp.forEach(function(item_d){
-      item_d.employee.forEach(function(item_e){
-        data.push(item_e)
-      })
+    props.data.forEach(function(item_d){
+      item_d.employee.forEach(function(item_e){ data.push(item_e) })
     })
-    this.setState({data:data})
+    if (data !== state.data) {
+      return { data:data }
+    }
+    return null
   }
 
   //fetch

@@ -23,7 +23,7 @@ export default class ContentOverview extends React.Component {
     super(props)
     this.state = {
       project_id:this.props.id,header_button:true,
-      code:this.props.data[0]['code'],name:this.props.data[0]['name'],client:this.props.data[0]['client'],start:this.props.data[0]['start'],end:this.props.data[0]['end'],
+      overview:{code:null,name:null,client:null,start:null,end:null},
       problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,
       status:props.status,status_text:'',progress:props.progress,update_project_modal:false,
     }
@@ -34,15 +34,25 @@ export default class ContentOverview extends React.Component {
     this.push()
   }
 
-  //component will receive props
-  UNSAFE_componentWillReceiveProps(props){
-    this.setState({
-      status:props.status,progress:props.progress,
-      code:props.data[0]['code'],name:props.data[0]['name'],client:props.data[0]['client'],start:props.data[0]['start'],end:props.data[0]['end'],
-    })
-    if (props.status === '0') { this.setState({status_text:'Status : Preparing '}) }
-    else if (props.status === '1') { this.setState({status_text:'Status : On Progress '}) }
-    else if (props.status === '2') { this.setState({status_text:'Status : Closed '}) }
+  //get derived state from props
+  static getDerivedStateFromProps(props,state) {
+    if (props.status !== state.status) {
+      var status_text = null
+      if (props.status === '0') { status_text = 'Status : Preparing ' }
+      if (props.status === '1') { status_text = 'Status : On Progress ' }
+      if (props.status === '2') { status_text = 'Status : Closed ' }
+      return {
+        status:props.status,
+        status_text:status_text
+      }
+    }
+    if (props.progress !== state.progress) {
+      return { progress:props.progress }
+    }
+    if (props.data[0] !== state.overview) {
+      return { overview:props.data[0] }
+    }
+    return null
   }
 
   //fetch
@@ -231,9 +241,9 @@ export default class ContentOverview extends React.Component {
             <div style={header}>Loading...</div>
           </ListGroup.Item>
           <ListGroup.Item style={{display:loaded}}>
-            <div style={header}>{this.state.name+' ['+this.state.code+']'}</div>
-            <div style={header}>{this.state.client}</div>
-            <div style={header}>{this.date_reformatter(this.state.start)+' - '+this.date_reformatter(this.state.end)}</div>
+            <div style={header}>{this.state.overview.name+' ['+this.state.overview.code+']'}</div>
+            <div style={header}>{this.state.overview.client}</div>
+            <div style={header}>{this.date_reformatter(this.state.overview.start)+' - '+this.date_reformatter(this.state.overview.end)}</div>
             <div style={header}>{this.state.status_text} {this.state.status === '1' && this.state.progress}</div>
           </ListGroup.Item>
           <ListGroup.Item>

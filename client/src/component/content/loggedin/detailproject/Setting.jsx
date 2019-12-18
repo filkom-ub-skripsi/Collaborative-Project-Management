@@ -41,8 +41,11 @@ export default class ContentSetting extends React.Component {
   constructor(props){
     super(props)
     this.state = { 
-      project_id:this.props.id,edit_modal:false,delete_modal:false,delete_button:delete_button,delete_state:false,client:[],status:null,password:null,
-      code:this.props.data[0]['code'],name:this.props.data[0]['name'],client_id:this.props.data[0]['client_id'],start:this.props.data[0]['start'],end:this.props.data[0]['end'],
+      project_id:this.props.id,
+      edit_modal:false,delete_modal:false,
+      delete_button:delete_button,delete_state:false,
+      client:[],password:null,status:null,
+      overview:{code:null,name:null,client:null,client_id:null,start:null,end:null},
     }
   }
 
@@ -51,12 +54,19 @@ export default class ContentSetting extends React.Component {
     this.push()
   }
 
-  //component will receive props
-  UNSAFE_componentWillReceiveProps(props){
-    this.setState({
-      code:props.data[0]['code'],name:props.data[0]['name'],start:props.data[0]['start'],end:props.data[0]['end'],status:props.status,
-      client_id:props.data[0]['client_id'],password:null
-    })
+  //get derived state from props
+  static getDerivedStateFromProps(props,state) {
+    if (props.data[0] !== state.overview) {
+      return {
+        overview:props.data[0]
+      }
+    }
+    if (props.status !== state.status) {
+      return {
+        status:props.status
+      }
+    }
+    return null
   }
 
   //fetch
@@ -185,17 +195,17 @@ export default class ContentSetting extends React.Component {
           <Form autoComplete="off">
             <Form.Group>
               <Form.Label>Code</Form.Label>
-              <Form.Control type="text" id="edit_code" defaultValue={this.state.code}/>
+              <Form.Control type="text" id="edit_code" defaultValue={this.state.overview.code}/>
               <div id="edit_fcode" className="invalid-feedback d-block"/>
             </Form.Group>
             <Form.Group>
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" id="edit_name" defaultValue={this.state.name}/>
+              <Form.Control type="text" id="edit_name" defaultValue={this.state.overview.name}/>
               <div id="edit_fname" className="invalid-feedback d-block"/>
             </Form.Group>
             <Form.Group>
               <Form.Label>Client</Form.Label>
-              <Form.Control id="edit_client" as="select" defaultValue={this.state.client_id}>
+              <Form.Control id="edit_client" as="select" defaultValue={this.state.overview.client_id}>
                 {this.state.client.map((item,index) => {
                   return (
                     <option value={item._id} key={index}>{item.name}</option>
@@ -206,12 +216,12 @@ export default class ContentSetting extends React.Component {
             </Form.Group>
             <Form.Group>
               <Form.Label>Start</Form.Label>
-              <Form.Control type="date" id="edit_start" defaultValue={this.state.start}/>
+              <Form.Control type="date" id="edit_start" defaultValue={this.state.overview.start}/>
               <div id="edit_fstart" className="invalid-feedback d-block"/>
             </Form.Group>          
             <Form.Group>
               <Form.Label>End</Form.Label>
-              <Form.Control type="date" id="edit_end" defaultValue={this.state.end}/>
+              <Form.Control type="date" id="edit_end" defaultValue={this.state.overview.end}/>
               <div id="edit_fend" className="invalid-feedback d-block"/>
             </Form.Group>
           </Form>
@@ -320,7 +330,7 @@ export default class ContentSetting extends React.Component {
   //delete validation
   delete_validation(){
     var counter = 0
-    var name = this.state.name
+    var name = this.state.overview.name
     var pass = this.state.password
     delete_form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {

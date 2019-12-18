@@ -6,6 +6,7 @@ import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
 import ContentOverview from '../../component/content/loggedin/detailproject/Overview'
 import ContentModule from '../../component/content/loggedin/detailproject/Module'
 import ContentModuleProgress from '../../component/content/loggedin/detailproject/ModuleProgress'
+import ContentScrum from '../../component/content/loggedin/detailproject/Scrum'
 import ContentCollaborator from '../../component/content/loggedin/detailproject/Collaborator'
 import ContentIssue from '../../component/content/loggedin/detailproject/Issue'
 import ContentActivity from '../../component/content/loggedin/detailproject/Activity'
@@ -24,11 +25,13 @@ export default class ViewDetailProject extends React.Component {
     this.state = {
       project_id:this.props.match.params.id,breadcrumb:breadcrumb,
       overview:[{code:null,name:null,client:null,client_id:null,start:null,end:null}],
-      status:null,progress:'...%',activity:[],
+      status:null,progress:'...%',requirement:[],issue:[],employee:[],activity:[],
     }
     this.overview_update = this.overview_update.bind(this)
-    this.activity_update = this.activity_update.bind(this)
     this.moduleProgress_update = this.moduleProgress_update.bind(this)
+    this.issue_update = this.issue_update.bind(this)
+    this.collaborator_update = this.collaborator_update.bind(this)
+    this.activity_update = this.activity_update.bind(this)
     this.activity_add = this.activity_add.bind(this)
     this.start = this.start.bind(this)
     this.edit = this.edit.bind(this)
@@ -133,7 +136,7 @@ export default class ViewDetailProject extends React.Component {
       if (module.requirement.length === finished.length) { done++ }
     })
     var progress = Math.round(done/data.length*100)
-    this.setState({progress:progress+'%'})
+    this.setState({progress:progress+'%',requirement:data})
   }
 
   //module progress tab
@@ -147,23 +150,49 @@ export default class ViewDetailProject extends React.Component {
     )
   }
 
+  //scrum tab
+  scrum_tab(){
+    return (
+      <ContentScrum
+        webservice={this.props.webservice}
+        id={this.state.project_id}
+        requirement={this.state.requirement}
+        issue={this.state.issue}
+        employee={this.state.employee}
+        activity={this.activity_add}
+      />
+    )
+  }
+
+  //issue update
+  issue_update(data){
+    this.setState({issue:data})
+  }
+
+  //issue tab
+  issue_tab(){
+    return (
+      <ContentIssue
+        webservice={this.props.webservice}
+        id={this.state.project_id}
+        update={this.issue_update}
+        activity={this.activity_add}
+      />
+    )
+  }
+
+  //collaborator update
+  collaborator_update(data){
+    this.setState({employee:data})
+  }
+
   //collaborator tab
   collaborator_tab(){
     return (
       <ContentCollaborator
         webservice={this.props.webservice}
         id={this.state.project_id}
-        activity={this.activity_add}
-      />
-    )
-  }
-
-  //tab issue
-  issue_tab(){
-    return (
-      <ContentIssue
-        webservice={this.props.webservice}
-        id={this.state.project_id}
+        update={this.collaborator_update}
         activity={this.activity_add}
       />
     )
@@ -215,13 +244,13 @@ export default class ViewDetailProject extends React.Component {
               </Tab>
             }
             {this.state.status === '1' &&
-              <Tab eventKey="TAB3" title={<Trello/>}><div>test</div></Tab>
+              <Tab eventKey="TAB3" title={<Trello/>}><div>{this.scrum_tab()}</div></Tab>
             }
             {this.state.status === '1' &&
-              <Tab eventKey="TAB4" title={<Users/>}>{this.collaborator_tab()}</Tab>
+              <Tab eventKey="TAB4" title={<AlertCircle/>}>{this.issue_tab()}</Tab>
             }
             {this.state.status === '1' &&
-              <Tab eventKey="TAB5" title={<AlertCircle/>}>{this.issue_tab()}</Tab>
+              <Tab eventKey="TAB5" title={<Users/>}>{this.collaborator_tab()}</Tab>
             }
             <Tab eventKey="TAB6" title={<Activity/>}>
               <ContentActivity
