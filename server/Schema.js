@@ -113,6 +113,12 @@ const EmployeeType = new GraphQLObjectType({
         return Collaborator.find({employee:parent._id})
       }
     },
+    issue : {
+      type : new GraphQLList(IssueType),
+      resolve(parent, args){
+        return Issue.find({employee:parent._id})
+      }
+    },
   })
 })
 
@@ -195,6 +201,12 @@ const ProjectType = new GraphQLObjectType({
       type : new GraphQLList(CollaboratorType),
       resolve(parent, args){
         return Collaborator.find({project:parent._id})
+      }
+    },
+    issue : {
+      type : new GraphQLList(IssueType),
+      resolve(parent, args){
+        return Issue.find({project:parent._id})
       }
     },
   })
@@ -283,6 +295,56 @@ const CollaboratorType = new GraphQLObjectType({
   })
 })
 
+const Issue = require('./model/Issue')
+const IssueType = new GraphQLObjectType({
+  name: 'Issue',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({_id:parent.project})
+      }
+    },
+    employee : {
+      type : new GraphQLList(EmployeeType),
+      resolve(parent, args){
+        return Employee.find({_id:parent.employee})
+      }
+    },
+    name: { type : GraphQLString },
+    detail: { type : GraphQLString },
+    status: { type : GraphQLString },
+    comment : {
+      type : new GraphQLList(CommentType),
+      resolve(parent, args){
+        return Comment.find({issue:parent._id})
+      }
+    },
+  })
+})
+
+const Comment = require('./model/Comment')
+const CommentType = new GraphQLObjectType({
+  name: 'Comment',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    issue : {
+      type : new GraphQLList(IssueType),
+      resolve(parent, args){
+        return Issue.find({_id:parent.issue})
+      }
+    },
+    employee : {
+      type : new GraphQLList(EmployeeType),
+      resolve(parent, args){
+        return Employee.find({_id:parent.employee})
+      }
+    },
+    comment: { type : GraphQLString },
+  })
+})
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -339,6 +401,14 @@ const RootQuery = new GraphQLObjectType({
       }
     },
 
+    myCollaboration: {
+      type : new GraphQLList(CollaboratorType),
+      args: { employee: { type: GraphQLString } },
+      resolve(parent, args){
+        return Collaborator.find({employee:args.employee})
+      }
+    },
+
     activity: {
       type: ActivityType,
       args: { _id: { type: GraphQLString } },
@@ -368,6 +438,22 @@ const RootQuery = new GraphQLObjectType({
       args: { _id: { type: GraphQLString } },
       resolve(parent, args){
         return Collaborator.findById(args._id)
+      }
+    },
+
+    issue: {
+      type: IssueType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Issue.findById(args._id)
+      }
+    },
+
+    comment: {
+      type: CommentType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Comment.findById(args._id)
       }
     },
 
@@ -851,6 +937,76 @@ const Mutation = new GraphQLObjectType({
         let update = { status:args.status };
         let collaborator = Collaborator.findByIdAndUpdate(args._id, update, {new: true})
         return collaborator
+      }
+    },
+
+    issue_add: {
+      type: IssueType,
+      args: {
+        _id: { type : GraphQLString },
+        project: { type : GraphQLString },
+        employee: { type : GraphQLString },
+        name: { type : GraphQLString },
+        detail: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let issue = new Issue({
+          _id: args._id,
+          project:args.project,
+          employee:args.employee,
+          name:args.name,
+          detail:args.detail,
+          status:args.status
+        });
+        return issue.save();
+      }
+    },
+
+    issue_edit: {
+      type: IssueType,
+      args: {
+        _id: { type : GraphQLString },
+        name: { type : GraphQLString },
+        detail: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = {
+          name:args.name,
+          detail:args.detail,
+          status:args.status
+        };
+        let issue = Issue.findByIdAndUpdate(args._id, update, {new: true})
+        return issue
+      }
+    },
+
+    comment_add: {
+      type: CommentType,
+      args: {
+        _id: { type : GraphQLString },
+        issue: { type : GraphQLString },
+        employee: { type : GraphQLString },
+        comment: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let comment = new Comment({
+          _id: args._id,
+          issue:args.issue,
+          employee:args.employee,
+          comment:args.comment,
+        });
+        return comment.save();
+      }
+    },
+
+    comment_delete: {
+      type: CommentType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let comment = Comment.findByIdAndDelete(args._id)
+        return comment
       }
     },
 
