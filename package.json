@@ -1,0 +1,14 @@
+{
+    "name": "cpm",
+    "version": "1.0.0",
+    "description": "cpm project",
+    "main": "index.js",
+    "scripts": {
+        "copy:server": "copy \"../Collaborative-Management-Management/server/**/*.js\" ./server"
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "copy": "^0.3.2",
+        "lerna": "^3.19.0"
+    }
+}

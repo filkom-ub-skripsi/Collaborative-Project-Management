@@ -13,11 +13,24 @@ services:
         networks: 
             - mongo_network
     backend:
-        image: 'node:12-alpine'
-        container_name: 'graphql-backend'
+        build:
+            context: ./server
+            args:
+                workDir: /usr/local/app
+                MONGO_URI: ${MONGO_URI}
+                PORT: ${PORT}
+        container_name: 'cpm-services'
+        ports: 
+            - ${PORT}:${PORT}
         networks: 
             - mongo_network
+            - backend_network
     frontend:
-        image: 'node:alpine'
+        build: 
+            context: ./client
+        container_name: 'cpm-webapp'
+        networks: 
+            - backend_network
 networks: 
     mongo_network:
+    backend_network:

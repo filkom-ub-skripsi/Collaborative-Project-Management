@@ -2,9 +2,8 @@
   "name": "server",
   "version": "1.0.0",
   "description": "server of collaborative project management application",
-  "main": "index.js",
   "scripts": {
-    "start": "node src/App.js"
+    "start": "node App.js"
   },
   "author": "Bayu Kharisma",
   "license": "ISC",
