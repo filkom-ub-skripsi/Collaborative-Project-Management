@@ -15,7 +15,7 @@ WORKDIR ${workDir}
 COPY . .
 
 # install and cache app dependencies
-RUN yarn install --cache-folder ${YARN_CACHE_FOLDER} --silent
+RUN yarn install --silent
 
 # add $PATH
 ENV PATH ${workDir}/node_modules/.bin:$PATH
