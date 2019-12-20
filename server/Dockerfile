@@ -14,6 +14,7 @@ WORKDIR ${workDir}
 
 COPY . .
 
+RUN yarn global add pm2 --silent
 # install and cache app dependencies
 RUN yarn install --silent
 

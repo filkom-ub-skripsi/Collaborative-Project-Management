@@ -6,16 +6,10 @@ ARG workDir=/usr/local/app
 # set working directory
 WORKDIR ${workDir}
 
+COPY build .
 
-# install and cache app dependencies
-COPY package.json package.json
-RUN npm install --silent
-
-# add $PATH
-ENV PATH ${workDir}/node_modules/.bin:$PATH
-
-# copy source
-COPY src src
+RUN yarn install -g pm2 --silent
+RUN yarn global add serve && serve -s 
 
 # start app
-CMD ["npm", "start"]
+CMD ["serve", "-s", "./"]
