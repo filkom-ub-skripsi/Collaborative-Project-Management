@@ -4,6 +4,7 @@ FROM node:12-alpine
 ARG workDir=/usr/local/app
 ARG MONGO_URI
 ARG PORT
+ARG YARN_CACHE_FOLDER=/tmp/.yarn-cache
 
 ENV MONGO_URI=${MONGO_URI}
 ENV PORT=${PORT}
@@ -11,15 +12,14 @@ ENV PORT=${PORT}
 # set working directory
 WORKDIR ${workDir}
 
-# install and cache app dependencies
 COPY . .
 
-# RUN npm install --silent
-# COPY node_modules .
+# install and cache app dependencies
+RUN yarn install --cache-folder ${YARN_CACHE_FOLDER} --silent
 
 # add $PATH
 ENV PATH ${workDir}/node_modules/.bin:$PATH
 
 
 # start app
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
