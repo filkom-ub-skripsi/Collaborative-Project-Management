@@ -214,3 +214,5 @@ yarn.lock
 .env
 
 data-backup
+
+docker-compose.yml
