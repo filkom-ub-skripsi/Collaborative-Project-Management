@@ -1,6 +1,5 @@
 import React from 'react'
-import RDS from 'randomstring'
-import MD5 from 'md5'
+import { NotificationManager } from 'react-notifications'
 import { Container, Tabs, Tab } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
@@ -23,7 +22,7 @@ export default class ViewUsers extends React.Component {
   //constructor
   constructor(props){
     super(props)
-    this.state = { data:[], loading:true }
+    this.state = { data:[], loading:true, loading_table:true }
     this.reload = this.reload.bind(this)
     this.division_add = this.division_add.bind(this)
     this.division_edit = this.division_edit.bind(this)
@@ -76,7 +75,8 @@ export default class ViewUsers extends React.Component {
           }
         }
       }
-    }`}).then(result => {
+    }`})
+    .then(result => {
       var data = []
       result.data.organization.leader.forEach(function(item_d){
         var employee = []
@@ -133,13 +133,18 @@ export default class ViewUsers extends React.Component {
       this.setState({
         data:data,
         loading:false,
+        loading_table:false,
       })
+    })
+    .catch(() => {
+      this.setState({loading_table:false})
+      NotificationManager.error('503 Service Unavailable')
     })
   }
 
   //reload
   reload(){
-    this.setState({loading:true})
+    this.setState({loading:true,loading_table:true})
     this.push()
   }
 
@@ -150,6 +155,7 @@ export default class ViewUsers extends React.Component {
         leader={leader_id}
         data={this.state.data}
         loading={this.state.loading}
+        table={this.state.loading_table}
         reload={this.reload}
         add={this.division_add}
         edit={this.division_edit}
@@ -160,7 +166,7 @@ export default class ViewUsers extends React.Component {
 
   //division add
   division_add(name){
-    var id = RDS.generate({length:32,charset:'alphabetic'})
+    var id = this.props.objectId()
     this.fetch({query:`
       mutation {
         division_add(
@@ -217,6 +223,7 @@ export default class ViewUsers extends React.Component {
         leader={leader_id}
         data={this.state.data}
         loading={this.state.loading}
+        table={this.state.loading_table}
         reload={this.reload}
         add={this.employee_add}
         edit={this.employee_edit}
@@ -228,12 +235,12 @@ export default class ViewUsers extends React.Component {
 
   //employee add
   employee_add(name,email,contact,division){
-    var id = RDS.generate({length:32,charset:'alphabetic'})
+    var id = this.props.objectId()
     this.fetch({query:`
       mutation {
         employee_add(
           _id:"`+id+`",
-          password:"`+MD5('1234')+`",
+          password:"`+this.props.hashMD5('1234')+`",
           organization:"`+localStorage.getItem('organization')+`",
           division:"`+division.split('_')[0]+`",
           name:"`+name+`",
@@ -306,7 +313,7 @@ export default class ViewUsers extends React.Component {
       mutation {
         employee_edit(
           _id:"`+id.split('_')[0]+`",
-          password:"`+MD5('1234')+`"
+          password:"`+this.props.hashMD5('1234')+`"
         ){_id}
       }`
     })

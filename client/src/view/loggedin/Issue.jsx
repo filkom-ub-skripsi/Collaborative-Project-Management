@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import { Container } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
@@ -40,6 +39,9 @@ export default class ViewIssue extends React.Component {
     this.fetch({query:`{
       issue(_id:"`+this.state.issue_id+`") {
         _id, name, detail, status,
+        requirement { _id, name,
+          module { _id, name }
+        }
         employee { _id, name },
         comment { _id, comment,
           employee { _id, name }
@@ -69,6 +71,10 @@ export default class ViewIssue extends React.Component {
         data:[{
           name:result.data.issue.name,
           detail:result.data.issue.detail,
+          requirement:result.data.issue.requirement[0]['name'],
+          requirement_id:result.data.issue.requirement[0]['_id'],
+          module:result.data.issue.requirement[0]['module'][0]['name'],
+          module_id:result.data.issue.requirement[0]['module'][0]['_id'],
           employee:result.data.issue.employee[0]['name'],
           employee_id:result.data.issue.employee[0]['_id'],
           status:result.data.issue.status,
@@ -103,7 +109,7 @@ export default class ViewIssue extends React.Component {
     }`})
     this.fetch({query:`mutation {
       activity_add(
-        _id:"`+RDS.generate({length:32,charset:'alphabetic'})+`",
+        _id:"`+this.props.objectId()+`",
         project:"`+this.state.project_id+`",
         code:"S1",
         detail:"`+name+`",
@@ -124,7 +130,7 @@ export default class ViewIssue extends React.Component {
 
   //comment handler
   commentHandler(comment){
-    var id = RDS.generate({length:32,charset:'alphabetic'})
+    var id = this.props.objectId()
     this.fetch({query:`mutation {
       comment_add(
         _id:"`+id+`",

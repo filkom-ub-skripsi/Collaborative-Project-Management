@@ -25,6 +25,10 @@
     "sweetalert": "^2.1.2",
     "typescript": "^3.2.1"
   },
+  "engines": {
+    "node": "10.16.3",
+    "npm": "6.9.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

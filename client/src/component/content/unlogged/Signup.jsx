@@ -2,8 +2,6 @@ import React from 'react'
 import { NotificationManager } from 'react-notifications'
 import { Form, Button, Spinner } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
-import RDS from 'randomstring'
-import MD5 from 'md5'
 
 //misc
 const button_name = 'Sign Up'
@@ -56,49 +54,41 @@ export default class ContentSignup extends React.Component {
         disabled:true,
         button:spinner
       })
-      var _id_employee = RDS.generate({length: 32,charset:'alphabetic'})
-      var _id_organization = RDS.generate({length: 32,charset:'alphabetic'})
+      var _id_employee = this.props.objectId()
+      var _id_organization = this.props.objectId()
       var name = document.getElementById('name').value
       var contact = document.getElementById('contact').value
       var email = document.getElementById('email').value
-      var password = MD5(document.getElementById('password').value)
+      var password = this.props.hashMD5(document.getElementById('password').value)
       var organization = document.getElementById('organization').value
-      this.fetch({
-        query:`{
-          employee(email:"`+email+`"){name}
-        }`
-      }).then(result => {
+      this.fetch({query:`{
+        employee(email:"`+email+`"){name}
+      }`})
+      .then(result => {
         if (result.data.employee === null) {
-          this.fetch({
-            query:`
-              mutation {
-                employee_add(
-                  _id:"`+_id_employee+`",
-                  password:"`+password+`",
-                  organization:"`+_id_organization+`",
-                  division:"",
-                  name:"`+name+`",
-                  email:"`+email+`",
-                  contact:"`+contact+`"
-                ){_id}
-              }`
-          }).then(() => {
-            this.fetch({query:`
-              mutation {
-                organization_add(
-                  _id:"`+_id_organization+`",
-                  name:"`+organization+`"
-                ){_id}
-              }`
-            })
-            this.fetch({query:`
-              mutation {
-                rule_add(
-                  organization:"`+_id_organization+`",
-                  leader:"`+_id_employee+`"
-                ){organization}
-              }`
-            })
+          this.fetch({query:`mutation{
+            employee_add(
+              _id:"`+_id_employee+`",
+              password:"`+password+`",
+              organization:"`+_id_organization+`",
+              division:"",
+              name:"`+name+`",
+              email:"`+email+`",
+              contact:"`+contact+`"
+            ){_id}
+          }`}).then(() => {
+            this.fetch({query:`mutation{
+              organization_add(
+                _id:"`+_id_organization+`",
+                name:"`+organization+`"
+              ){_id}
+            }`})
+            this.fetch({query:`mutation{
+              rule_add(
+                organization:"`+_id_organization+`",
+                leader:"`+_id_employee+`"
+              ){organization{_id}}
+            }`})
             form.forEach(function(item){
               document.getElementById(item.field).value = ''
               document.getElementById(item.field).className = 'form-control'
@@ -118,6 +108,18 @@ export default class ContentSignup extends React.Component {
             button:button_name
           })
         }
+      })
+      .catch(() => {
+        form.forEach(function(item){
+          document.getElementById(item.field).value = ''
+          document.getElementById(item.field).className = 'form-control'
+          document.getElementById(item.feedback).innerHTML = ''
+        })
+        this.setState({
+          disabled:false,
+          button:button_name
+        })
+        NotificationManager.error('503 Service Unavailable')
       })
     }
   }

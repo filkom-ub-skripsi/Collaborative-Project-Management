@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
@@ -155,7 +154,7 @@ export default class ContentOverview extends React.Component {
         ){_id}
       }`
     })
-    var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+    var activity_id = this.props.objectId()
     var activity_code = 'P1'
     var activity_date = new Date()
     this.fetch({query:`

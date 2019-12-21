@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
 import { Row, Col, Button, ListGroup, Modal, Form, Badge } from 'react-bootstrap'
@@ -14,6 +13,7 @@ const refresh_loading = 'Loading...'
 //issue
 const issue_add_form = [
   {field:'tambah_name',feedback:'tambah_fname'},
+  {field:'tambah_requirement',feedback:'tambah_frequirement'},
   {field:'tambah_detail',feedback:'tambah_fdetail'},
 ]
 
@@ -29,13 +29,41 @@ export default class ContentIssue extends React.Component {
     this.state = {
       project_id:this.props.id,
       header_button:true,header_refresh:refresh_loading,
-      add_issue_modal:false,data:[],myName:null
+      add_issue_modal:false,data:[],myName:null,module:[],requirement:[],filter:[]
     }
   }
 
   //component did mount
   componentDidMount(){
     this.push()
+  }
+
+  //get derived state from props
+  static getDerivedStateFromProps(props,state) {
+    if (state.module.length === 0 && state.requirement.length === 0) {
+      var module = []
+      var requirement = []
+      props.requirement.forEach(function(item_module){
+        module.push({
+          id:item_module._id,
+          name:item_module.name
+        })
+        item_module.requirement.forEach(function(item_requirement){
+          requirement.push({
+            id:item_requirement._id,
+            name:item_requirement.name,
+            module:item_module.name,
+            module_id:item_module._id
+          })
+        })
+      })
+      return {
+        module:module,
+        requirement:requirement,
+        filter:requirement
+      }
+    }
+    return null
   }
 
   //fetch
@@ -46,21 +74,23 @@ export default class ContentIssue extends React.Component {
     //data
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        issue { _id, name, detail, status,
+        issue { _id, name, status,
           employee { _id, name }
+          requirement { _id, name,
+            module { _id, name }
+          }
         }
       }
     }`}).then(result => {
-      this.props.update(result.data.project.issue)
       var data = []
       result.data.project.issue.forEach(function(item){
+        const requirement = item.requirement[0]
+        const module = requirement.module[0]
         data.push({
-          id:item._id,
-          name:item.name,
-          detail:item.detail,
-          status:item.status,
-          employee:item.employee[0]['name'],
-          employee_id:item.employee[0]['_id']
+          id:item._id,name:item.name,status:item.status,
+          module:module.name,module_id:module._id,
+          requirement:requirement.name,requirement_id:requirement._id,
+          employee:item.employee[0]['name'],employee_id:item.employee[0]['_id']
         })
       })
       this.setState({
@@ -68,6 +98,7 @@ export default class ContentIssue extends React.Component {
         header_button:false,
         header_refresh:refresh_default,
       })
+      this.props.update(data)
     })
     //name
     this.fetch({query:`{
@@ -111,6 +142,14 @@ export default class ContentIssue extends React.Component {
 
   //add issue modal
   add_issue_modal(){
+    const filter = (id) => {
+      if (id !== '') {
+        const filter = this.state.requirement.filter(function(item){ return item.module_id === id.split('_')[0] })
+        this.setState({filter:filter})
+      } else {
+        this.setState({filter:this.state.requirement})
+      }
+    }
     return (
       <Modal
         size="lg"
@@ -129,6 +168,28 @@ export default class ContentIssue extends React.Component {
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" id="tambah_name"/>
               <div id="tambah_fname" className="invalid-feedback d-block"/>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>About</Form.Label>
+              <Form.Row>
+                <Col>
+                  <Form.Control as="select" onChange={(e)=>filter(e.target.value)}>
+                    <option value="">All Module</option>
+                    {this.state.module.map((item,index) => {
+                      return <option value={item.id} key={index}>{item.name}</option>
+                    })}
+                  </Form.Control>
+                </Col>
+                <Col>
+                  <Form.Control as="select" id="tambah_requirement">
+                    <option value="" hidden>Select Requirement</option>
+                    {this.state.filter.map((item,index) => {
+                      return <option value={item.id} key={index}>{item.name}</option>
+                    })}
+                  </Form.Control>
+                </Col>
+              </Form.Row>
+              <div id="tambah_frequirement" className="invalid-feedback d-block"/>
             </Form.Group>
             <Form.Group>
               <Form.Label>Detail</Form.Label>
@@ -153,12 +214,14 @@ export default class ContentIssue extends React.Component {
   add_issue_handler(){
     if (this.form_validation(issue_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+      var id = this.props.objectId()
       var project = this.state.project_id
+      var requirement = this.state.requirement.filter(function(item){ return item.id === value('tambah_requirement') })
       this.fetch({query:`mutation {
         issue_add(
           _id:"`+id+`",
           project:"`+project+`",
+          requirement:"`+requirement[0]['id']+`",
           employee:"`+localStorage.getItem('user')+`",
           name:"`+value('tambah_name')+`",
           detail:"`+this.insert_replace(value('tambah_detail'))+`",
@@ -168,15 +231,15 @@ export default class ContentIssue extends React.Component {
       this.setState({
         add_issue_modal:false,
         data:[...this.state.data,{
-          id:id,
-          name:value('tambah_name'),
-          detail:this.insert_replace(value('tambah_detail')),
-          status:'0',employee:this.state.myName,employee_id:localStorage.getItem('user')
+          id:id,name:value('tambah_name'),status:'0',
+          module:requirement[0]['module'],module_id:requirement[0]['module_id'],
+          requirement:requirement[0]['name'],requirement_id:requirement[0]['id'],
+          employee:this.state.myName,employee_id:localStorage.getItem('user')
         }]
       })
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'S0'
-      var activity_detail = value('tambah_name')+'_'+this.state.myName
+      var activity_detail = value('tambah_name')+'_'+requirement[0]['name']+'_'+requirement[0]['module']+'_'+this.state.myName
       var activity_date = new Date()
       this.fetch({query:`
         mutation {
@@ -191,6 +254,7 @@ export default class ContentIssue extends React.Component {
       })
       this.props.activity(activity_code,activity_detail,activity_date)
       NotificationManager.success(success)
+      this.props.update(this.state.data)
     }
   }
 
@@ -238,8 +302,8 @@ export default class ContentIssue extends React.Component {
             this.state.data.length !== 0 &&
             this.state.data.map((item,index) => {
               var status = null
-              if (item.status === '0') { status = <Badge variant="warning">unsolved</Badge> }
-              else if (item.status === '1') { status = <Badge variant="success">resolved</Badge> }
+              if (item.status === '0') { status = <Badge variant="warning">open</Badge> }
+              else if (item.status === '1') { status = <Badge variant="danger">closed</Badge> }
               return (
                 <Link
                   key={index}
@@ -247,7 +311,7 @@ export default class ContentIssue extends React.Component {
                   className="list-group-item list-group-item-action"
                 >
                   <div style={{fontWeight:600}}>{item.name} {status}</div>
-                  <div style={{color:'grey'}}>created by {item.employee}</div>
+                  <small>Created by {item.employee}. Issue about {item.requirement} Requirement of {item.requirement} Module.</small>
                 </Link>
               )
             })

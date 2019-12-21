@@ -1,5 +1,4 @@
 import React from 'react'
-import MD5 from 'md5'
 import Swal from 'sweetalert'
 import { Accordion, Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap'
 import { ChevronDown } from 'react-feather'
@@ -52,15 +51,14 @@ export default class ContentProfile extends React.Component {
 
   //push
   push(){
-    this.fetch({
-      query:`{
-        employee(_id:"`+localStorage.getItem('user')+`") {
-          name, contact, email, password,
-          organization { name },
-          division { name }
-        }
-      }`
-    }).then(result => {
+    this.fetch({query:`{
+      employee(_id:"`+localStorage.getItem('user')+`") {
+        name, contact, email, password,
+        organization { name },
+        division { name }
+      }
+    }`})
+    .then(result => {
       var data = result.data.employee
       var division = data.division
       if (division.length === 0) { division = '' }
@@ -75,6 +73,10 @@ export default class ContentProfile extends React.Component {
         readOnly:false,
         disabled:false,
       })
+    })
+    .catch(() => {
+      this.setState({name:null,email:null,contact:null,organization:null,division:null})
+      NotificationManager.error('503 Service Unavailable')
     })
   }
 
@@ -122,7 +124,7 @@ export default class ContentProfile extends React.Component {
     var form = [{field:'organization_name'},{field:'organization_password'}]
     if (this.validation(form) === true) {
       var name = document.getElementById('organization_name').value
-      var pass = MD5(document.getElementById('organization_password').value)
+      var pass = this.props.hashMD5(document.getElementById('organization_password').value)
       if (pass === this.state.password) {
         document.getElementById('organization_password').className = 'form-control is-valid'
         this.fetch({query:`
@@ -148,7 +150,7 @@ export default class ContentProfile extends React.Component {
     var form = [{field:'name_name'},{field:'name_password'}]
     if (this.validation(form) === true) {
       var name = document.getElementById('name_name').value
-      var pass = MD5(document.getElementById('name_password').value)
+      var pass = this.props.hashMD5(document.getElementById('name_password').value)
       if (pass === this.state.password) {
         document.getElementById('name_password').className = 'form-control is-valid'
         this.fetch({query:`
@@ -174,7 +176,7 @@ export default class ContentProfile extends React.Component {
     var form = [{field:'email_email'},{field:'email_password'}]
     if (this.validation(form) === true) {
       var email = document.getElementById('email_email').value
-      var pass = MD5(document.getElementById('email_password').value)
+      var pass = this.props.hashMD5(document.getElementById('email_password').value)
       if (pass === this.state.password) {
         this.loading(true)
         document.getElementById('email_password').className = 'form-control is-valid'
@@ -216,7 +218,7 @@ export default class ContentProfile extends React.Component {
     var form = [{field:'contact_contact'},{field:'contact_password'}]
     if (this.validation(form) === true) {
       var contact = document.getElementById('contact_contact').value
-      var pass = MD5(document.getElementById('contact_password').value)
+      var pass = this.props.hashMD5(document.getElementById('contact_password').value)
       if (pass === this.state.password) {
         document.getElementById('contact_password').className = 'form-control is-valid'
         this.fetch({query:`
@@ -241,8 +243,8 @@ export default class ContentProfile extends React.Component {
   edit_password(){
     var form = [{field:'password_1'},{field:'password_2'}]
     if (this.validation(form) === true) {
-      var pass1 = MD5(document.getElementById('password_1').value)
-      var pass2 = MD5(document.getElementById('password_2').value)
+      var pass1 = this.props.hashMD5(document.getElementById('password_1').value)
+      var pass2 = this.props.hashMD5(document.getElementById('password_2').value)
       if (pass2 === this.state.password) {
         document.getElementById('password_2').className = 'form-control is-valid'
         this.fetch({query:`

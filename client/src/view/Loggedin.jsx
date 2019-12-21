@@ -26,35 +26,76 @@ export default class Loggedin extends React.Component {
           />
           <Route
             path="/projects"
-            render = {(props)=> <Projects {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Projects {...props}
+                webservice={this.props.webservice}
+                objectId={this.props.objectId}
+              />
+            }
           />
           <Route
             path="/detail-project/:id"
-            render = {(props)=> <DetailProject  {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <DetailProject {...props}
+                webservice={this.props.webservice}
+                objectId={this.props.objectId}
+                hashMD5={this.props.hashMD5}
+              />
+            }
           />
           <Route
             path="/document/:id"
-            render = {(props)=> <Document  {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Document {...props}
+                webservice={this.props.webservice}
+              />
+            }
           />
           <Route
             path="/gantt-chart/:id"
-            render = {(props)=> <GanttChart  {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <GanttChart {...props}
+                webservice={this.props.webservice}
+                objectId={this.props.objectId}
+              />
+            }
           />
           <Route
             path="/issue/:id"
-            render = {(props)=> <Issue  {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Issue  {...props}
+                webservice={this.props.webservice}
+                objectId={this.props.objectId}
+              />
+            }
           />
           <Route
             path="/clients"
-            render = {(props)=> <Client {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Client {...props}
+                webservice={this.props.webservice}
+                objectId={this.props.objectId}
+              />
+            }
           />
           <Route
             path="/users"
-            render = {(props)=> <Users {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Users {...props}
+                webservice={this.props.webservice}
+                objectId={this.props.objectId}
+                hashMD5={this.props.hashMD5}
+              />
+            }
           />
           <Route
             path="/profile"
-            render = {(props)=> <Profile {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Profile {...props}
+                webservice={this.props.webservice}
+                hashMD5={this.props.hashMD5}
+              />
+            }
           />
           <Route
             path="*"

@@ -389,7 +389,7 @@ export default class ContentEmployee extends React.Component {
     return (
       <LayoutTable
         noHeader={true}
-        loading={this.props.loading}
+        loading={this.props.table}
         columns={this.table_columns}
         data={this.state.data}
       />

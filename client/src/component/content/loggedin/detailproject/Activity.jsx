@@ -148,7 +148,7 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'S0') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is added by '+temp[i]['detail'].split('_')[1],
+          detail:temp[i]['detail'].split('_')[0]+' issue from requirement '+temp[i]['detail'].split('_')[1]+' of '+temp[i]['detail'].split('_')[2]+' module is added by '+temp[i]['detail'].split('_')[3],
           icon:<AlertCircle size={size}/>,iconColor:color.blue
         })
       } else if (temp[i]['code'] === 'S1') {

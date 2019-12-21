@@ -1,6 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
-import MD5 from 'md5'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { ListGroup, Modal, Button, Form, Spinner } from 'react-bootstrap'
@@ -140,7 +138,7 @@ export default class ContentSetting extends React.Component {
                   }`)
                 })
               })
-              var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+              var activity_id = this.props.objectId()
               var activity_code = 'P3'
               var activity_date = new Date()
               this.fetch({query:`mutation {
@@ -268,7 +266,7 @@ export default class ContentSetting extends React.Component {
         value('edit_start'),
         value('edit_end')
       )
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'P2'
       var activity_date = new Date()
       this.fetch({query:`
@@ -347,7 +345,7 @@ export default class ContentSetting extends React.Component {
           }
         }
         if (item.field === 'delete_password') { 
-          if (MD5(document.getElementById(item.field).value) === pass) { counter++ }
+          if (this.props.hashMD5(document.getElementById(item.field).value) === pass) { counter++ }
           else {
             document.getElementById(item.field).className = 'form-control is-invalid'
             document.getElementById(item.feedback).innerHTML = 'wrong password'

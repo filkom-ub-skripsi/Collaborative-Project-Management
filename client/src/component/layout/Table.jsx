@@ -5,9 +5,9 @@ import DataTable from 'react-data-table-component'
 const loading = () => {
   return (
     <Container>
-      <div style={{margin:18}}/>
+      <div style={{margin:16}}/>
       <Spinner animation="border" size="sm"/>
-      <div style={{margin:18}}/>
+      <div style={{margin:16}}/>
     </Container>
   )
 }

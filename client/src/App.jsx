@@ -1,4 +1,6 @@
 import React from 'react'
+import RDS from 'randomstring'
+import MD5 from 'md5'
 import { BrowserRouter, Route } from 'react-router-dom'
 import { NotificationContainer } from 'react-notifications'
 import 'react-notifications/lib/notifications.css'
@@ -6,14 +8,28 @@ import 'react-notifications/lib/notifications.css'
 import Unlogged from './view/Unlogged'
 import Loggedin from './view/Loggedin'
 
+//global variable
 const webservice = 'http://localhost:4000/graphql'
+
+//global function
+const objectId = () => { return RDS.generate({length:32,charset:'alphabetic'}) }
+const hashMD5 = (value) => { return MD5(value) }
 
 function App() {
   if (localStorage.getItem('user') === null) {
     return (
       <div>
         <BrowserRouter>
-          <Route path="/" component = {()=><Unlogged webservice={webservice}/>}></Route>
+          <Route
+            path="/"
+            component = {() =>
+              <Unlogged
+                webservice={webservice}
+                objectId={objectId}
+                hashMD5={hashMD5}
+              />
+            }
+          />
         </BrowserRouter>
         <NotificationContainer/>
       </div>
@@ -22,7 +38,15 @@ function App() {
     return (
       <div>
         <BrowserRouter>
-          <Route path="/" component = {()=><Loggedin webservice={webservice}/>}></Route>
+          <Route
+            path="/"
+            component = {() =>
+              <Loggedin
+                webservice={webservice}
+                objectId={objectId}
+                hashMD5={hashMD5}
+            />
+          }/>
         </BrowserRouter>
         <NotificationContainer/>
       </div>

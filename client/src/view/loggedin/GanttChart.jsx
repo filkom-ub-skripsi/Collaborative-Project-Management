@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
 import { Container } from 'react-bootstrap'
@@ -54,7 +53,7 @@ export default class ViewGanttChart extends React.Component {
       var data = []
       var links = []
       result.data.project.gantt.forEach(function(item){
-        var links_id = RDS.generate({length:32,charset:'alphabetic'})
+        var links_id = this.props.objectId()
         var parent = null
         var color = ganttColor.parent
         if (item.parent !== '') {
@@ -88,7 +87,7 @@ export default class ViewGanttChart extends React.Component {
     var parent = ''
     if (item.parent !== 0){
       parent = item.parent
-      var links_id = RDS.generate({length:32,charset:'alphabetic'})
+      var links_id = this.props.objectId()
       this.setState({
         data:[...this.state.data,{
           id:item.id,text:item.text,start_date:item.start_date,

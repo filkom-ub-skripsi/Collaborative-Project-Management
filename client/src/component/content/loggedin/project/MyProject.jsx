@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
@@ -57,7 +56,8 @@ export default class ContentMyProject extends React.Component {
         client { name },
         module { requirement { status } }
       }
-    }`}).then(result => {
+    }`})
+    .then(result => {
       var data = []
       var temp = result.data.myProject
       var counter = 0
@@ -99,7 +99,8 @@ export default class ContentMyProject extends React.Component {
           client { _id, name }
         }
       }`
-    }).then(result => {
+    })
+    .then(result => {
       var data = []
       var temp = result.data.organization.client
       temp.forEach(function(item){
@@ -109,6 +110,10 @@ export default class ContentMyProject extends React.Component {
         })
       })
       this.setState({data_client:data})
+    })
+    .catch(() => {
+      this.setState({data_loading:false})
+      NotificationManager.error('503 Service Unavailable')
     })
   }
 
@@ -545,7 +550,7 @@ export default class ContentMyProject extends React.Component {
   //handler 6
   handler_6(obstacle){
     if (this.handler_validation() === true) {
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+      var id = this.props.objectId()
       var start_date = new Date(this.state.add_form_start);var end_date = new Date(this.state.add_form_end)
       var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
       var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
@@ -569,7 +574,7 @@ export default class ContentMyProject extends React.Component {
           ){_id}
         }`
       })
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_date = new Date()
       this.fetch({query:`
         mutation {
@@ -607,7 +612,7 @@ export default class ContentMyProject extends React.Component {
   //handler save
   handler_save(code,name,client,start,end){
     this.setState({add_form_progress:100})
-    var id = RDS.generate({length:32,charset:'alphabetic'})
+    var id = this.props.objectId()
     var start_date = new Date(start);var end_date = new Date(end)
     var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
     var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
@@ -631,7 +636,7 @@ export default class ContentMyProject extends React.Component {
         ){_id}
       }`
     })
-    var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+    var activity_id = this.props.objectId()
     var activity_date = new Date()
     this.fetch({query:`
       mutation {

@@ -47,7 +47,8 @@ export default class ContentNavbar extends React.Component {
           status
         }
       }
-    }`}).then(result => {
+    }`})
+    .then(result => {
       var data = []
       result.data.employee.collaborator.forEach(function(item){
         if (item.status === '0') { data.push(item) }
@@ -61,6 +62,10 @@ export default class ContentNavbar extends React.Component {
         refresh_name:refresh_loaded,
         refresh_state:''
       })
+    })
+    .catch(() => {
+      this.setState({refresh_name:refresh_loaded})
+      NotificationManager.error('503 Service Unavailable')
     })
   }
 

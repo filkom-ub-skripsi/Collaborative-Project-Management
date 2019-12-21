@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
@@ -59,7 +58,8 @@ export default class ContentClient extends React.Component {
           }
         }
       }
-    }`}).then(result => {
+    }`})
+    .then(result => {
       var data = []
       var temp = result.data.organization.client
       temp.forEach(function(item){
@@ -78,6 +78,10 @@ export default class ContentClient extends React.Component {
         data_loading:false,
         header_button:false
       })
+    })
+    .catch(() => {
+      this.setState({data_loading:false})
+      NotificationManager.error('503 Service Unavailable')
     })
   }
 
@@ -210,7 +214,7 @@ export default class ContentClient extends React.Component {
   add_client_handler(){
     if (this.form_validation(client_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+      var id = this.props.objectId()
       this.fetch({query:`
         mutation { 
           client_add(

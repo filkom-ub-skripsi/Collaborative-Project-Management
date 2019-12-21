@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { Tab, Card, Nav, Row, Col, Button, ListGroup, Modal, Form } from 'react-bootstrap'
@@ -156,7 +155,7 @@ export default class ContentCollaborator extends React.Component {
     } else {
       field.className = 'form-control is-valid'
       fback.innerHTML = ''
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+      var id = this.props.objectId()
       var project = this.state.project_id 
       var employee = this.state.employee.filter(function(item){ return item.id !== field.value }) 
       var data_pending = this.state.employee.filter(function(item){ return item.id === field.value })
@@ -174,7 +173,7 @@ export default class ContentCollaborator extends React.Component {
         employee:employee,
         data_pending:[...this.state.data_pending,data_pending[0]],
       })
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'I0'
       var activity_detail = data_pending[0]['name']+'_'+data_pending[0]['division_name']
       var activity_date = new Date()
@@ -211,7 +210,7 @@ export default class ContentCollaborator extends React.Component {
           data_pending:data_pending,
           employee:[...this.state.employee,employee[0]]
         })
-        var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+        var activity_id = this.props.objectId()
         var activity_code = 'I1'
         var activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
         var activity_date = new Date()
@@ -249,7 +248,7 @@ export default class ContentCollaborator extends React.Component {
           data_collaborator:data_collaborator,
           employee:[...this.state.employee,employee[0]]
         })
-        var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+        var activity_id = this.props.objectId()
         var activity_code = 'I4'
         var activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
         var activity_date = new Date()
@@ -374,7 +373,7 @@ export default class ContentCollaborator extends React.Component {
                           <ListGroup.Item key={index}>
                             <Row><Col>
                               <div style={{fontWeight:600}}>{item.name}</div>
-                              <small>{item.division_name} • {item.email} / {item.contact}</small>
+                              <small className="text-muted">{item.division_name} Division. Email {item.email} / Contact {item.contact}</small>
                             </Col><Col className="text-right">
                               {localStorage.getItem('leader') === '1' &&
                                 <div style={{paddingTop:8}}>

@@ -146,11 +146,11 @@ export default class ContentIssue extends React.Component {
         <Card className="animated faster fadeIn">
           <Card.Body>
             <Row>
-              <Col>
+              <Col lg={10}>
                 <div style={{fontWeight:600}}>{this.state.issue.name} {status}</div>
-                <small className="text-muted">Created by {this.state.issue.employee}</small>
+                <small className="text-muted">Created by {this.state.issue.employee}. Issue about {this.state.issue.requirement} Requirement of {this.state.issue.module} Module.</small>
               </Col>
-              <Col className="text-right">
+              <Col lg={2} className="text-right">
                 {this.state.issue.employee_id === localStorage.getItem('user') &&
                   <div>
                     <a href="#!" onClick={()=>this.setState({edit_modal:true})} className={this.props.loading}>Edit </a>/

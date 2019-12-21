@@ -7,8 +7,8 @@ import ContentOverview from '../../component/content/loggedin/detailproject/Over
 import ContentModule from '../../component/content/loggedin/detailproject/Module'
 import ContentModuleProgress from '../../component/content/loggedin/detailproject/ModuleProgress'
 import ContentScrum from '../../component/content/loggedin/detailproject/Scrum'
-import ContentCollaborator from '../../component/content/loggedin/detailproject/Collaborator'
 import ContentIssue from '../../component/content/loggedin/detailproject/Issue'
+import ContentCollaborator from '../../component/content/loggedin/detailproject/Collaborator'
 import ContentActivity from '../../component/content/loggedin/detailproject/Activity'
 import ContentSetting from '../../component/content/loggedin/detailproject/Setting'
 
@@ -107,6 +107,7 @@ export default class ViewDetailProject extends React.Component {
     return (
       <ContentOverview
         webservice={this.props.webservice}
+        objectId={this.props.objectId}
         id={this.state.project_id}
         update={this.overview_update}
         status={this.state.status}
@@ -122,6 +123,7 @@ export default class ViewDetailProject extends React.Component {
     return (
       <ContentModule
         webservice={this.props.webservice}
+        objectId={this.props.objectId}
         id={this.state.project_id}
         activity={this.activity_add}
       />
@@ -174,7 +176,9 @@ export default class ViewDetailProject extends React.Component {
     return (
       <ContentIssue
         webservice={this.props.webservice}
+        objectId={this.props.objectId}
         id={this.state.project_id}
+        requirement={this.state.requirement}
         update={this.issue_update}
         activity={this.activity_add}
       />
@@ -191,6 +195,7 @@ export default class ViewDetailProject extends React.Component {
     return (
       <ContentCollaborator
         webservice={this.props.webservice}
+        objectId={this.props.objectId}
         id={this.state.project_id}
         update={this.collaborator_update}
         activity={this.activity_add}
@@ -219,6 +224,8 @@ export default class ViewDetailProject extends React.Component {
     return (
       <ContentSetting
         webservice={this.props.webservice}
+        objectId={this.props.objectId}
+        hashMD5={this.props.hashMD5}
         id={this.state.project_id}
         status={this.state.status}
         data={this.state.overview}

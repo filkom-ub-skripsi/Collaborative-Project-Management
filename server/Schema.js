@@ -277,6 +277,12 @@ const RequirementType = new GraphQLObjectType({
     name: { type : GraphQLString },
     detail: { type : GraphQLString },
     status: { type : GraphQLString },
+    issue : {
+      type : new GraphQLList(IssueType),
+      resolve(parent, args){
+        return Issue.find({issue:parent._id})
+      }
+    },
   })
 })
 
@@ -310,6 +316,12 @@ const IssueType = new GraphQLObjectType({
       type : new GraphQLList(ProjectType),
       resolve(parent, args){
         return Project.find({_id:parent.project})
+      }
+    },
+    requirement : {
+      type : new GraphQLList(RequirementType),
+      resolve(parent, args){
+        return Requirement.find({_id:parent.requirement})
       }
     },
     employee : {
@@ -977,6 +989,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         _id: { type : GraphQLString },
         project: { type : GraphQLString },
+        requirement: { type : GraphQLString },
         employee: { type : GraphQLString },
         name: { type : GraphQLString },
         detail: { type : GraphQLString },
@@ -986,6 +999,7 @@ const Mutation = new GraphQLObjectType({
         let issue = new Issue({
           _id: args._id,
           project:args.project,
+          requirement:args.requirement,
           employee:args.employee,
           name:args.name,
           detail:args.detail,

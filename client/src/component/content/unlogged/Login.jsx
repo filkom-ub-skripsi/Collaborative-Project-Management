@@ -2,7 +2,6 @@ import React from 'react'
 import { NotificationManager } from 'react-notifications'
 import { Form, Col, Button, Spinner } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
-import MD5 from 'md5'
 
 //misc
 const button_name = 'Login'
@@ -48,15 +47,14 @@ export default class ContentLogin extends React.Component {
     if (this.validate() === true) {
       this.setState({disabled:true,button:spinner})
       var email = document.getElementById('login_email').value
-      var password = MD5(document.getElementById('login_password').value)
-      this.fetch({
-        query:`{
-          employee (email:"`+email+`") {
-            _id, password,
-            organization { _id, leader { leader { _id } } }
-          }
-        }`
-      }).then(result => {
+      var password = this.props.hashMD5(document.getElementById('login_password').value)
+      this.fetch({query:`{
+        employee (email:"`+email+`") {
+          _id, password,
+          organization { _id, leader { leader { _id } } }
+        }
+      }`})
+      .then(result => {
         this.setState({
           disabled:false,
           button:button_name
@@ -81,6 +79,15 @@ export default class ContentLogin extends React.Component {
             document.getElementById('login_password').className = 'form-control is-invalid'
           }
         }
+      })
+      .catch(() => {
+        this.setState({
+          disabled:false,
+          button:button_name
+        })
+        document.getElementById('login_email').className = 'form-control'
+        document.getElementById('login_password').className = 'form-control'
+        NotificationManager.error('503 Service Unavailable')
       })
     }
   }

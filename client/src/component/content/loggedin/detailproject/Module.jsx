@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
@@ -200,7 +199,7 @@ export default class ContentModule extends React.Component {
   add_module_handler(){
     if (this.form_validation(module_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+      var id = this.props.objectId()
       var project = this.state.project_id
       this.fetch({query:`
         mutation {
@@ -221,7 +220,7 @@ export default class ContentModule extends React.Component {
           requirement:[]
         }] 
       })
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'M0'
       var activity_detail = value('tambah_name')
       var activity_date = new Date()
@@ -296,7 +295,7 @@ export default class ContentModule extends React.Component {
   add_requirement_handler(){
     if (this.form_validation(requirement_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+      var id = this.props.objectId()
       var project = this.state.project_id 
       this.fetch({query:`
         mutation {
@@ -323,7 +322,7 @@ export default class ContentModule extends React.Component {
         }
       })
       this.setState({data:data})
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'R0'
       var activity_detail = value('tambah_name_req')+'_'+value('tambah_module_req').split('_')[1]
       var activity_date = new Date()
@@ -444,7 +443,7 @@ export default class ContentModule extends React.Component {
         }
       })
       this.setState({data:data})
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'M1'
       var activity_detail = name
       var activity_date = new Date()
@@ -486,7 +485,7 @@ export default class ContentModule extends React.Component {
           })
           var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
           this.setState({ data:data })
-          var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+          var activity_id = this.props.objectId()
           var activity_code = 'M2'
           var activity_detail = temp[0]['name']
           var activity_date = new Date()
@@ -657,7 +656,7 @@ export default class ContentModule extends React.Component {
         })
       }
       this.setState({data:data})
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+      var activity_id = this.props.objectId()
       var activity_code = 'R1'
       var activity_detail = edit_name+'_'+module_name
       var activity_date = new Date()
@@ -710,7 +709,7 @@ export default class ContentModule extends React.Component {
             requirement_delete(_id:"`+id.split('_')[0]+`"){_id}
           }`
         })
-        var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+        var activity_id = this.props.objectId()
         var activity_code = 'R2'
         var activity_detail = name+'_'+module_name
         var activity_date = new Date()
