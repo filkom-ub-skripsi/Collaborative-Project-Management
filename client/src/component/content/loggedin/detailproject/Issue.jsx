@@ -29,7 +29,8 @@ export default class ContentIssue extends React.Component {
     this.state = {
       project_id:this.props.id,
       header_button:true,header_refresh:refresh_loading,
-      add_issue_modal:false,data:[],myName:null,module:[],requirement:[],filter:[]
+      add_issue_modal:false,data:[],myName:null,
+      module:[],requirement:[],filter:[],filterState:true
     }
   }
 
@@ -60,7 +61,6 @@ export default class ContentIssue extends React.Component {
       return {
         module:module,
         requirement:requirement,
-        filter:requirement
       }
     }
     return null
@@ -143,10 +143,11 @@ export default class ContentIssue extends React.Component {
   //add issue modal
   add_issue_modal(){
     const filter = (id) => {
-      if (id !== '') {
+      this.setState({filterState:false})
+      if (id !== '' && id !== 'all') {
         const filter = this.state.requirement.filter(function(item){ return item.module_id === id.split('_')[0] })
         this.setState({filter:filter})
-      } else {
+      } else if (id === 'all') {
         this.setState({filter:this.state.requirement})
       }
     }
@@ -157,7 +158,7 @@ export default class ContentIssue extends React.Component {
         backdrop="static"
         keyboard={false}
         show={this.state.add_issue_modal}
-        onHide={()=>this.setState({add_issue_modal:false})}
+        onHide={()=>this.setState({add_issue_modal:false,filterState:true})}
       >
         <Modal.Header closeButton>
           <Modal.Title>Add Issue</Modal.Title>
@@ -174,14 +175,15 @@ export default class ContentIssue extends React.Component {
               <Form.Row>
                 <Col>
                   <Form.Control as="select" onChange={(e)=>filter(e.target.value)}>
-                    <option value="">All Module</option>
+                    <option value="" hidden>Select Module</option>
+                    <option value="all">All Module</option>
                     {this.state.module.map((item,index) => {
                       return <option value={item.id} key={index}>{item.name}</option>
                     })}
                   </Form.Control>
                 </Col>
                 <Col>
-                  <Form.Control as="select" id="tambah_requirement">
+                  <Form.Control as="select" id="tambah_requirement" disabled={this.state.filterState}>
                     <option value="" hidden>Select Requirement</option>
                     {this.state.filter.map((item,index) => {
                       return <option value={item.id} key={index}>{item.name}</option>
@@ -189,7 +191,7 @@ export default class ContentIssue extends React.Component {
                   </Form.Control>
                 </Col>
               </Form.Row>
-              <div id="tambah_frequirement" className="invalid-feedback d-block"/>
+              <Row><Col/><Col><div id="tambah_frequirement" className="invalid-feedback d-block"/></Col></Row>
             </Form.Group>
             <Form.Group>
               <Form.Label>Detail</Form.Label>
