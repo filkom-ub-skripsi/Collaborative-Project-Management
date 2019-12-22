@@ -166,7 +166,11 @@ export default class ContentIssue extends React.Component {
   render() {
 
     var status = null
-    if (this.state.issue.status === '0') { status = <Badge variant="warning">open</Badge> }
+    var disabled = true
+    if (this.state.issue.status === '0') {
+      status = <Badge variant="warning">open</Badge>
+      disabled = false
+    }
     else if (this.state.issue.status === '1') { status = <Badge variant="success">closed</Badge> }
 
     var reload = null
@@ -207,6 +211,7 @@ export default class ContentIssue extends React.Component {
                 type="text"
                 id="tambah_comment"
                 placeholder="Leave a comment..."
+                disabled={disabled}
               />
             </Col>
             <Col>
