@@ -50,10 +50,11 @@ export default class ViewGanttChart extends React.Component {
       }
     }`}).then(result => {
       document.title = 'Gantt Chart - '+result.data.project.name
+      const objectId = () => { return this.props.objectId() }
       var data = []
       var links = []
       result.data.project.gantt.forEach(function(item){
-        var links_id = this.props.objectId()
+        var links_id = objectId()
         var parent = null
         var color = ganttColor.parent
         if (item.parent !== '') {

@@ -34,24 +34,17 @@ export default class ContentOverview extends React.Component {
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props,state) {
-    if (props.status !== state.status) {
+  static getDerivedStateFromProps(props) {
       var status_text = null
       if (props.status === '0') { status_text = 'Status : Preparing ' }
       if (props.status === '1') { status_text = 'Status : On Progress ' }
       if (props.status === '2') { status_text = 'Status : Closed ' }
       return {
+        overview:props.data[0],
         status:props.status,
-        status_text:status_text
+        status_text:status_text,
+        progress:props.progress,
       }
-    }
-    if (props.progress !== state.progress) {
-      return { progress:props.progress }
-    }
-    if (props.data[0] !== state.overview) {
-      return { overview:props.data[0] }
-    }
-    return null
   }
 
   //fetch

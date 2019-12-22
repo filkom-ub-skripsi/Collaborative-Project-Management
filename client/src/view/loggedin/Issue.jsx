@@ -16,8 +16,8 @@ export default class ViewIssue extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      project_id:null,issue_id:this.props.match.params.id,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',
-      data:[{name:'Loading...',detail:null,employee:null,employee_id:null,status:null}],
+      project_id:null,issue_id:this.props.match.params.id,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',module:[],requirement:[],
+      data:{name:null,detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
     }
     this.reload = this.reload.bind(this)
     this.save = this.save.bind(this)
@@ -36,6 +36,7 @@ export default class ViewIssue extends React.Component {
 
   //push
   push(){
+    //issue
     this.fetch({query:`{
       issue(_id:"`+this.state.issue_id+`") {
         _id, name, detail, status,
@@ -50,6 +51,7 @@ export default class ViewIssue extends React.Component {
       }
     }`}).then(result => {
       document.title = 'Issue - '+result.data.issue.name
+      this.requirement(result.data.issue.project[0]['_id'])
       var comment = []
       result.data.issue.comment.forEach(function(item){
         comment.push({
@@ -68,7 +70,7 @@ export default class ViewIssue extends React.Component {
           name:result.data.issue.name,
           link:'/issue/'+this.state.issue_id
         }],
-        data:[{
+        data:{
           name:result.data.issue.name,
           detail:result.data.issue.detail,
           requirement:result.data.issue.requirement[0]['name'],
@@ -78,13 +80,47 @@ export default class ViewIssue extends React.Component {
           employee:result.data.issue.employee[0]['name'],
           employee_id:result.data.issue.employee[0]['_id'],
           status:result.data.issue.status,
-        }],
+        },
         comment:comment,
         loading:''
       })
     })
+    //name
     this.fetch({query:'{employee(_id:"'+localStorage.getItem('user')+'"){name}}'})
     .then(result => { this.setState({myName:result.data.employee.name}) })
+  }
+
+  //requirement
+  requirement(project_id){
+    this.fetch({query:`{
+      project(_id:"`+project_id+`"){
+        module { _id, name, 
+          requirement { _id, name }
+        }
+      }
+    }`})
+    .then(result => {
+      var module = []
+      var requirement = []
+      result.data.project.module.forEach(function(item_module){
+        module.push({
+          id:item_module._id,
+          name:item_module.name
+        })
+        item_module.requirement.forEach(function(item_requirement){
+          requirement.push({
+            id:item_requirement._id,
+            name:item_requirement.name,
+            module:item_module.name,
+            module_id:item_module._id
+          })
+        })
+      })
+      this.setState({
+        module:module,
+        requirement:requirement
+      })
+    })
   }
 
   //reload
@@ -99,12 +135,13 @@ export default class ViewIssue extends React.Component {
   }
 
   //save
-  save(name,detail){
+  save(name,detail,requirement){
     this.fetch({query:`mutation {
       issue_edit(
         _id:"`+this.state.issue_id+`",
         name:"`+name+`",
         detail:"`+this.insert_replace(detail)+`",
+        requirement:"`+requirement+`"
       ){_id}
     }`})
     this.fetch({query:`mutation {
@@ -116,9 +153,14 @@ export default class ViewIssue extends React.Component {
         date:"`+new Date()+`"
       ){_id}
     }`})
+    var data_requirement = this.state.requirement.filter(function(item){ return item.id === requirement })
     var data = this.state.data
-    data[0].name = name
-    data[0].detail = detail
+    data.name = name
+    data.detail = detail
+    data.module = data_requirement[0]['module']
+    data.module_id = data_requirement[0]['module_id']
+    data.requirement = data_requirement[0]['name']
+    data.requirement_id = data_requirement[0]['id']
     this.setState({
       data:data,
       breadcrumb:[...this.state.breadcrumb.splice(0,3),{
@@ -166,6 +208,8 @@ export default class ViewIssue extends React.Component {
         <Container>
           <ContentIssue
             loading={this.state.loading}
+            module={this.state.module}
+            requirement={this.state.requirement}
             data={this.state.data}
             comment={this.state.comment}
             reload={this.reload}

@@ -40,30 +40,27 @@ export default class ContentIssue extends React.Component {
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props,state) {
-    if (state.module.length === 0 && state.requirement.length === 0) {
-      var module = []
-      var requirement = []
-      props.requirement.forEach(function(item_module){
-        module.push({
-          id:item_module._id,
-          name:item_module.name
-        })
-        item_module.requirement.forEach(function(item_requirement){
-          requirement.push({
-            id:item_requirement._id,
-            name:item_requirement.name,
-            module:item_module.name,
-            module_id:item_module._id
-          })
+  static getDerivedStateFromProps(props) {
+    var module = []
+    var requirement = []
+    props.requirement.forEach(function(item_module){
+      module.push({
+        id:item_module._id,
+        name:item_module.name
+      })
+      item_module.requirement.forEach(function(item_requirement){
+        requirement.push({
+          id:item_requirement._id,
+          name:item_requirement.name,
+          module:item_module.name,
+          module_id:item_module._id
         })
       })
-      return {
-        module:module,
-        requirement:requirement,
-      }
+    })
+    return {
+      module:module,
+      requirement:requirement,
     }
-    return null
   }
 
   //fetch
@@ -144,11 +141,9 @@ export default class ContentIssue extends React.Component {
   add_issue_modal(){
     const filter = (id) => {
       this.setState({filterState:false})
-      if (id !== '' && id !== 'all') {
+      if (id !== '') {
         const filter = this.state.requirement.filter(function(item){ return item.module_id === id.split('_')[0] })
         this.setState({filter:filter})
-      } else if (id === 'all') {
-        this.setState({filter:this.state.requirement})
       }
     }
     return (
@@ -176,7 +171,6 @@ export default class ContentIssue extends React.Component {
                 <Col>
                   <Form.Control as="select" onChange={(e)=>filter(e.target.value)}>
                     <option value="" hidden>Select Module</option>
-                    <option value="all">All Module</option>
                     {this.state.module.map((item,index) => {
                       return <option value={item.id} key={index}>{item.name}</option>
                     })}

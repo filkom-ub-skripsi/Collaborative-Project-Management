@@ -53,18 +53,11 @@ export default class ContentSetting extends React.Component {
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props,state) {
-    if (props.data[0] !== state.overview) {
-      return {
-        overview:props.data[0]
-      }
+  static getDerivedStateFromProps(props) {
+    return {
+      overview:props.data[0],
+      status:props.status
     }
-    if (props.status !== state.status) {
-      return {
-        status:props.status
-      }
-    }
-    return null
   }
 
   //fetch

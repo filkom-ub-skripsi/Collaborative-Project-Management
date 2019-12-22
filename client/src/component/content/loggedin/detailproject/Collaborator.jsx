@@ -49,7 +49,6 @@ export default class ContentCollaborator extends React.Component {
         }
       }
     }`}).then(result => {
-      this.props.update(result.data.project.collaborator)
       var temp = result.data.project.collaborator
       temp.forEach(function(item){
         if (item.status === '1') {
@@ -78,6 +77,7 @@ export default class ContentCollaborator extends React.Component {
         data_collaborator:data_collaborator,
         data_pending:data_pending
       })
+      this.props.update(data_collaborator)
       //employee
       this.fetch({query:`{
         organization(_id:"`+localStorage.getItem('organization')+`") {

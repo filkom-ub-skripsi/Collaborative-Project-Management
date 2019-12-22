@@ -26,17 +26,12 @@ export default class ContentScrum extends React.Component {
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props,state) {
-    if (props.requirement !== state.requirement) {
-      return { requirement:props.requirement }
+  static getDerivedStateFromProps(props) {
+    return {
+      requirement:props.requirement,
+      employee:props.employee,
+      issue:props.issue,
     }
-    if (props.issue !== state.issue) {
-      return { issue:props.issue }
-    }
-    if (props.employee !== state.employee) {
-      return { employee:props.employee }
-    }
-    return null
   }
 
   //fetch

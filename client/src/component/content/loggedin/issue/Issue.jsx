@@ -24,23 +24,19 @@ export default class ContentIssue extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      issue:{name:'Loading...',detail:null,employee:null,employee_id:null,status:null},
-      comment:[],edit_modal:false,
+      issue:{name:'Loading...',detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
+      module:[],requirement:[],filter:[],filter_module:null,filter_requirement:null,comment:[],edit_modal:false,
     }
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props,state) {
-    if (props.data[0] !== state.issue) {
-      return { issue:props.data[0] }
+  static getDerivedStateFromProps(props) {
+    return {
+      issue:props.data,
+      comment:props.comment,
+      module:props.module,
+      requirement:props.requirement,
     }
-    if (props.comment !== state.comment) {
-      return { comment:props.comment }
-    }
-    if (props.loading !== state.loading) {
-      return { loading:props.loading }
-    }
-    return null
   }
 
   //form validation
@@ -82,8 +78,25 @@ export default class ContentIssue extends React.Component {
     })
   }
 
+  //edit open
+  edit_open(){
+    var filter_requirement = this.state.issue.requirement_id
+    var filter_module = this.state.issue.module_id
+    var filter = this.state.requirement.filter(function(item){return item.module_id === filter_module})
+    this.setState({
+      edit_modal:true,
+      filter_module:filter_module,
+      filter_requirement:filter_requirement,
+      filter:filter
+    })
+  }
+
   //edit modal
   edit_modal(){
+    const filter = (id) => {
+      const filter = this.state.requirement.filter(function(item){ return item.module_id === id })
+      this.setState({filter:filter})
+    }
     return (
       <Modal
         size="lg"
@@ -102,6 +115,26 @@ export default class ContentIssue extends React.Component {
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" id="sunting_name" defaultValue={this.state.issue.name}/>
               <div id="sunting_fname" className="invalid-feedback d-block"/>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>About</Form.Label>
+              <Form.Row>
+                <Col>
+                  <Form.Control as="select" defaultValue={this.state.filter_module} onChange={(e)=>filter(e.target.value)}>
+                    {this.state.module.map((item,index) => {
+                      return <option value={item.id} key={index}>{item.name}</option>
+                    })}
+                  </Form.Control>
+                </Col>
+                <Col>
+                  <Form.Control as="select" defaultValue={this.state.filter_requirement} id="sunting_requirement">
+                    {this.state.filter.map((item,index) => {
+                      return <option value={item.id} key={index}>{item.name}</option>
+                    })}
+                  </Form.Control>
+                </Col>
+              </Form.Row>
+              <Row><Col/><Col><div id="tambah_frequirement" className="invalid-feedback d-block"/></Col></Row>
             </Form.Group>
             <Form.Group>
               <Form.Label>Detail</Form.Label>
@@ -123,7 +156,7 @@ export default class ContentIssue extends React.Component {
   edit_save(){
     if (this.form_validation(issue_edit_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      this.props.save(value('sunting_name'),value('sunting_detail'))
+      this.props.save(value('sunting_name'),value('sunting_detail'),value('sunting_requirement'))
       this.setState({edit_modal:false})
       NotificationManager.success(success)
     }
@@ -133,8 +166,8 @@ export default class ContentIssue extends React.Component {
   render() {
 
     var status = null
-    if (this.state.issue.status === '0') { status = <Badge variant="warning">unsolved</Badge> }
-    else if (this.state.issue.status === '1') { status = <Badge variant="success">resolved</Badge> }
+    if (this.state.issue.status === '0') { status = <Badge variant="warning">open</Badge> }
+    else if (this.state.issue.status === '1') { status = <Badge variant="success">closed</Badge> }
 
     var reload = null
     if (this.props.loading === 'disabled') { reload = 'Loading...' }
@@ -153,7 +186,7 @@ export default class ContentIssue extends React.Component {
               <Col lg={2} className="text-right">
                 {this.state.issue.employee_id === localStorage.getItem('user') &&
                   <div>
-                    <a href="#!" onClick={()=>this.setState({edit_modal:true})} className={this.props.loading}>Edit </a>/
+                    <a href="#!" onClick={()=>this.edit_open()} className={this.props.loading}>Edit </a>/
                     <a href="#!" onClick={()=>this.props.reload()} className={this.props.loading}> {reload}</a>
                   </div>
                 }

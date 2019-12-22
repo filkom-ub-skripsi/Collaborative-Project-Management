@@ -37,15 +37,14 @@ export default class ContentEmployee extends React.Component {
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props,state) {
+  static getDerivedStateFromProps(props) {
     var data = []
     props.data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){ data.push(item_e) })
     })
-    if (data !== state.data) {
-      return { data:data }
+    return {
+      data:data
     }
-    return null
   }
 
   //fetch

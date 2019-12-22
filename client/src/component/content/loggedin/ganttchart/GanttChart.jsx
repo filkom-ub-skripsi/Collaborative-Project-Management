@@ -24,7 +24,10 @@ export default class ContentGanttChart extends React.Component {
 
   //component did update
   componentDidUpdate(props,state) {
-    if (props.data !== state.data && props.links !== state.links) {
+    if (
+      props.data !== state.data &&
+      props.links !== state.links
+    ) {
       this.setState({data:props.data,links:props.links})
       gantt.parse({data:props.data,links:props.links})
       gantt.eachTask(function(task){ task.$open = true })
