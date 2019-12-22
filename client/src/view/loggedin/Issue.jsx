@@ -17,7 +17,7 @@ export default class ViewIssue extends React.Component {
     super(props)
     this.state = {
       project_id:null,issue_id:this.props.match.params.id,comment:[],myName:null,breadcrumb:breadcrumb,loading:'disabled',module:[],requirement:[],
-      data:{name:null,detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
+      data:{name:'Loading...',detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
     }
     this.reload = this.reload.bind(this)
     this.save = this.save.bind(this)

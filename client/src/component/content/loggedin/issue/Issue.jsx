@@ -24,7 +24,7 @@ export default class ContentIssue extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      issue:{name:'Loading...',detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
+      issue:{name:null,detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
       module:[],requirement:[],filter:[],filter_module:null,filter_requirement:null,comment:[],edit_modal:false,
     }
   }
@@ -170,8 +170,12 @@ export default class ContentIssue extends React.Component {
     else if (this.state.issue.status === '1') { status = <Badge variant="success">closed</Badge> }
 
     var reload = null
+    var display = { display:'none' }
     if (this.props.loading === 'disabled') { reload = 'Loading...' }
-    else if (this.props.loading === '') { reload = 'Reload' }
+    else if (this.props.loading === '') {
+      reload = 'Reload'
+      display = { display:'block' }
+    }
 
     return (
       <div>
@@ -181,7 +185,7 @@ export default class ContentIssue extends React.Component {
             <Row>
               <Col lg={10}>
                 <div style={{fontWeight:600}}>{this.state.issue.name} {status}</div>
-                <small className="text-muted">Created by {this.state.issue.employee}. Issue about {this.state.issue.requirement} Requirement of {this.state.issue.module} Module.</small>
+                <small className="text-muted" style={display}>Created by {this.state.issue.employee}. Issue about {this.state.issue.requirement} Requirement of {this.state.issue.module} Module.</small>
               </Col>
               <Col lg={2} className="text-right">
                 {this.state.issue.employee_id === localStorage.getItem('user') &&
