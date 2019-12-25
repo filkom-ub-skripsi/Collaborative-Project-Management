@@ -31,13 +31,31 @@ export default class ContentCollaborator extends React.Component {
     this.push()
   }
 
+  //get derived state from props
+  static getDerivedStateFromProps(props,state){
+    if (
+      state.data_pending.length !== props.collaborator_pending.length ||
+      state.data_collaborator.length !== props.collaborator_accepted.length
+    ) {
+      let all = props.collaborator_pending.concat(props.collaborator_accepted)
+      let employee = state.employee
+      all.forEach(function(all){
+        employee.forEach(function(item,index){
+          if (all.id === item.id){ employee.splice(index,1) }
+        })
+      })
+    }
+    return {
+      data_collaborator:props.collaborator_accepted,
+      data_pending:props.collaborator_pending,
+    }
+  }
+
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
 
   //push
   push(){
-    var data_collaborator = []
-    var data_pending = []
     //collaborator
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
@@ -49,69 +67,35 @@ export default class ContentCollaborator extends React.Component {
         }
       }
     }`}).then(result => {
-      var temp = result.data.project.collaborator
-      temp.forEach(function(item){
-        if (item.status === '1') {
-          data_collaborator.push({
-            id:item.employee[0]['_id'],
-            name:item.employee[0]['name'],
-            email:item.employee[0]['email'],
-            contact:item.employee[0]['contact'],
-            division_id:item.employee[0]['division'][0]['_id'],
-            division_name:item.employee[0]['division'][0]['name'],
-            collaborator:item._id
+      this.props.update(result.data.project.collaborator,'update')
+    })
+    //employee
+    this.fetch({query:`{
+      organization(_id:"`+localStorage.getItem('organization')+`") {
+        division {
+          _id, name,
+          employee { _id, name, contact, email }
+        },
+      }
+    }`}).then(result => {
+      let division = []
+      let employee = []
+      result.data.organization.division.forEach(function(item_division){
+        division.push({id:item_division._id,name:item_division.name})
+        item_division.employee.forEach(function(item_employee){
+          employee.push({
+            id:item_employee._id,
+            name:item_employee.name,
+            email:item_employee.email,
+            contact:item_employee.contact,
+            division_id:item_division._id,
+            division_name:item_division.name,
           })
-        } else {
-          data_pending.push({
-            id:item.employee[0]['_id'],
-            name:item.employee[0]['name'],
-            email:item.employee[0]['email'],
-            contact:item.employee[0]['contact'],
-            division_id:item.employee[0]['division'][0]['_id'],
-            division_name:item.employee[0]['division'][0]['name'],
-            collaborator:item._id
-          })
-        }
+        })
       })
       this.setState({
-        data_collaborator:data_collaborator,
-        data_pending:data_pending
-      })
-      this.props.update(data_collaborator)
-      //employee
-      this.fetch({query:`{
-        organization(_id:"`+localStorage.getItem('organization')+`") {
-          division {
-            _id, name,
-            employee { _id, name, contact, email }
-          },
-        }
-      }`}).then(result => {
-        var all = data_collaborator.concat(data_pending)
-        var division = []
-        var employee = []
-        result.data.organization.division.forEach(function(item_division){
-          division.push({id:item_division._id,name:item_division.name})
-          item_division.employee.forEach(function(item_employee){
-            employee.push({
-              id:item_employee._id,
-              name:item_employee.name,
-              email:item_employee.email,
-              contact:item_employee.contact,
-              division_id:item_division._id,
-              division_name:item_division.name,
-            })
-          })
-        })
-        all.forEach(function(all){
-          employee.forEach(function(item,index){
-            if (all.id === item.id){ employee.splice(index,1) }
-          })
-        })
-        this.setState({
-          header_button:false,header_refresh:refresh_default,
-          division:division,employee:employee,
-        })
+        header_button:false,header_refresh:refresh_default,
+        division:division,employee:employee,
       })
     })
   }
@@ -127,7 +111,7 @@ export default class ContentCollaborator extends React.Component {
 
   //invite open
   invite_open(){
-    var invite_employee = this.state.employee
+    let invite_employee = this.state.employee
     this.setState({
       invite_modal:true,
       invite_employee:invite_employee
@@ -137,10 +121,10 @@ export default class ContentCollaborator extends React.Component {
   //invite option
   invite_option(id){
     if (id !== 'all') {
-      var employee_filter = this.state.employee.filter(function(item){ return item.division_id === id })
+      let employee_filter = this.state.employee.filter(function(item){ return item.division_id === id })
       this.setState({invite_employee:employee_filter})
     } else {
-      var employee_all = this.state.employee
+      let employee_all = this.state.employee
       this.setState({invite_employee:employee_all})
     }
   }
@@ -155,28 +139,25 @@ export default class ContentCollaborator extends React.Component {
     } else {
       field.className = 'form-control is-valid'
       fback.innerHTML = ''
-      var id = this.props.objectId()
-      var project = this.state.project_id 
-      var employee = this.state.employee.filter(function(item){ return item.id !== field.value }) 
-      var data_pending = this.state.employee.filter(function(item){ return item.id === field.value })
+      //data
+      let id = this.props.objectId()
+      let project = this.state.project_id
+      let data_pending = this.state.employee.filter(function(item){ return item.id === field.value })
       data_pending.forEach(function(item){ item.collaborator = id })
       this.fetch({query:`mutation {
         collaborator_add(
           _id:"`+id+`",
           project:"`+project+`",
-          employee:"`+data_pending[0]['id']+`",
+          employee:"`+field.value+`",
           status:"0"
         ){_id}
       }`})
-      this.setState({
-        invite_modal:false,
-        employee:employee,
-        data_pending:[...this.state.data_pending,data_pending[0]],
-      })
-      var activity_id = this.props.objectId()
-      var activity_code = 'I0'
-      var activity_detail = data_pending[0]['name']+'_'+data_pending[0]['division_name']
-      var activity_date = new Date()
+      this.setState({invite_modal:false})
+      //activity
+      let activity_id = this.props.objectId()
+      let activity_code = 'I0'
+      let activity_detail = data_pending[0]['name']+'_'+data_pending[0]['division_name']
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -188,7 +169,9 @@ export default class ContentCollaborator extends React.Component {
           ){_id}
         }`
       })
+      //props
       this.props.activity(activity_code,activity_detail,activity_date)
+      this.props.update(data_pending[0],'add')
       NotificationManager.success(success)
     }
   }
@@ -201,19 +184,17 @@ export default class ContentCollaborator extends React.Component {
       icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
     }).then((willCancel) => {
       if (willCancel) {
+        //data
         this.fetch({query:`mutation {
           collaborator_delete(_id:"`+id_collaborator+`"){_id}
         }`})
-        var data_pending = this.state.data_pending.filter(function(item){ return item.id !== id_employee })
-        var employee = this.state.data_pending.filter(function(item){ return item.id === id_employee })
-        this.setState({
-          data_pending:data_pending,
-          employee:[...this.state.employee,employee[0]]
-        })
-        var activity_id = this.props.objectId()
-        var activity_code = 'I1'
-        var activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
-        var activity_date = new Date()
+        let employee = this.state.data_pending.filter(function(item){ return item.id === id_employee })
+        this.setState({employee:[...this.state.employee,employee[0]]})
+        //activity
+        let activity_id = this.props.objectId()
+        let activity_code = 'I1'
+        let activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
+        let activity_date = new Date()
         this.fetch({query:`
           mutation {
             activity_add(
@@ -225,7 +206,9 @@ export default class ContentCollaborator extends React.Component {
             ){_id}
           }`
         })
+        //props
         this.props.activity(activity_code,activity_detail,activity_date)
+        this.props.update(id_employee,'cancel')
         NotificationManager.success(success)
       }
     })
@@ -239,19 +222,17 @@ export default class ContentCollaborator extends React.Component {
       icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
     }).then((willKick) => {
       if (willKick) {
+        //data
         this.fetch({query:`mutation {
           collaborator_delete(_id:"`+id_collaborator+`"){_id}
         }`})
-        var data_collaborator = this.state.data_collaborator.filter(function(item){ return item.id !== id_employee })
-        var employee = this.state.data_collaborator.filter(function(item){ return item.id === id_employee })
-        this.setState({
-          data_collaborator:data_collaborator,
-          employee:[...this.state.employee,employee[0]]
-        })
-        var activity_id = this.props.objectId()
-        var activity_code = 'I4'
-        var activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
-        var activity_date = new Date()
+        let employee = this.state.data_collaborator.filter(function(item){ return item.id === id_employee })
+        this.setState({employee:[...this.state.employee,employee[0]]})
+        //activity
+        let activity_id = this.props.objectId()
+        let activity_code = 'I4'
+        let activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
+        let activity_date = new Date()
         this.fetch({query:`
           mutation {
             activity_add(
@@ -263,6 +244,8 @@ export default class ContentCollaborator extends React.Component {
             ){_id}
           }`
         })
+        //props
+        this.props.update(id_employee,'kick')
         this.props.activity(activity_code,activity_detail,activity_date)
         NotificationManager.success(success)
       }
@@ -358,80 +341,76 @@ export default class ContentCollaborator extends React.Component {
             </Card.Header>
             <Tab.Content>
               <Tab.Pane eventKey="TAB1">
-                <div className="container-detail-project">
-                  <ListGroup variant="flush">
-                    {this.state.data_collaborator.length === 0 &&
-                      <ListGroup.Item>
-                        <div style={{fontWeight:600}}>Empty</div>
-                        <div>There is no collaborator in this project</div>
-                      </ListGroup.Item>
-                    }
-                    {
-                      this.state.data_collaborator.length !== 0 &&
-                      this.state.data_collaborator.map((item,index) => {
-                        return (
-                          <ListGroup.Item key={index}>
-                            <Row><Col>
+                <ListGroup variant="flush">
+                  {this.state.data_collaborator.length === 0 &&
+                    <ListGroup.Item>
+                      <div style={{fontWeight:600}}>Empty</div>
+                      <div>There is no collaborator in this project</div>
+                    </ListGroup.Item>
+                  }
+                  {
+                    this.state.data_collaborator.length !== 0 &&
+                    this.state.data_collaborator.map((item,index) => {
+                      return (
+                        <ListGroup.Item key={index}>
+                          <Row><Col>
+                            <div style={{fontWeight:600}}>{item.name}</div>
+                            <small className="text-muted">{item.division_name} Division. Email {item.email} / Contact {item.contact}</small>
+                          </Col><Col className="text-right">
+                            {localStorage.getItem('leader') === '1' &&
+                              <div style={{paddingTop:8}}>
+                                <div
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={()=>this.invite_kick(item.id,item.collaborator)}
+                                >
+                                  Kick
+                                </div>
+                              </div>
+                            }
+                          </Col></Row>     
+                        </ListGroup.Item>
+                      )
+                    })
+                  }
+                </ListGroup>
+              </Tab.Pane>
+              <Tab.Pane eventKey="TAB2">
+                <ListGroup variant="flush">
+                  {
+                    this.state.data_pending.length === 0 &&
+                    <ListGroup.Item>
+                      <div style={{fontWeight:600}}>Empty</div>
+                      <div>There is no pending invitation in this project</div>
+                    </ListGroup.Item>
+                  }
+                  {
+                    this.state.data_pending.length !== 0 &&
+                    this.state.data_pending.map((item,index) => {
+                      return (
+                        <ListGroup.Item key={index}>
+                          <Row>
+                            <Col>
                               <div style={{fontWeight:600}}>{item.name}</div>
-                              <small className="text-muted">{item.division_name} Division. Email {item.email} / Contact {item.contact}</small>
-                            </Col><Col className="text-right">
+                              <small>{item.division_name} • {item.email} / {item.contact}</small>
+                            </Col>
+                            <Col className="text-right">
                               {localStorage.getItem('leader') === '1' &&
                                 <div style={{paddingTop:8}}>
                                   <div
                                     className="btn btn-sm btn-outline-danger"
-                                    onClick={()=>this.invite_kick(item.id,item.collaborator)}
+                                    onClick={()=>this.invite_cancel(item.id,item.collaborator)}
                                   >
-                                    Kick
+                                    Cancel Invite
                                   </div>
                                 </div>
                               }
-                            </Col></Row>     
-                          </ListGroup.Item>
-                        )
-                      })
-                    }
-                  </ListGroup>
-                </div>
-              </Tab.Pane>
-              <Tab.Pane eventKey="TAB2">
-                <div className="container-detail-project">
-                  <ListGroup variant="flush">
-                    {
-                      this.state.data_pending.length === 0 &&
-                      <ListGroup.Item>
-                        <div style={{fontWeight:600}}>Empty</div>
-                        <div>There is no pending invitation in this project</div>
-                      </ListGroup.Item>
-                    }
-                    {
-                      this.state.data_pending.length !== 0 &&
-                      this.state.data_pending.map((item,index) => {
-                        return (
-                          <ListGroup.Item key={index}>
-                            <Row>
-                              <Col>
-                                <div style={{fontWeight:600}}>{item.name}</div>
-                                <small>{item.division_name} • {item.email} / {item.contact}</small>
-                              </Col>
-                              <Col className="text-right">
-                                {localStorage.getItem('leader') === '1' &&
-                                  <div style={{paddingTop:8}}>
-                                    <div
-                                      className="btn btn-sm btn-outline-danger"
-                                      onClick={()=>this.invite_cancel(item.id,item.collaborator)}
-                                    >
-                                      Cancel Invite
-                                    </div>
-                                  </div>
-                                }
-                              </Col>
-                            </Row>
-                          </ListGroup.Item>
-                        )
-                      })
-                    }
-                  </ListGroup>
-                </div>
+                            </Col>
+                          </Row>
+                        </ListGroup.Item>
+                      )
+                    })
+                  }
+                </ListGroup>
               </Tab.Pane>
             </Tab.Content>
           </Card>

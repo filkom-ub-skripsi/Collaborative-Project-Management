@@ -84,8 +84,8 @@ export default class ContentDivision extends React.Component {
 
   //table handler
   table_handler(id){
-    var data = this.props.data.filter(function(item){ return item.id === id })
-    var leader = null
+    let data = this.props.data.filter(function(item){ return item.id === id })
+    let leader = null
     if (id === this.props.leader) { leader = true }
     else { leader = false }
     this.setState({

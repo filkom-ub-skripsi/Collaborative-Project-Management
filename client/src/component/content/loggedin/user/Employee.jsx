@@ -38,7 +38,7 @@ export default class ContentEmployee extends React.Component {
 
   //get derived state from props
   static getDerivedStateFromProps(props) {
-    var data = []
+    let data = []
     props.data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){ data.push(item_e) })
     })
@@ -111,7 +111,7 @@ export default class ContentEmployee extends React.Component {
 
   //add employee validation
   add_employee_validation(){
-    var counter = 0
+    let counter = 0
     employee_add_form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -131,7 +131,7 @@ export default class ContentEmployee extends React.Component {
   add_employee_handler(){
     if (this.add_employee_validation() === true) {
       this.setState({add_button:add_loading,add_state:true})
-      var check = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
+      let check = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
       if (check.length === 0) {
         this.fetch({query:'{employee(email:"'+document.getElementById('tambah_email').value+'"){_id}}'})
         .then(result => {
@@ -176,8 +176,8 @@ export default class ContentEmployee extends React.Component {
 
   //table handler
   table_handler(id){
-    var data = this.state.data.filter(function(item){ return item.id === id })
-    var leader = null
+    let data = this.state.data.filter(function(item){ return item.id === id })
+    let leader = null
     if (data[0]['division_id'] === this.props.leader) { leader = true }
     else { leader = false }
     this.setState({
@@ -192,9 +192,9 @@ export default class ContentEmployee extends React.Component {
 
   //detail modal
   detail_modal(){
-    var data = []
-    var temp = []
-    var id = this.state.detail_id
+    let data = []
+    let temp = []
+    let id = this.state.detail_id
     this.props.data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){
         if (item_e.id === id) { temp.push(item_e) }
@@ -202,13 +202,13 @@ export default class ContentEmployee extends React.Component {
     })
     temp.forEach(function(item_temp){
       item_temp.data.forEach(function(item){
-        var progress = null
+        let progress = null
         if (item.status === '0') { progress = 'Preparing' }
         else if (item.status === '2') { progress = 'Closed' }
         else if (item.status === '1') {
-          var counter = 0
+          let counter = 0
           item.module.forEach(function(module){
-            var done = module.requirement.filter(function(search){ return search.status === '1' })
+            let done = module.requirement.filter(function(search){ return search.status === '1' })
             if (module.requirement.length === done.length) { counter++ }
           })
           progress = 'On Progress ('+Math.round(counter/item.module.length*100)+'%)'
@@ -324,8 +324,8 @@ export default class ContentEmployee extends React.Component {
 
   //detail delete
   detail_delete(){
-    var id = this.state.detail_id
-    var check = this.state.data.filter(function(item){ return item.id === id })
+    let id = this.state.detail_id
+    let check = this.state.data.filter(function(item){ return item.id === id })
     if (check[0]['project'] === 0) {
       Swal({
         title:"Delete",

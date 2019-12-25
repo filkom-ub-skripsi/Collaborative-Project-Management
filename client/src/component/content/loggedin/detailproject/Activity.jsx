@@ -1,6 +1,6 @@
 import React from 'react'
 import { createApolloFetch } from 'apollo-fetch'
-import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle } from 'react-feather'
+import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle, Clipboard } from 'react-feather'
 import { Timeline, TimelineEvent } from 'react-event-timeline'
 
 const color = {
@@ -40,9 +40,9 @@ export default class ContentActivity extends React.Component {
 
   //render
   render() {
-    var temp = this.props.data
-    var data = []
-    for (var i = temp.length - 1 ; i >= 0 ; i-- ) {
+    let temp = this.props.data
+    let data = []
+    for (let i = temp.length - 1 ; i >= 0 ; i-- ) {
       if (temp[i]['code'] === 'P0') {
         data.push({
           date:temp[i]['date'],
@@ -168,6 +168,12 @@ export default class ContentActivity extends React.Component {
           date:temp[i]['date'],
           detail:temp[i]['detail'].split('_')[0]+' issue is back to unsolved',
           icon:<AlertCircle size={size}/>,iconColor:color.red
+        })
+      } else if (temp[i]['code'] === 'B0') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' is added to backlog',
+          icon:<Clipboard size={size}/>,iconColor:color.blue
         })
       }
     }

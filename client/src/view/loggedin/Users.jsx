@@ -77,13 +77,13 @@ export default class ViewUsers extends React.Component {
       }
     }`})
     .then(result => {
-      var data = []
+      let data = []
       result.data.organization.leader.forEach(function(item_d){
-        var employee = []
+        let employee = []
         item_d.leader.forEach(function(item_e){
-          var data = []
-          var l_proj = item_e.project
-          var l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          let data = []
+          let l_proj = item_e.project
+          let l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
           l_coll.forEach(function(item){ data = data.concat(item.project) })
           data = data.concat(l_proj)
           employee.push({
@@ -105,11 +105,11 @@ export default class ViewUsers extends React.Component {
         })
       })
       result.data.organization.division.forEach(function(item_d){
-        var employee = []
+        let employee = []
         item_d.employee.forEach(function(item_e){
-          var data = []
-          var l_proj = item_e.project
-          var l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          let data = []
+          let l_proj = item_e.project
+          let l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
           l_coll.forEach(function(item){ data = data.concat(item.project) })
           data = data.concat(l_proj)
           employee.push({
@@ -166,7 +166,7 @@ export default class ViewUsers extends React.Component {
 
   //division add
   division_add(name){
-    var id = this.props.objectId()
+    let id = this.props.objectId()
     this.fetch({query:`
       mutation {
         division_add(
@@ -193,10 +193,10 @@ export default class ViewUsers extends React.Component {
         ){_id}
       }`
     })
-    var data = this.state.data
+    let data = this.state.data
     data.forEach(function(item){
       if (item.id === id) {
-        var version = parseInt(item.id.split('_')[1])+1
+        let version = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+version
         item.name = newName
       }
@@ -211,7 +211,7 @@ export default class ViewUsers extends React.Component {
         division_delete(_id:"`+id.split('_')[0]+`"){_id}
       }`
     })
-    var data = this.state.data.filter(function(item){return(item.id!==id)})
+    let data = this.state.data.filter(function(item){return(item.id!==id)})
     this.setState({data:data})
   }
 
@@ -235,7 +235,7 @@ export default class ViewUsers extends React.Component {
 
   //employee add
   employee_add(name,email,contact,division){
-    var id = this.props.objectId()
+    let id = this.props.objectId()
     this.fetch({query:`
       mutation {
         employee_add(
@@ -249,10 +249,10 @@ export default class ViewUsers extends React.Component {
         ){_id}
       }`
     })
-    var data = this.state.data
+    let data = this.state.data
     data.forEach(function(item_d){
       if (item_d.id === division) {
-        var version = parseInt(item_d.id.split('_')[1])+1
+        let version = parseInt(item_d.id.split('_')[1])+1
         item_d.id = item_d.id.split('_')[0]+'_'+version
         item_d.member = item_d.member + 1
         item_d.employee = [...item_d.employee,{
@@ -280,24 +280,24 @@ export default class ViewUsers extends React.Component {
         ){_id}
       }`
     })
-    var temp = []
-    var data = this.state.data
+    let temp = []
+    let data = this.state.data
     data.forEach(function(item){
       if (item.id.split('_')[0] === oldDivision) {
-        var minVersion = parseInt(item.id.split('_')[1])+1
+        let minVersion = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+minVersion
         item.member = item.member - 1
         temp = item.employee.filter(function(filter){ return filter.id === id })
-        var employee = item.employee.filter(function(filter){ return filter.id !== id })
+        let employee = item.employee.filter(function(filter){ return filter.id !== id })
         item.employee = employee
       }
     })
     data.forEach(function(item){
       if (item.id.split('_')[0] === newDivision) {
-        var addVersionDivision = parseInt(item.id.split('_')[1])+1
+        let addVersionDivision = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+addVersionDivision
         item.member = item.member + 1
-        var addVersionEmployee = parseInt(temp[0]['id'].split('_')[1])+1
+        let addVersionEmployee = parseInt(temp[0]['id'].split('_')[1])+1
         temp[0]['id'] = temp[0]['id'].split('_')[0]+'_'+addVersionEmployee
         temp[0]['division_id'] = item.id.split('_')[0]
         temp[0]['division_name'] = item.name
@@ -332,14 +332,14 @@ export default class ViewUsers extends React.Component {
       })
       fetch(`mutation{employee_delete(_id:"`+id.split('_')[0]+`"){_id}}`)
     })
-    var data = this.state.data
+    let data = this.state.data
     data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){
         if (item_e.id === id) {
-          var version = parseInt(item_d.id.split('_')[1])+1
+          let version = parseInt(item_d.id.split('_')[1])+1
           item_d.id = item_d.id.split('_')[0]+'_'+version
           item_d.member = item_d.member - 1
-          var employee = item_d.employee.filter(function(filter){ return filter.id !== id })
+          let employee = item_d.employee.filter(function(filter){ return filter.id !== id })
           item_d.employee = employee
         }
       })

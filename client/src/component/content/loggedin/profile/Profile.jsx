@@ -59,8 +59,8 @@ export default class ContentProfile extends React.Component {
       }
     }`})
     .then(result => {
-      var data = result.data.employee
-      var division = data.division
+      let data = result.data.employee
+      let division = data.division
       if (division.length === 0) { division = '' }
       else { division = '('+division[0]['name']+')' }
       this.setState({
@@ -82,7 +82,7 @@ export default class ContentProfile extends React.Component {
 
   //validation
   validation(form){
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -121,10 +121,10 @@ export default class ContentProfile extends React.Component {
 
   //edit organization
   edit_organization(){
-    var form = [{field:'organization_name'},{field:'organization_password'}]
+    let form = [{field:'organization_name'},{field:'organization_password'}]
     if (this.validation(form) === true) {
-      var name = document.getElementById('organization_name').value
-      var pass = this.props.hashMD5(document.getElementById('organization_password').value)
+      let name = document.getElementById('organization_name').value
+      let pass = this.props.hashMD5(document.getElementById('organization_password').value)
       if (pass === this.state.password) {
         document.getElementById('organization_password').className = 'form-control is-valid'
         this.fetch({query:`
@@ -147,10 +147,10 @@ export default class ContentProfile extends React.Component {
 
   //edit name
   edit_name(){
-    var form = [{field:'name_name'},{field:'name_password'}]
+    let form = [{field:'name_name'},{field:'name_password'}]
     if (this.validation(form) === true) {
-      var name = document.getElementById('name_name').value
-      var pass = this.props.hashMD5(document.getElementById('name_password').value)
+      let name = document.getElementById('name_name').value
+      let pass = this.props.hashMD5(document.getElementById('name_password').value)
       if (pass === this.state.password) {
         document.getElementById('name_password').className = 'form-control is-valid'
         this.fetch({query:`
@@ -173,10 +173,10 @@ export default class ContentProfile extends React.Component {
 
   //edit email
   edit_email(){
-    var form = [{field:'email_email'},{field:'email_password'}]
+    let form = [{field:'email_email'},{field:'email_password'}]
     if (this.validation(form) === true) {
-      var email = document.getElementById('email_email').value
-      var pass = this.props.hashMD5(document.getElementById('email_password').value)
+      let email = document.getElementById('email_email').value
+      let pass = this.props.hashMD5(document.getElementById('email_password').value)
       if (pass === this.state.password) {
         this.loading(true)
         document.getElementById('email_password').className = 'form-control is-valid'
@@ -215,10 +215,10 @@ export default class ContentProfile extends React.Component {
 
   //edit contact
   edit_contact(){
-    var form = [{field:'contact_contact'},{field:'contact_password'}]
+    let form = [{field:'contact_contact'},{field:'contact_password'}]
     if (this.validation(form) === true) {
-      var contact = document.getElementById('contact_contact').value
-      var pass = this.props.hashMD5(document.getElementById('contact_password').value)
+      let contact = document.getElementById('contact_contact').value
+      let pass = this.props.hashMD5(document.getElementById('contact_password').value)
       if (pass === this.state.password) {
         document.getElementById('contact_password').className = 'form-control is-valid'
         this.fetch({query:`
@@ -241,10 +241,10 @@ export default class ContentProfile extends React.Component {
 
   //edit password
   edit_password(){
-    var form = [{field:'password_1'},{field:'password_2'}]
+    let form = [{field:'password_1'},{field:'password_2'}]
     if (this.validation(form) === true) {
-      var pass1 = this.props.hashMD5(document.getElementById('password_1').value)
-      var pass2 = this.props.hashMD5(document.getElementById('password_2').value)
+      let pass1 = this.props.hashMD5(document.getElementById('password_1').value)
+      let pass2 = this.props.hashMD5(document.getElementById('password_2').value)
       if (pass2 === this.state.password) {
         document.getElementById('password_2').className = 'form-control is-valid'
         this.fetch({query:`

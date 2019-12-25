@@ -36,7 +36,7 @@ export default class ViewIssue extends React.Component {
         name,
       }
     }`}).then(result => {
-      var project = result.data.project
+      let project = result.data.project
       document.title = 'Document - '+project.name
       this.setState({
         breadcrumb:[...breadcrumb,{

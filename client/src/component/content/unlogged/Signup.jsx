@@ -31,7 +31,7 @@ export default class ContentSignup extends React.Component {
 
   //validate
   validate(){
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -54,13 +54,13 @@ export default class ContentSignup extends React.Component {
         disabled:true,
         button:spinner
       })
-      var _id_employee = this.props.objectId()
-      var _id_organization = this.props.objectId()
-      var name = document.getElementById('name').value
-      var contact = document.getElementById('contact').value
-      var email = document.getElementById('email').value
-      var password = this.props.hashMD5(document.getElementById('password').value)
-      var organization = document.getElementById('organization').value
+      let _id_employee = this.props.objectId()
+      let _id_organization = this.props.objectId()
+      let name = document.getElementById('name').value
+      let contact = document.getElementById('contact').value
+      let email = document.getElementById('email').value
+      let password = this.props.hashMD5(document.getElementById('password').value)
+      let organization = document.getElementById('organization').value
       this.fetch({query:`{
         employee(email:"`+email+`"){name}
       }`})

@@ -28,7 +28,7 @@ export default class ContentLogin extends React.Component {
 
   //validate
   validate() {
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -46,8 +46,8 @@ export default class ContentLogin extends React.Component {
   login() {
     if (this.validate() === true) {
       this.setState({disabled:true,button:spinner})
-      var email = document.getElementById('login_email').value
-      var password = this.props.hashMD5(document.getElementById('login_password').value)
+      let email = document.getElementById('login_email').value
+      let password = this.props.hashMD5(document.getElementById('login_password').value)
       this.fetch({query:`{
         employee (email:"`+email+`") {
           _id, password,

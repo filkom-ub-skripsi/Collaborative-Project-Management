@@ -58,21 +58,21 @@ export default class ContentMyProject extends React.Component {
       }
     }`})
     .then(result => {
-      var data = []
-      var temp = result.data.myProject
-      var counter = 0
+      let data = []
+      let temp = result.data.myProject
+      let counter = 0
       temp.forEach(function(item_project,index_project){
-        var start = new Date(item_project.start);var end = new Date(item_project.end)
-        var start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
-        var end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
-        var status = null
-        var value = null
+        let start = new Date(item_project.start);let end = new Date(item_project.end)
+        let start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
+        let end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
+        let status = null
+        let value = null
         if (item_project.status === '0') { status = 'Preparing' }
         else if (item_project.status === '2') { status = 'Closed' }
         else if (item_project.status === '1') {
           item_project.module.forEach(function(item_progress,index_progress){
-            var all = temp[index_project].module[index_progress]['requirement'].length
-            var done = item_progress.requirement.filter(function(search){ return search.status === '1' })
+            let all = temp[index_project].module[index_progress]['requirement'].length
+            let done = item_progress.requirement.filter(function(search){ return search.status === '1' })
             if (all === done.length) { counter++ }
           })
           value = Math.round(counter/temp[index_project].module.length*100)+'%'
@@ -101,8 +101,8 @@ export default class ContentMyProject extends React.Component {
       }`
     })
     .then(result => {
-      var data = []
-      var temp = result.data.organization.client
+      let data = []
+      let temp = result.data.organization.client
       temp.forEach(function(item){
         data.push({
           value:item._id,
@@ -133,21 +133,21 @@ export default class ContentMyProject extends React.Component {
         status
       }
     }`}).then(result => {
-      var data = []
-      var temp = result.data.myCollaboration.filter(function(item){ return item.status === '1' })
-      var counter = 0
+      let data = []
+      let temp = result.data.myCollaboration.filter(function(item){ return item.status === '1' })
+      let counter = 0
       temp.forEach(function(item){
-        var start = new Date(item.project[0]['start']); var end = new Date(item.project[0]['end']);
-        var start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
-        var end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
-        var status = null
-        var value = null
+        let start = new Date(item.project[0]['start']); let end = new Date(item.project[0]['end']);
+        let start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
+        let end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
+        let status = null
+        let value = null
         if (item.project[0]['status'] === '0') { status = 'Preparing' }
         else if (item.project[0]['status'] === '2') { status = 'Closed' }
         else if (item.project[0]['status'] === '1') {
           item.project[0].module.forEach(function(item_progress,index_progress){
-            var all = item.project[0].module[index_progress]['requirement'].length
-            var done = item_progress.requirement.filter(function(search){ return search.status === '1' })
+            let all = item.project[0].module[index_progress]['requirement'].length
+            let done = item_progress.requirement.filter(function(search){ return search.status === '1' })
             if (all === done.length) { counter++ }
           })
           value = Math.round(counter/item.project[0].module.length*100)+'%'
@@ -233,7 +233,7 @@ export default class ContentMyProject extends React.Component {
   //add project 1
   AddProject1(props){
     const validation = () => {
-      var counter = 0
+      let counter = 0
       const form = [
         {field:'tambah_name',feedback:'tambah_fname'},
         {field:'tambah_code',feedback:'tambah_fcode'},
@@ -550,10 +550,10 @@ export default class ContentMyProject extends React.Component {
   //handler 6
   handler_6(obstacle){
     if (this.handler_validation() === true) {
-      var id = this.props.objectId()
-      var start_date = new Date(this.state.add_form_start);var end_date = new Date(this.state.add_form_end)
-      var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
-      var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
+      let id = this.props.objectId()
+      let start_date = new Date(this.state.add_form_start);let end_date = new Date(this.state.add_form_end)
+      let start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
+      let end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
       this.fetch({query:`
         mutation {
           project_add(
@@ -574,8 +574,8 @@ export default class ContentMyProject extends React.Component {
           ){_id}
         }`
       })
-      var activity_id = this.props.objectId()
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -612,10 +612,10 @@ export default class ContentMyProject extends React.Component {
   //handler save
   handler_save(code,name,client,start,end){
     this.setState({add_form_progress:100})
-    var id = this.props.objectId()
-    var start_date = new Date(start);var end_date = new Date(end)
-    var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
-    var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
+    let id = this.props.objectId()
+    let start_date = new Date(start);let end_date = new Date(end)
+    let start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
+    let end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
     this.fetch({query:`
       mutation {
         project_add(
@@ -636,8 +636,8 @@ export default class ContentMyProject extends React.Component {
         ){_id}
       }`
     })
-    var activity_id = this.props.objectId()
-    var activity_date = new Date()
+    let activity_id = this.props.objectId()
+    let activity_date = new Date()
     this.fetch({query:`
       mutation {
         activity_add(
@@ -673,7 +673,7 @@ export default class ContentMyProject extends React.Component {
   
   //handler validation
   handler_validation(){
-    var counter = 0
+    let counter = 0
     if (this.state.add_form_name !== '') { counter++ }
     if (this.state.add_form_code !== '') { counter++ }
     if (this.state.add_form_client !== '') { counter++ }

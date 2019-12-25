@@ -41,7 +41,7 @@ export default class ContentIssue extends React.Component {
 
   //form validation
   form_validation(form){
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -59,7 +59,7 @@ export default class ContentIssue extends React.Component {
 
   //comment handler
   commentHandler(){
-    var field = document.getElementById('tambah_comment')
+    let field = document.getElementById('tambah_comment')
     if (field.value.length !== 0) {
       this.props.commentHandler(field.value)
       field.value = ''
@@ -80,9 +80,9 @@ export default class ContentIssue extends React.Component {
 
   //edit open
   edit_open(){
-    var filter_requirement = this.state.issue.requirement_id
-    var filter_module = this.state.issue.module_id
-    var filter = this.state.requirement.filter(function(item){return item.module_id === filter_module})
+    let filter_requirement = this.state.issue.requirement_id
+    let filter_module = this.state.issue.module_id
+    let filter = this.state.requirement.filter(function(item){return item.module_id === filter_module})
     this.setState({
       edit_modal:true,
       filter_module:filter_module,
@@ -94,7 +94,7 @@ export default class ContentIssue extends React.Component {
   //edit modal
   edit_modal(){
     const filter = (id) => {
-      const filter = this.state.requirement.filter(function(item){ return item.module_id === id })
+      let filter = this.state.requirement.filter(function(item){ return item.module_id === id })
       this.setState({filter:filter})
     }
     return (
@@ -165,16 +165,16 @@ export default class ContentIssue extends React.Component {
   //render
   render() {
 
-    var status = null
-    var disabled = true
+    let status = null
+    let disabled = true
     if (this.state.issue.status === '0') {
       status = <Badge variant="warning">open</Badge>
       disabled = false
     }
     else if (this.state.issue.status === '1') { status = <Badge variant="success">closed</Badge> }
 
-    var reload = null
-    var display = { display:'none' }
+    let reload = null
+    let display = { display:'none' }
     if (this.props.loading === 'disabled') { reload = 'Loading...' }
     else if (this.props.loading === '') {
       reload = 'Reload'

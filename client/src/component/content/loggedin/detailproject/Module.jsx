@@ -68,10 +68,10 @@ export default class ContentModule extends React.Component {
         }
       }`
     }).then(result => {
-      var data = []
-      var temp = result.data.project.module
+      let data = []
+      let temp = result.data.project.module
       temp.forEach(function(item_m){
-        var requirement = []
+        let requirement = []
         item_m.requirement.forEach(function(item_r){
           requirement.push({
             number:'-',
@@ -112,7 +112,7 @@ export default class ContentModule extends React.Component {
 
   //form validation
   form_validation(form){
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -199,8 +199,8 @@ export default class ContentModule extends React.Component {
   add_module_handler(){
     if (this.form_validation(module_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = this.props.objectId()
-      var project = this.state.project_id
+      let id = this.props.objectId()
+      let project = this.state.project_id
       this.fetch({query:`
         mutation {
           module_add(
@@ -220,10 +220,10 @@ export default class ContentModule extends React.Component {
           requirement:[]
         }] 
       })
-      var activity_id = this.props.objectId()
-      var activity_code = 'M0'
-      var activity_detail = value('tambah_name')
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_code = 'M0'
+      let activity_detail = value('tambah_name')
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -295,8 +295,8 @@ export default class ContentModule extends React.Component {
   add_requirement_handler(){
     if (this.form_validation(requirement_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = this.props.objectId()
-      var project = this.state.project_id 
+      let id = this.props.objectId()
+      let project = this.state.project_id 
       this.fetch({query:`
         mutation {
           requirement_add(
@@ -309,7 +309,7 @@ export default class ContentModule extends React.Component {
           ){_id}
         }`
       })
-      var data = this.state.data
+      let data = this.state.data
       data.forEach(function(item){
         if (item.id.split('_')[0] === value('tambah_module_req').split('_')[0]) {
           item.requirement = [...item.requirement,{
@@ -322,10 +322,10 @@ export default class ContentModule extends React.Component {
         }
       })
       this.setState({data:data})
-      var activity_id = this.props.objectId()
-      var activity_code = 'R0'
-      var activity_detail = value('tambah_name_req')+'_'+value('tambah_module_req').split('_')[1]
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_code = 'R0'
+      let activity_detail = value('tambah_name_req')+'_'+value('tambah_module_req').split('_')[1]
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -355,7 +355,7 @@ export default class ContentModule extends React.Component {
 
   //table handler
   table_handler(id){
-    var data = this.state.data.filter(function(item){ return item.id === id })
+    let data = this.state.data.filter(function(item){ return item.id === id })
     this.setState({
       detail_modal:true,detail_id:id,
       edit_form_name:data[0]['name'],
@@ -421,9 +421,9 @@ export default class ContentModule extends React.Component {
   //detail save
   detail_save(){
     if (this.form_validation(module_edit_form) === true) {
-      var id = this.state.detail_id
-      var name = this.state.edit_form_name
-      var detail = this.state.edit_form_detail
+      let id = this.state.detail_id
+      let name = this.state.edit_form_name
+      let detail = this.state.edit_form_detail
       this.fetch({query:`
         mutation {
           module_edit(
@@ -433,20 +433,20 @@ export default class ContentModule extends React.Component {
           ){_id}
         }`
       })
-      var data = this.state.data
+      let data = this.state.data
       data.forEach(function(item){
         if (item.id === id) {
-          var version = parseInt(item.id.split('_')[1])+1
+          let version = parseInt(item.id.split('_')[1])+1
           item.id = item.id.split('_')[0]+'_'+version
           item.name = name
           item.detail = detail
         }
       })
       this.setState({data:data})
-      var activity_id = this.props.objectId()
-      var activity_code = 'M1'
-      var activity_detail = name
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_code = 'M1'
+      let activity_detail = name
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -466,8 +466,8 @@ export default class ContentModule extends React.Component {
 
   //detail delete
   detail_delete(){
-    var id = this.state.detail_id
-    var temp = this.state.data.filter(function(item){ return item.id === id })
+    let id = this.state.detail_id
+    let temp = this.state.data.filter(function(item){ return item.id === id })
     if (temp[0]['requirement'].length === 0) {
       Swal({
         title:"Delete",
@@ -483,12 +483,12 @@ export default class ContentModule extends React.Component {
               module_delete(_id:"`+id.split('_')[0]+`"){_id}
             }`
           })
-          var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
+          let data = this.state.data.filter(function(item){ return ( item.id !== id ) })
           this.setState({ data:data })
-          var activity_id = this.props.objectId()
-          var activity_code = 'M2'
-          var activity_detail = temp[0]['name']
-          var activity_date = new Date()
+          let activity_id = this.props.objectId()
+          let activity_code = 'M2'
+          let activity_detail = temp[0]['name']
+          let activity_date = new Date()
           this.fetch({query:`
             mutation {
               activity_add(
@@ -517,11 +517,11 @@ export default class ContentModule extends React.Component {
 
   //requirement handler
   requirement_handler(id){
-    var temp = []
+    let temp = []
     this.state.data.forEach(function(item_m){
       item_m.requirement.forEach(function(item_r){temp.push(item_r)})
     })
-    var data = temp.filter(function(item){ return item.id === id })
+    let data = temp.filter(function(item){ return item.id === id })
     this.setState({
       requirement_modal:true,detail_id:id,
       edit_form_name:data[0]['name'],edit_form_detail:data[0]['detail'],edit_form_module:data[0]['module'],
@@ -595,10 +595,10 @@ export default class ContentModule extends React.Component {
   //requirement save
   requirement_save(){
     if (this.form_validation(requirement_edit_form) === true) {
-      var id = this.state.detail_id
-      var edit_name = this.state.edit_form_name
-      var edit_detail = this.state.edit_form_detail
-      var edit_module = this.state.edit_form_module
+      let id = this.state.detail_id
+      let edit_name = this.state.edit_form_name
+      let edit_detail = this.state.edit_form_detail
+      let edit_module = this.state.edit_form_module
       this.fetch({query:`
         mutation{
           requirement_edit(
@@ -609,9 +609,9 @@ export default class ContentModule extends React.Component {
           ){_id}
         }`
       })
-      var edit_change = 0
-      var data = this.state.data
-      var module_name = null
+      let edit_change = 0
+      let data = this.state.data
+      let module_name = null
       data.forEach(function(module){
         module.requirement.forEach(function(requirement){
           if (requirement.id === id) {
@@ -626,7 +626,7 @@ export default class ContentModule extends React.Component {
         data.forEach(function(module){
           module.requirement.forEach(function(requirement){
             if (requirement.id === id) {
-              var v_module = parseInt(module.id.split('_')[1])+1
+              let v_module = parseInt(module.id.split('_')[1])+1
               module.id = module.id.split('_')[0]+'_'+v_module
               requirement.name = edit_name
               requirement.detail = edit_detail
@@ -637,7 +637,7 @@ export default class ContentModule extends React.Component {
         data.forEach(function(module){
           module.requirement.forEach(function(requirement){
             if (requirement.id === id) {
-              var v_module = parseInt(module.id.split('_')[1])+1
+              let v_module = parseInt(module.id.split('_')[1])+1
               module.id = module.id.split('_')[0]+'_'+v_module
             }
             module.requirement = module.requirement.filter(function(item){ return item.id !== id })
@@ -656,10 +656,10 @@ export default class ContentModule extends React.Component {
         })
       }
       this.setState({data:data})
-      var activity_id = this.props.objectId()
-      var activity_code = 'R1'
-      var activity_detail = edit_name+'_'+module_name
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_code = 'R1'
+      let activity_detail = edit_name+'_'+module_name
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -688,15 +688,15 @@ export default class ContentModule extends React.Component {
       dangerMode:true,
     }).then((willDelete) => {
       if (willDelete) {
-        var id = this.state.detail_id
-        var data = this.state.data
-        var name = null
-        var module_name = null
+        let id = this.state.detail_id
+        let data = this.state.data
+        let name = null
+        let module_name = null
         data.forEach(function(module){
           module.requirement.forEach(function(requirement){
             if (requirement.id === id) {
               module_name = module.name
-              var v_module = parseInt(module.id.split('_')[1])+1
+              let v_module = parseInt(module.id.split('_')[1])+1
               module.id = module.id.split('_')[0]+'_'+v_module
               name = requirement.name
             }
@@ -709,10 +709,10 @@ export default class ContentModule extends React.Component {
             requirement_delete(_id:"`+id.split('_')[0]+`"){_id}
           }`
         })
-        var activity_id = this.props.objectId()
-        var activity_code = 'R2'
-        var activity_detail = name+'_'+module_name
-        var activity_date = new Date()
+        let activity_id = this.props.objectId()
+        let activity_code = 'R2'
+        let activity_detail = name+'_'+module_name
+        let activity_date = new Date()
         this.fetch({query:`
           mutation {
             activity_add(
@@ -765,16 +765,14 @@ export default class ContentModule extends React.Component {
   //card body
   card_body(){
     return (
-      <div className="container-detail-project">
-        <LayoutTable
-          noHeader={true}
-          loading={this.state.data_loading}
-          columns={this.table_columns}
-          data={this.state.data}
-          expandable={true}
-          component={<ContentRequirement handler={id=>this.requirement_handler(id)}/>}
-        />
-      </div>
+      <LayoutTable
+        noHeader={true}
+        loading={this.state.data_loading}
+        columns={this.table_columns}
+        data={this.state.data}
+        expandable={true}
+        component={<ContentRequirement handler={id=>this.requirement_handler(id)}/>}
+      />
     )
   }
 
@@ -786,13 +784,11 @@ export default class ContentModule extends React.Component {
         {this.add_requirement_modal()}
         {this.requirement_modal()}
         {this.detail_modal()}
-        <div className="container-detail-project">
-          <LayoutCardContent
-            header={this.card_header()}
-            body={this.card_body()}
-            table={true}
-          />
-        </div>
+        <LayoutCardContent
+          header={this.card_header()}
+          body={this.card_body()}
+          table={true}
+        />
       </div>
     )
   }

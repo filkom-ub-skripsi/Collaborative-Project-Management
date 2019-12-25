@@ -5,12 +5,7 @@ a.disabled {
 }
 
 .container-activity {
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.container-detail-project {
-  max-height: 74vh;
+  max-height: 79vh;
   overflow-y: auto;
 }
 

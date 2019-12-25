@@ -52,7 +52,7 @@ export default class ViewIssue extends React.Component {
     }`}).then(result => {
       document.title = 'Issue - '+result.data.issue.name
       this.requirement(result.data.issue.project[0]['_id'])
-      var comment = []
+      let comment = []
       result.data.issue.comment.forEach(function(item){
         comment.push({
           id:item._id,
@@ -100,8 +100,8 @@ export default class ViewIssue extends React.Component {
       }
     }`})
     .then(result => {
-      var module = []
-      var requirement = []
+      let module = []
+      let requirement = []
       result.data.project.module.forEach(function(item_module){
         module.push({
           id:item_module._id,
@@ -153,8 +153,8 @@ export default class ViewIssue extends React.Component {
         date:"`+new Date()+`"
       ){_id}
     }`})
-    var data_requirement = this.state.requirement.filter(function(item){ return item.id === requirement })
-    var data = this.state.data
+    let data_requirement = this.state.requirement.filter(function(item){ return item.id === requirement })
+    let data = this.state.data
     data.name = name
     data.detail = detail
     data.module = data_requirement[0]['module']
@@ -172,7 +172,7 @@ export default class ViewIssue extends React.Component {
 
   //comment handler
   commentHandler(comment){
-    var id = this.props.objectId()
+    let id = this.props.objectId()
     this.fetch({query:`mutation {
       comment_add(
         _id:"`+id+`",
@@ -196,7 +196,7 @@ export default class ViewIssue extends React.Component {
     this.fetch({query:`mutation {
       comment_delete(_id:"`+id+`"){_id}
     }`})
-    var comment = this.state.comment.filter(function(item){ return item.id !== id })
+    let comment = this.state.comment.filter(function(item){ return item.id !== id })
     this.setState({comment:comment})
   }
 

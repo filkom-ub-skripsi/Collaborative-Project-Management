@@ -35,7 +35,7 @@ export default class ContentOverview extends React.Component {
 
   //get derived state from props
   static getDerivedStateFromProps(props) {
-      var status_text = null
+      let status_text = null
       if (props.status === '0') { status_text = 'Status : Preparing ' }
       if (props.status === '1') { status_text = 'Status : On Progress ' }
       if (props.status === '2') { status_text = 'Status : Closed ' }
@@ -59,8 +59,8 @@ export default class ContentOverview extends React.Component {
         client { _id, name },
       }
     }`}).then(result => {
-      var project = result.data.project
-      var client = project.client[0]
+      let project = result.data.project
+      let client = project.client[0]
       this.props.update(
         project.code,
         project.name,
@@ -147,9 +147,9 @@ export default class ContentOverview extends React.Component {
         ){_id}
       }`
     })
-    var activity_id = this.props.objectId()
-    var activity_code = 'P1'
-    var activity_date = new Date()
+    let activity_id = this.props.objectId()
+    let activity_code = 'P1'
+    let activity_date = new Date()
     this.fetch({query:`
       mutation {
         activity_add(
@@ -175,15 +175,15 @@ export default class ContentOverview extends React.Component {
 
   //date reformatter
   date_reformatter(date){
-    var month = ["January","February","March","April","May","June","July","August","September","October","November","December"]
-    var old_format = new Date(date);
-    var new_format = old_format.getDate()+' '+month[old_format.getMonth()]+', '+old_format.getFullYear()
+    let month = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    let old_format = new Date(date);
+    let new_format = old_format.getDate()+' '+month[old_format.getMonth()]+', '+old_format.getFullYear()
     return new_format
   }
 
   //card header
   card_header(){
-    var disabled = true
+    let disabled = true
     if ( this.state.header_button === false) { disabled = false }
     return (
       <Row>
@@ -217,8 +217,8 @@ export default class ContentOverview extends React.Component {
 
   //card body
   card_body(){
-    var loading = null
-    var loaded = null
+    let loading = null
+    let loaded = null
     if (this.state.header_button === true) {
       loading = 'block'
       loaded = 'none'
@@ -227,39 +227,37 @@ export default class ContentOverview extends React.Component {
       loaded = 'block'
     }
     return (
-      <div className="container-detail-project">
-        <ListGroup variant="flush">
-          <ListGroup.Item style={{display:loading}}>
-            <div style={header}>Loading...</div>
-          </ListGroup.Item>
-          <ListGroup.Item style={{display:loaded}}>
-            <div style={header}>{this.state.overview.name+' ['+this.state.overview.code+']'}</div>
-            <div style={header}>{this.state.overview.client}</div>
-            <div style={header}>{this.date_reformatter(this.state.overview.start)+' - '+this.date_reformatter(this.state.overview.end)}</div>
-            <div style={header}>{this.state.status_text} {this.state.status === '1' && this.state.progress}</div>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <div style={title}>Problem</div>
-            <div style={prewrap}>{this.state.problem}</div>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <div style={title}>Goal</div>
-            <div style={prewrap}>{this.state.goal}</div>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <div style={title}>Objective</div>
-            <div style={prewrap}>{this.state.objective}</div>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <div style={title}>Success Criteria</div>
-            <div style={prewrap}>{this.state.success}</div>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <div style={title}>Assumptions, Risks, Obstacles</div>
-            <div style={prewrap}>{this.state.obstacle}</div>
-          </ListGroup.Item>
-        </ListGroup>
-      </div>
+      <ListGroup variant="flush">
+        <ListGroup.Item style={{display:loading}}>
+          <div style={header}>Loading...</div>
+        </ListGroup.Item>
+        <ListGroup.Item style={{display:loaded}}>
+          <div style={header}>{this.state.overview.name+' ['+this.state.overview.code+']'}</div>
+          <div style={header}>{this.state.overview.client}</div>
+          <div style={header}>{this.date_reformatter(this.state.overview.start)+' - '+this.date_reformatter(this.state.overview.end)}</div>
+          <div style={header}>{this.state.status_text} {this.state.status === '1' && this.state.progress}</div>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          <div style={title}>Problem</div>
+          <div style={prewrap}>{this.state.problem}</div>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          <div style={title}>Goal</div>
+          <div style={prewrap}>{this.state.goal}</div>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          <div style={title}>Objective</div>
+          <div style={prewrap}>{this.state.objective}</div>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          <div style={title}>Success Criteria</div>
+          <div style={prewrap}>{this.state.success}</div>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          <div style={title}>Assumptions, Risks, Obstacles</div>
+          <div style={prewrap}>{this.state.obstacle}</div>
+        </ListGroup.Item>
+      </ListGroup>
     )
   }
 

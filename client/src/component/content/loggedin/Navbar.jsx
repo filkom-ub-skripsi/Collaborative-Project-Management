@@ -28,7 +28,9 @@ export default class ContentNavbar extends React.Component {
 
   //component did mount
   componentDidMount(){
-    this.push()
+    if (localStorage.getItem('leader') === '0') {
+      this.push()
+    }
   }
 
   //fetch
@@ -49,11 +51,11 @@ export default class ContentNavbar extends React.Component {
       }
     }`})
     .then(result => {
-      var data = []
+      let data = []
       result.data.employee.collaborator.forEach(function(item){
         if (item.status === '0') { data.push(item) }
       })
-      var division = null
+      let division = null
       if (result.data.employee.division.length === 0) { division = 'Leader' }
       else { division = result.data.employee.division[0]['name'] }
       this.setState({
@@ -90,9 +92,9 @@ export default class ContentNavbar extends React.Component {
         this.fetch({query:`mutation {
           collaborator_status(_id:"`+id+`",status:"1"){_id}
         }`})
-        var data = this.state.data.filter(function(item){ return item._id !== id })
+        let data = this.state.data.filter(function(item){ return item._id !== id })
         this.setState({data:data})
-        var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+        let activity_id = RDS.generate({length:32,charset:'alphabetic'})
         this.fetch({query:`
           mutation {
             activity_add(
@@ -119,9 +121,9 @@ export default class ContentNavbar extends React.Component {
         this.fetch({query:`mutation {
           collaborator_delete(_id:"`+id+`"){_id}
         }`})
-        var data = this.state.data.filter(function(item){ return item._id !== id })
+        let data = this.state.data.filter(function(item){ return item._id !== id })
         this.setState({data:data})
-        var activity_id = RDS.generate({length:32,charset:'alphabetic'})
+        let activity_id = RDS.generate({length:32,charset:'alphabetic'})
         this.fetch({query:`
           mutation {
             activity_add(
@@ -173,48 +175,50 @@ export default class ContentNavbar extends React.Component {
   right(){
     return (
       <Form inline className="animated fast fadeIn">
-        <Dropdown alignRight>
-          <Dropdown.Toggle variant="light" id="notifications">
-            <Bell/>
-            <Badge variant="warning">{this.state.data.length > 0 && this.state.data.length}</Badge>
-          </Dropdown.Toggle>
-          <Dropdown.Menu style={{width:450}}>
-            <Container>
-              <Row>
-                <Col><div style={{fontWeight:600,paddingBottom:8}}>Project Invitation</div></Col>
-                <Col className="text-right"><a href="#!" onClick={()=>this.reload()} className={this.state.refresh_state}>{this.state.refresh_name}</a></Col>
-              </Row>
-            </Container>
-            <ListGroup variant="flush">
-            {this.state.data.length === 0 &&
-              <ListGroup.Item>
-                <div style={{fontWeight:500}}>Empty</div>
-                <small>There is no invitation</small>
-              </ListGroup.Item>
-            }
-            {this.state.data.map((item,index) => {
-              var func_id = item._id
-              var func_project = item.project[0]['_id']
-              var func_detail = this.state.name+'_'+this.state.division
-              return (
-                <ListGroup.Item key={index} className="list-group-notification">
-                  <Row><Col lg={9}>
-                    <div className="clipped" style={{fontWeight:500,width:350}}>{item.project[0]['name']}</div>
-                    <small style={{color:'grey'}}>{item.project[0]['employee'][0]['email']}</small>
-                  </Col><Col lg={3} className="text-right" style={{paddingTop:7}}>
-                    <X size={20} style={{color:'#BD2031'}} onClick={()=>this.decline(func_id,func_project,func_detail)}/>
-                    <span style={{paddingLeft:10}}/>
-                    <Check size={20} style={{color:'#0B6623'}} onClick={()=>this.accept(func_id,func_project,func_detail)}/>
-                  </Col></Row>
+        {localStorage.getItem('leader') === '0' &&
+          <Dropdown alignRight>
+            <Dropdown.Toggle variant="light" id="notifications">
+              <Bell/>
+              <Badge variant="warning">{this.state.data.length > 0 && this.state.data.length}</Badge>
+            </Dropdown.Toggle>
+            <Dropdown.Menu style={{width:450}}>
+              <Container>
+                <Row>
+                  <Col><div style={{fontWeight:600,paddingBottom:8}}>Project Invitation</div></Col>
+                  <Col className="text-right"><a href="#!" onClick={()=>this.reload()} className={this.state.refresh_state}>{this.state.refresh_name}</a></Col>
+                </Row>
+              </Container>
+              <ListGroup variant="flush">
+              {this.state.data.length === 0 &&
+                <ListGroup.Item>
+                  <div style={{fontWeight:500}}>Empty</div>
+                  <small>There is no invitation</small>
                 </ListGroup.Item>
-              )
-            })}
-            </ListGroup>
-            <Container style={{paddingTop:8}}>
-              <div style={{fontSize:12.5,color:'grey'}}>Copyright © 2020 Bayu Kharisma.</div>
-            </Container>
-          </Dropdown.Menu>
-        </Dropdown>
+              }
+              {this.state.data.map((item,index) => {
+                let func_id = item._id
+                let func_project = item.project[0]['_id']
+                let func_detail = this.state.name+'_'+this.state.division
+                return (
+                  <ListGroup.Item key={index} className="list-group-notification">
+                    <Row><Col lg={9}>
+                      <div className="clipped" style={{fontWeight:500,width:350}}>{item.project[0]['name']}</div>
+                      <small style={{color:'grey'}}>{item.project[0]['employee'][0]['email']}</small>
+                    </Col><Col lg={3} className="text-right" style={{paddingTop:7}}>
+                      <X size={20} style={{color:'#BD2031'}} onClick={()=>this.decline(func_id,func_project,func_detail)}/>
+                      <span style={{paddingLeft:10}}/>
+                      <Check size={20} style={{color:'#0B6623'}} onClick={()=>this.accept(func_id,func_project,func_detail)}/>
+                    </Col></Row>
+                  </ListGroup.Item>
+                )
+              })}
+              </ListGroup>
+              <Container style={{paddingTop:8}}>
+                <div style={{fontSize:12.5,color:'grey'}}>Copyright © 2020 Bayu Kharisma.</div>
+              </Container>
+            </Dropdown.Menu>
+          </Dropdown>
+        }
         <Dropdown alignRight>
           <Dropdown.Toggle variant="light" id="settings">
             <Settings/>

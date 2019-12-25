@@ -103,10 +103,10 @@ export default class ContentSetting extends React.Component {
           }
         }`}).then(result => {
           if (result.data.project.module.length !== 0) {
-            var data = result.data.project.module.filter(function(item){ return item.requirement.length === 0 })
+            let data = result.data.project.module.filter(function(item){ return item.requirement.length === 0 })
             if (data.length === 0) {
               const fetch = (query) => this.fetch({query:query})
-              var project_id = this.state.project_id
+              let project_id = this.state.project_id
               result.data.project.module.forEach(function(module){
                 fetch(`mutation {
                   gantt_add(
@@ -131,9 +131,9 @@ export default class ContentSetting extends React.Component {
                   }`)
                 })
               })
-              var activity_id = this.props.objectId()
-              var activity_code = 'P3'
-              var activity_date = new Date()
+              let activity_id = this.props.objectId()
+              let activity_code = 'P3'
+              let activity_date = new Date()
               this.fetch({query:`mutation {
                 activity_add(
                   _id:"`+activity_id+`",
@@ -231,7 +231,7 @@ export default class ContentSetting extends React.Component {
 
   //edit validation
   edit_validation(){
-    var counter = 0
+    let counter = 0
     edit_form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -259,9 +259,9 @@ export default class ContentSetting extends React.Component {
         value('edit_start'),
         value('edit_end')
       )
-      var activity_id = this.props.objectId()
-      var activity_code = 'P2'
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_code = 'P2'
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -320,9 +320,9 @@ export default class ContentSetting extends React.Component {
 
   //delete validation
   delete_validation(){
-    var counter = 0
-    var name = this.state.overview.name
-    var pass = this.state.password
+    let counter = 0
+    let name = this.state.overview.name
+    let pass = this.state.password
     delete_form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'

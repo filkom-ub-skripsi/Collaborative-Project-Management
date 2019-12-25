@@ -7,10 +7,6 @@ import LayoutCardContent from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 import ContentRequirementProgress from './RequirementProgress'
 
-//status text
-const status_1 = 'Finished'
-const status_0 = 'Progress'
-
 //class
 export default class ContentModuleProgress extends React.Component {
 
@@ -42,17 +38,17 @@ export default class ContentModuleProgress extends React.Component {
       }
     }`}).then(result => {
       this.props.update(result.data.project.module)
-      var data = []
+      let data = []
       result.data.project.module.forEach(function(item_m){
-        var status_text = null
-        var counter = 0
-        var requirement = []
+        let status_text = null
+        let counter = 0
+        let requirement = []
         item_m.requirement.forEach(function(item_r,index_r){
           if (item_r.status === '1') {
             counter++
-            status_text = status_1
+            status_text = 'Finished'
           } else {
-            status_text = status_0
+            status_text = 'Progress'
           }
           requirement.push({
             id:item_r._id,
@@ -64,7 +60,7 @@ export default class ContentModuleProgress extends React.Component {
             number:index_r+1+'.'
           })
         })
-        var progress = Math.round(counter/requirement.length*100)
+        let progress = Math.round(counter/requirement.length*100)
         data.push({
           id:item_m._id+'_'+0,
           name:item_m.name,
@@ -128,16 +124,14 @@ export default class ContentModuleProgress extends React.Component {
   //card body
   card_body(){
     return (
-      <div className="container-detail-project">
-        <LayoutTable
-          noHeader={true}
-          loading={this.state.data_loading}
-          columns={this.table_columns}
-          data={this.state.data}
-          expandable={true}
-          component={<ContentRequirementProgress/>}
-        />
-      </div>
+      <LayoutTable
+        noHeader={true}
+        loading={this.state.data_loading}
+        columns={this.table_columns}
+        data={this.state.data}
+        expandable={true}
+        component={<ContentRequirementProgress/>}
+      />
     )
   }
 

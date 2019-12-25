@@ -60,8 +60,8 @@ export default class ContentClient extends React.Component {
       }
     }`})
     .then(result => {
-      var data = []
-      var temp = result.data.organization.client
+      let data = []
+      let temp = result.data.organization.client
       temp.forEach(function(item){
         data.push({
           id:item._id+'_'+0,
@@ -96,7 +96,7 @@ export default class ContentClient extends React.Component {
 
   //form validation
   form_validation(form){
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -214,7 +214,7 @@ export default class ContentClient extends React.Component {
   add_client_handler(){
     if (this.form_validation(client_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = this.props.objectId()
+      let id = this.props.objectId()
       this.fetch({query:`
         mutation { 
           client_add(
@@ -247,7 +247,7 @@ export default class ContentClient extends React.Component {
   edit_client_handler(){
     if (this.form_validation(client_edit_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = this.state.detail_id
+      let id = this.state.detail_id
       this.fetch({query:`
         mutation{
           client_edit(
@@ -259,10 +259,10 @@ export default class ContentClient extends React.Component {
           ){_id}
         }`
       })
-      var data = this.state.data
+      let data = this.state.data
       data.forEach(function(item){
         if (item.id === id) {
-          var version = parseInt(item.id.split('_')[1])+1
+          let version = parseInt(item.id.split('_')[1])+1
           item.id = item.id.split('_')[0]+'_'+version
           item.name = value('sunting_name')
           item.email = value('sunting_email')
@@ -293,16 +293,16 @@ export default class ContentClient extends React.Component {
 
   //table handler
   table_handler(id){
-    var data = this.state.data.filter(function(item){ return item.id === id })
-    var temp = []
+    let data = this.state.data.filter(function(item){ return item.id === id })
+    let temp = []
     data[0]['data'].forEach(function(item){
-      var progress = null
+      let progress = null
       if (item.status === '0') { progress = 'Preparing' }
       else if (item.status === '2') { progress = 'Closed' }
       else if (item.status === '1') {
-        var counter = 0
+        let counter = 0
         item.module.forEach(function(module){
-          var done = module.requirement.filter(function(search){ return search.status === '1' })
+          let done = module.requirement.filter(function(search){ return search.status === '1' })
           if (module.requirement.length === done.length) { counter++ }
         })
         progress = 'On Progress ('+Math.round(counter/item.module.length*100)+'%)'
@@ -360,9 +360,9 @@ export default class ContentClient extends React.Component {
 
   //detail edit
   detail_edit(){
-    var id = this.state.detail_id
-    var temp = this.state.data
-    var data = temp.filter(function(item){ return item.id === id })
+    let id = this.state.detail_id
+    let temp = this.state.data
+    let data = temp.filter(function(item){ return item.id === id })
     this.setState({
       detail_modal:false,
       edit_form_name:data[0].name,
@@ -375,8 +375,8 @@ export default class ContentClient extends React.Component {
 
   //detail delete
   detail_delete(){
-    var id = this.state.detail_id
-    var temp = this.state.data.filter(function(item){ return item.id === id })
+    let id = this.state.detail_id
+    let temp = this.state.data.filter(function(item){ return item.id === id })
     if (temp[0]['project'] === 0) {
       Swal({
         title:"Delete",
@@ -392,7 +392,7 @@ export default class ContentClient extends React.Component {
               client_delete(_id:"`+id.split('_')[0]+`"){_id}
             }`
           })
-          var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
+          let data = this.state.data.filter(function(item){ return ( item.id !== id ) })
           this.setState({data:data}) 
           this.detail_close()
           NotificationManager.success(success)

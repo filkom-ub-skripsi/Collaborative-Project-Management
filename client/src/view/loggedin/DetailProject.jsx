@@ -25,7 +25,7 @@ export default class ViewDetailProject extends React.Component {
     this.state = {
       project_id:this.props.match.params.id,breadcrumb:breadcrumb,
       overview:[{code:null,name:null,client:null,client_id:null,start:null,end:null}],
-      status:null,progress:'...%',requirement:[],issue:[],employee:[],activity:[],
+      status:null,progress:'...%',requirement:[],issue:[],collaborator_accepted:[],collaborator_pending:[],activity:[],
     }
     this.overview_update = this.overview_update.bind(this)
     this.moduleProgress_update = this.moduleProgress_update.bind(this)
@@ -132,12 +132,12 @@ export default class ViewDetailProject extends React.Component {
 
   //module progress update
   moduleProgress_update(data){
-    var done = 0
+    let done = 0
     data.forEach(function(module){
-      var finished = module.requirement.filter(function(item){ return item.status === '1' })
+      let finished = module.requirement.filter(function(item){ return item.status === '1' })
       if (module.requirement.length === finished.length) { done++ }
     })
-    var progress = Math.round(done/data.length*100)
+    let progress = Math.round(done/data.length*100)
     this.setState({progress:progress+'%',requirement:data})
   }
 
@@ -157,10 +157,13 @@ export default class ViewDetailProject extends React.Component {
     return (
       <ContentScrum
         webservice={this.props.webservice}
+        objectId={this.props.objectId}
         id={this.state.project_id}
         requirement={this.state.requirement}
         issue={this.state.issue}
-        employee={this.state.employee}
+        collaborator_accepted={this.state.collaborator_accepted}
+        collaborator_pending={this.state.collaborator_pending}
+        collaborator_update={this.collaborator_update}
         activity={this.activity_add}
       />
     )
@@ -186,8 +189,52 @@ export default class ViewDetailProject extends React.Component {
   }
 
   //collaborator update
-  collaborator_update(data){
-    this.setState({employee:data})
+  collaborator_update(data,type){
+    if (type === 'update') {
+      let accepted = []
+      let pending = []
+      data.forEach(function(item){
+        if (item.status === '1') {
+          accepted.push({
+            id:item.employee[0]['_id'],
+            name:item.employee[0]['name'],
+            email:item.employee[0]['email'],
+            contact:item.employee[0]['contact'],
+            division_id:item.employee[0]['division'][0]['_id'],
+            division_name:item.employee[0]['division'][0]['name'],
+            collaborator:item._id
+          })
+        } else {
+          pending.push({
+            id:item.employee[0]['_id'],
+            name:item.employee[0]['name'],
+            email:item.employee[0]['email'],
+            contact:item.employee[0]['contact'],
+            division_id:item.employee[0]['division'][0]['_id'],
+            division_name:item.employee[0]['division'][0]['name'],
+            collaborator:item._id
+          })
+        }
+      })
+      this.setState({
+        collaborator_accepted:accepted,
+        collaborator_pending:pending
+      })
+    } else if (type === 'add') {
+      this.setState({collaborator_pending:[...this.state.collaborator_pending,data]})
+    } else if (type === 'addArray') {
+      let merge = this.state.collaborator_pending.concat(data)
+      this.setState({collaborator_pending:merge})
+    } else if (type === 'addActivity') {
+      let merge = this.state.activity.concat(data)
+      this.setState({activity:merge})
+    } else if (type === 'cancel') {
+      let cancel = this.state.collaborator_pending.filter(function(item){ return item.id !== data })
+      this.setState({collaborator_pending:cancel})
+    } else if (type === 'kick') {
+      let kick = this.state.collaborator_accepted.filter(function(item){ return item.id !== data })
+      this.setState({collaborator_accepted:kick})
+    }
   }
 
   //collaborator tab
@@ -197,6 +244,8 @@ export default class ViewDetailProject extends React.Component {
         webservice={this.props.webservice}
         objectId={this.props.objectId}
         id={this.state.project_id}
+        collaborator_accepted={this.state.collaborator_accepted}
+        collaborator_pending={this.state.collaborator_pending}
         update={this.collaborator_update}
         activity={this.activity_add}
       />

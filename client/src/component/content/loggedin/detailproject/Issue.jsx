@@ -41,8 +41,8 @@ export default class ContentIssue extends React.Component {
 
   //get derived state from props
   static getDerivedStateFromProps(props) {
-    var module = []
-    var requirement = []
+    let module = []
+    let requirement = []
     props.requirement.forEach(function(item_module){
       module.push({
         id:item_module._id,
@@ -79,10 +79,10 @@ export default class ContentIssue extends React.Component {
         }
       }
     }`}).then(result => {
-      var data = []
+      let data = []
       result.data.project.issue.forEach(function(item){
-        const requirement = item.requirement[0]
-        const module = requirement.module[0]
+        let requirement = item.requirement[0]
+        let module = requirement.module[0]
         data.push({
           id:item._id,name:item.name,status:item.status,
           module:module.name,module_id:module._id,
@@ -121,7 +121,7 @@ export default class ContentIssue extends React.Component {
 
   //form validation
   form_validation(form){
-    var counter = 0
+    let counter = 0
     form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -140,10 +140,12 @@ export default class ContentIssue extends React.Component {
   //add issue modal
   add_issue_modal(){
     const filter = (id) => {
-      this.setState({filterState:false})
       if (id !== '') {
-        const filter = this.state.requirement.filter(function(item){ return item.module_id === id.split('_')[0] })
-        this.setState({filter:filter})
+        let filter = this.state.requirement.filter(function(item){ return item.module_id === id })
+        this.setState({
+          filter:filter,
+          filterState:false
+        })
       }
     }
     return (
@@ -210,9 +212,9 @@ export default class ContentIssue extends React.Component {
   add_issue_handler(){
     if (this.form_validation(issue_add_form) === true) {
       const value = (id) => { return document.getElementById(id).value }
-      var id = this.props.objectId()
-      var project = this.state.project_id
-      var requirement = this.state.requirement.filter(function(item){ return item.id === value('tambah_requirement') })
+      let id = this.props.objectId()
+      let project = this.state.project_id
+      let requirement = this.state.requirement.filter(function(item){ return item.id === value('tambah_requirement') })
       this.fetch({query:`mutation {
         issue_add(
           _id:"`+id+`",
@@ -233,10 +235,10 @@ export default class ContentIssue extends React.Component {
           employee:this.state.myName,employee_id:localStorage.getItem('user')
         }]
       })
-      var activity_id = this.props.objectId()
-      var activity_code = 'S0'
-      var activity_detail = value('tambah_name')+'_'+requirement[0]['name']+'_'+requirement[0]['module']+'_'+this.state.myName
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_code = 'S0'
+      let activity_detail = value('tambah_name')+'_'+requirement[0]['name']+'_'+requirement[0]['module']+'_'+this.state.myName
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -285,35 +287,33 @@ export default class ContentIssue extends React.Component {
   //card body
   card_body(){
     return (
-      <div className="container-detail-project">
-        <ListGroup variant="flush">
-          {
-            this.state.data.length === 0 &&
-            <ListGroup.Item>
-              <div style={{fontWeight:600}}>Empty</div>
-              <div style={{color:'grey'}}>There is no issues in this project</div>
-            </ListGroup.Item>
-          }
-          {
-            this.state.data.length !== 0 &&
-            this.state.data.map((item,index) => {
-              var status = null
-              if (item.status === '0') { status = <Badge variant="warning">open</Badge> }
-              else if (item.status === '1') { status = <Badge variant="danger">closed</Badge> }
-              return (
-                <Link
-                  key={index}
-                  to={'/issue/'+item.id}
-                  className="list-group-item list-group-item-action"
-                >
-                  <div style={{fontWeight:600}}>{item.name} {status}</div>
-                  <small>Created by {item.employee}. Issue about {item.requirement} Requirement of {item.requirement} Module.</small>
-                </Link>
-              )
-            })
-          }
-        </ListGroup>
-      </div>
+      <ListGroup variant="flush">
+        {
+          this.state.data.length === 0 &&
+          <ListGroup.Item>
+            <div style={{fontWeight:600}}>Empty</div>
+            <div style={{color:'grey'}}>There is no issues in this project</div>
+          </ListGroup.Item>
+        }
+        {
+          this.state.data.length !== 0 &&
+          this.state.data.map((item,index) => {
+            let status = null
+            if (item.status === '0') { status = <Badge variant="warning">open</Badge> }
+            else if (item.status === '1') { status = <Badge variant="danger">closed</Badge> }
+            return (
+              <Link
+                key={index}
+                to={'/issue/'+item.id}
+                className="list-group-item list-group-item-action"
+              >
+                <div style={{fontWeight:600}}>{item.name} {status}</div>
+                <small>Created by {item.employee}. Issue about {item.requirement} Requirement of {item.requirement} Module.</small>
+              </Link>
+            )
+          })
+        }
+      </ListGroup>
     )
   }
 
