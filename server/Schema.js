@@ -119,6 +119,12 @@ const EmployeeType = new GraphQLObjectType({
         return Issue.find({employee:parent._id})
       }
     },
+    team : {
+      type : new GraphQLList(TeamType),
+      resolve(parent, args){
+        return Team.find({employee:parent._id})
+      }
+    },
   })
 })
 
@@ -209,6 +215,24 @@ const ProjectType = new GraphQLObjectType({
         return Issue.find({project:parent._id})
       }
     },
+    gantt : {
+      type : new GraphQLList(GanttType),
+      resolve(parent, args){
+        return Gantt.find({project:parent._id})
+      }
+    },
+    sprint : {
+      type : new GraphQLList(SprintType),
+      resolve(parent, args){
+        return Sprint.find({project:parent._id})
+      }
+    },
+    task : {
+      type : new GraphQLList(TaskType),
+      resolve(parent, args){
+        return Task.find({project:parent._id})
+      }
+    },
   })
 })
 
@@ -271,6 +295,18 @@ const RequirementType = new GraphQLObjectType({
     name: { type : GraphQLString },
     detail: { type : GraphQLString },
     status: { type : GraphQLString },
+    issue : {
+      type : new GraphQLList(IssueType),
+      resolve(parent, args){
+        return Issue.find({requirement:parent._id})
+      }
+    },
+    task : {
+      type : new GraphQLList(TaskType),
+      resolve(parent, args){
+        return Task.find({requirement:parent._id})
+      }
+    },
   })
 })
 
@@ -306,6 +342,12 @@ const IssueType = new GraphQLObjectType({
         return Project.find({_id:parent.project})
       }
     },
+    requirement : {
+      type : new GraphQLList(RequirementType),
+      resolve(parent, args){
+        return Requirement.find({_id:parent.requirement})
+      }
+    },
     employee : {
       type : new GraphQLList(EmployeeType),
       resolve(parent, args){
@@ -319,6 +361,12 @@ const IssueType = new GraphQLObjectType({
       type : new GraphQLList(CommentType),
       resolve(parent, args){
         return Comment.find({issue:parent._id})
+      }
+    },
+    task : {
+      type : new GraphQLList(TaskType),
+      resolve(parent, args){
+        return Task.find({issue:parent._id})
       }
     },
   })
@@ -342,6 +390,106 @@ const CommentType = new GraphQLObjectType({
       }
     },
     comment: { type : GraphQLString },
+  })
+})
+
+const Gantt = require('./model/Gantt')
+const GanttType = new GraphQLObjectType({
+  name: 'Gantt',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({_id:parent.project})
+      }
+    },
+    name: { type : GraphQLString },
+    start: { type : GraphQLString },
+    duration: { type : GraphQLString },
+    parent: { type : GraphQLString },
+  })
+})
+
+const Sprint = require('./model/Sprint')
+const SprintType = new GraphQLObjectType({
+  name: 'Sprint',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({_id:parent.project})
+      }
+    },
+    name: { type : GraphQLString },
+    start: { type : GraphQLString },
+    end: { type : GraphQLString },
+    task : {
+      type : new GraphQLList(TaskType),
+      resolve(parent, args){
+        return Task.find({sprint:parent._id})
+      }
+    },
+  })
+})
+
+const Task = require('./model/Task')
+const TaskType = new GraphQLObjectType({
+  name: 'Task',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    project : {
+      type : new GraphQLList(ProjectType),
+      resolve(parent, args){
+        return Project.find({_id:parent.project})
+      }
+    },
+    requirement : {
+      type : new GraphQLList(RequirementType),
+      resolve(parent, args){
+        return Requirement.find({_id:parent.requirement})
+      }
+    },
+    issue : {
+      type : new GraphQLList(IssueType),
+      resolve(parent, args){
+        return Issue.find({_id:parent.issue})
+      }
+    },
+    sprint : {
+      type : new GraphQLList(SprintType),
+      resolve(parent, args){
+        return Sprint.find({_id:parent.sprint})
+      }
+    },
+    status: { type : GraphQLString },
+    team : {
+      type : new GraphQLList(TeamType),
+      resolve(parent, args){
+        return Team.find({task:parent._id})
+      }
+    },
+  })
+})
+
+const Team = require('./model/Team')
+const TeamType = new GraphQLObjectType({
+  name: 'Team',
+  fields: () => ({
+    _id: { type : GraphQLString },
+    employee : {
+      type : new GraphQLList(EmployeeType),
+      resolve(parent, args){
+        return Employee.find({_id:parent.employee})
+      }
+    },
+    task : {
+      type : new GraphQLList(TaskType),
+      resolve(parent, args){
+        return Task.find({_id:parent.task})
+      }
+    },
   })
 })
 
@@ -454,6 +602,38 @@ const RootQuery = new GraphQLObjectType({
       args: { _id: { type: GraphQLString } },
       resolve(parent, args){
         return Comment.findById(args._id)
+      }
+    },
+
+    gantt: {
+      type: GanttType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Gantt.findById(args._id)
+      }
+    },
+
+    sprint: {
+      type: SprintType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Sprint.findById(args._id)
+      }
+    },
+
+    task: {
+      type: TaskType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Task.findById(args._id)
+      }
+    },
+
+    team: {
+      type: TeamType,
+      args: { _id: { type: GraphQLString } },
+      resolve(parent, args){
+        return Team.findById(args._id)
       }
     },
 
@@ -945,6 +1125,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         _id: { type : GraphQLString },
         project: { type : GraphQLString },
+        requirement: { type : GraphQLString },
         employee: { type : GraphQLString },
         name: { type : GraphQLString },
         detail: { type : GraphQLString },
@@ -954,6 +1135,7 @@ const Mutation = new GraphQLObjectType({
         let issue = new Issue({
           _id: args._id,
           project:args.project,
+          requirement:args.requirement,
           employee:args.employee,
           name:args.name,
           detail:args.detail,
@@ -969,13 +1151,13 @@ const Mutation = new GraphQLObjectType({
         _id: { type : GraphQLString },
         name: { type : GraphQLString },
         detail: { type : GraphQLString },
-        status: { type : GraphQLString },
+        requirement: { type : GraphQLString },
       },
       resolve(parent, args){
         let update = {
           name:args.name,
           detail:args.detail,
-          status:args.status
+          requirement:args.requirement
         };
         let issue = Issue.findByIdAndUpdate(args._id, update, {new: true})
         return issue
@@ -1007,6 +1189,115 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args){
         let comment = Comment.findByIdAndDelete(args._id)
         return comment
+      }
+    },
+
+    gantt_add: {
+      type: GanttType,
+      args: {
+        _id: { type : GraphQLString },
+        project: { type : GraphQLString },
+        name: { type : GraphQLString },
+        start: { type : GraphQLString },
+        duration: { type : GraphQLString },
+        parent: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let gantt = new Gantt({
+          _id: args._id,
+          project:args.project,
+          name:args.name,
+          start:args.start,
+          duration:args.duration,
+          parent:args.parent,
+        });
+        return gantt.save();
+      }
+    },
+
+    gantt_edit: {
+      type: GanttType,
+      args: {
+        _id: { type : GraphQLString },
+        name: { type : GraphQLString },
+        start: { type : GraphQLString },
+        duration: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = {
+          name:args.name,
+          start:args.start,
+          duration:args.duration,
+        };
+        let gantt = Gantt.findByIdAndUpdate(args._id, update, {new: true})
+        return gantt
+      }
+    },
+
+    gantt_delete: {
+      type: GanttType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let gantt = Gantt.findByIdAndDelete(args._id)
+        return gantt
+      }
+    },
+
+    task_add: {
+      type: TaskType,
+      args: {
+        _id: { type : GraphQLString },
+        project: { type : GraphQLString },
+        requirement: { type : GraphQLString },
+        issue: { type : GraphQLString },
+        sprint: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let task = new Task({
+          _id: args._id,
+          project:args.project,
+          requirement:args.requirement,
+          issue:args.issue,
+          sprint:args.sprint,
+          status:args.status,
+        });
+        return task.save();
+      }
+    },
+
+    task_delete: {
+      type: TaskType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let task = Task.findByIdAndDelete(args._id)
+        return task
+      }
+    },
+
+    team_add: {
+      type: TeamType,
+      args: {
+        _id: { type : GraphQLString },
+        employee: { type : GraphQLString },
+        task: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let team = new Team({
+          _id: args._id,
+          employee:args.employee,
+          task:args.task,
+        });
+        return team.save();
+      }
+    },
+
+    team_delete: {
+      type: TeamType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let team = Team.findByIdAndDelete(args._id)
+        return team
       }
     },
 
