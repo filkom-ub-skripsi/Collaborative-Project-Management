@@ -4,7 +4,7 @@
     "description": "cpm project",
     "main": "index.js",
     "scripts": {
-        "copy:server": "copy \"../Collaborative-Management-Management/server/**/*.js\" ./server"
+        "copy:server": "copy \"../Collaborative-Project-Management/server/**/*.js\" ./server"
     },
     "license": "ISC",
     "devDependencies": {
