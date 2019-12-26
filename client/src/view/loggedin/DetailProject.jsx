@@ -25,10 +25,12 @@ export default class ViewDetailProject extends React.Component {
     this.state = {
       project_id:this.props.match.params.id,breadcrumb:breadcrumb,
       overview:[{code:null,name:null,client:null,client_id:null,start:null,end:null}],
-      status:null,progress:'...%',requirement:[],issue:[],collaborator_accepted:[],collaborator_pending:[],activity:[],
+      status:null,progress:'...%',requirement:[],issue:[],backlog:[],
+      collaborator_accepted:[],collaborator_pending:[],activity:[],
     }
     this.overview_update = this.overview_update.bind(this)
     this.moduleProgress_update = this.moduleProgress_update.bind(this)
+    this.scrum_updateBacklog = this.scrum_updateBacklog.bind(this)
     this.issue_update = this.issue_update.bind(this)
     this.collaborator_update = this.collaborator_update.bind(this)
     this.activity_update = this.activity_update.bind(this)
@@ -152,6 +154,18 @@ export default class ViewDetailProject extends React.Component {
     )
   }
 
+  //scrum update backlog
+  scrum_updateBacklog(data,type){
+    if (type === 'update'){
+      this.setState({backlog:data})
+    } else if (type === 'add'){
+      this.setState({backlog:[...this.state.backlog,data]})
+    } else if (type === 'delete'){
+      let backlog = this.state.backlog.filter(function(item){ return item.id !== data })
+      this.setState({backlog:backlog})
+    }
+  }
+
   //scrum tab
   scrum_tab(){
     return (
@@ -164,6 +178,7 @@ export default class ViewDetailProject extends React.Component {
         collaborator_accepted={this.state.collaborator_accepted}
         collaborator_pending={this.state.collaborator_pending}
         collaborator_update={this.collaborator_update}
+        backlog_update={this.scrum_updateBacklog}
         activity={this.activity_add}
       />
     )
@@ -246,6 +261,7 @@ export default class ViewDetailProject extends React.Component {
         id={this.state.project_id}
         collaborator_accepted={this.state.collaborator_accepted}
         collaborator_pending={this.state.collaborator_pending}
+        backlog={this.state.backlog}
         update={this.collaborator_update}
         activity={this.activity_add}
       />

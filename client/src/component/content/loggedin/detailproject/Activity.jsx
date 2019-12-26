@@ -175,6 +175,12 @@ export default class ContentActivity extends React.Component {
           detail:temp[i]['detail']+' is added to backlog',
           icon:<Clipboard size={size}/>,iconColor:color.blue
         })
+      } else if (temp[i]['code'] === 'B1') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' is deleted from backlog',
+          icon:<Clipboard size={size}/>,iconColor:color.red
+        })
       }
     }
     return (

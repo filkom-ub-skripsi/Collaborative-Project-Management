@@ -178,78 +178,108 @@ export default class ContentCollaborator extends React.Component {
 
   //invite cancel
   invite_cancel(id_employee,id_collaborator){
-    Swal({
-      title:"Cancel Invitation",
-      text:"Invitation on this employee will be deleted",
-      icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
-    }).then((willCancel) => {
-      if (willCancel) {
-        //data
-        this.fetch({query:`mutation {
-          collaborator_delete(_id:"`+id_collaborator+`"){_id}
-        }`})
-        let employee = this.state.data_pending.filter(function(item){ return item.id === id_employee })
-        this.setState({employee:[...this.state.employee,employee[0]]})
-        //activity
-        let activity_id = this.props.objectId()
-        let activity_code = 'I1'
-        let activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
-        let activity_date = new Date()
-        this.fetch({query:`
-          mutation {
-            activity_add(
-              _id:"`+activity_id+`",
-              project:"`+this.state.project_id+`",
-              code:"`+activity_code+`",
-              detail:"`+activity_detail+`",
-              date:"`+activity_date+`"
-            ){_id}
-          }`
-        })
-        //props
-        this.props.activity(activity_code,activity_detail,activity_date)
-        this.props.update(id_employee,'cancel')
-        NotificationManager.success(success)
-      }
+    let exist = 0
+    this.props.backlog.forEach(function(log){
+      log.data.forEach(function(data){
+        if (data.id === id_employee) { exist = 1 }
+      })
     })
+    if (exist === 0) {
+      Swal({
+        title:"Cancel Invitation",
+        text:"Invitation on this employee will be deleted",
+        icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
+      }).then((willCancel) => {
+        if (willCancel) {
+          //data
+          this.fetch({query:`mutation {
+            collaborator_delete(_id:"`+id_collaborator+`"){_id}
+          }`})
+          let employee = this.state.data_pending.filter(function(item){ return item.id === id_employee })
+          this.setState({employee:[...this.state.employee,employee[0]]})
+          //activity
+          let activity_id = this.props.objectId()
+          let activity_code = 'I1'
+          let activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
+          let activity_date = new Date()
+          this.fetch({query:`
+            mutation {
+              activity_add(
+                _id:"`+activity_id+`",
+                project:"`+this.state.project_id+`",
+                code:"`+activity_code+`",
+                detail:"`+activity_detail+`",
+                date:"`+activity_date+`"
+              ){_id}
+            }`
+          })
+          //props
+          this.props.activity(activity_code,activity_detail,activity_date)
+          this.props.update(id_employee,'cancel')
+          NotificationManager.success(success)
+        }
+      })
+    } else {
+      Swal({
+        title:"Not Available",
+        text:"There are backlog that are currently registered",
+        icon:"warning",
+        closeOnClickOutside:false,
+      })
+    }
   }
 
   //invite kick
   invite_kick(id_employee,id_collaborator){
-    Swal({
-      title:"Kick Collaborator",
-      text:"This employee will be kicked from this project",
-      icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
-    }).then((willKick) => {
-      if (willKick) {
-        //data
-        this.fetch({query:`mutation {
-          collaborator_delete(_id:"`+id_collaborator+`"){_id}
-        }`})
-        let employee = this.state.data_collaborator.filter(function(item){ return item.id === id_employee })
-        this.setState({employee:[...this.state.employee,employee[0]]})
-        //activity
-        let activity_id = this.props.objectId()
-        let activity_code = 'I4'
-        let activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
-        let activity_date = new Date()
-        this.fetch({query:`
-          mutation {
-            activity_add(
-              _id:"`+activity_id+`",
-              project:"`+this.state.project_id+`",
-              code:"`+activity_code+`",
-              detail:"`+activity_detail+`",
-              date:"`+activity_date+`"
-            ){_id}
-          }`
-        })
-        //props
-        this.props.update(id_employee,'kick')
-        this.props.activity(activity_code,activity_detail,activity_date)
-        NotificationManager.success(success)
-      }
+    let exist = 0
+    this.props.backlog.forEach(function(log){
+      log.data.forEach(function(data){
+        if (data.id === id_employee) { exist = 1 }
+      })
     })
+    if (exist === 0) {
+      Swal({
+        title:"Kick Collaborator",
+        text:"This employee will be kicked from this project",
+        icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
+      }).then((willKick) => {
+        if (willKick) {
+          //data
+          this.fetch({query:`mutation {
+            collaborator_delete(_id:"`+id_collaborator+`"){_id}
+          }`})
+          let employee = this.state.data_collaborator.filter(function(item){ return item.id === id_employee })
+          this.setState({employee:[...this.state.employee,employee[0]]})
+          //activity
+          let activity_id = this.props.objectId()
+          let activity_code = 'I4'
+          let activity_detail = employee[0]['name']+'_'+employee[0]['division_name']
+          let activity_date = new Date()
+          this.fetch({query:`
+            mutation {
+              activity_add(
+                _id:"`+activity_id+`",
+                project:"`+this.state.project_id+`",
+                code:"`+activity_code+`",
+                detail:"`+activity_detail+`",
+                date:"`+activity_date+`"
+              ){_id}
+            }`
+          })
+          //props
+          this.props.update(id_employee,'kick')
+          this.props.activity(activity_code,activity_detail,activity_date)
+          NotificationManager.success(success)
+        }
+      })
+    } else {
+      Swal({
+        title:"Not Available",
+        text:"There are task that are currently registered",
+        icon:"warning",
+        closeOnClickOutside:false,
+      })
+    }
   }
 
   //invite modal
@@ -391,7 +421,7 @@ export default class ContentCollaborator extends React.Component {
                           <Row>
                             <Col>
                               <div style={{fontWeight:600}}>{item.name}</div>
-                              <small>{item.division_name} • {item.email} / {item.contact}</small>
+                              <small className="text-muted">{item.division_name} Division. Email {item.email} / Contact {item.contact}</small>
                             </Col>
                             <Col className="text-right">
                               {localStorage.getItem('leader') === '1' &&

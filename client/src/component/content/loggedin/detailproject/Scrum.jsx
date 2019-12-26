@@ -154,6 +154,7 @@ export default class ContentScrum extends React.Component {
         employee:employee,leader:leader,backlog:backlog,
         data_loading:false,header_button:false,
       })
+      this.props.backlog_update(backlog,'update')
     })
   }
 
@@ -360,7 +361,9 @@ export default class ContentScrum extends React.Component {
     //state
     let temp = []
     let teamId = []
-    this.state.add_backlog_team.forEach(function(item){
+    let add_backlog_team = this.state.add_backlog_team
+    if (add_backlog_team === null) { add_backlog_team = [] }
+    add_backlog_team.forEach(function(item){
       let team = objectId()
       temp.push({
         id:item.value,
@@ -381,6 +384,14 @@ export default class ContentScrum extends React.Component {
       }],
       add_backlog_modal:false,
     })
+    this.props.backlog_update({
+      id:task_id+'_'+0,
+      task:value('backlog_requirement').split('_')[1],
+      task_id:value('backlog_requirement').split('_')[0],
+      type:type_0,
+      team:temp.length,
+      data:temp,
+    },'add')
     NotificationManager.success(success)
     //task
     fetch(`mutation {
@@ -394,7 +405,7 @@ export default class ContentScrum extends React.Component {
       ){_id}
     }`)
     //team
-    this.state.add_backlog_team.forEach(function(item,index){
+    add_backlog_team.forEach(function(item,index){
       fetch(`mutation {
         team_add(
           _id:"`+teamId[index]+`",
@@ -405,7 +416,7 @@ export default class ContentScrum extends React.Component {
     })
     //invite
     let exist = this.state.collaborator
-    let invite = this.state.add_backlog_team
+    let invite = add_backlog_team
     exist.forEach(function(collaborator){
       invite.forEach(function(team,index){
         if (team.value === collaborator.id) { invite.splice(index,1) }
@@ -478,7 +489,9 @@ export default class ContentScrum extends React.Component {
     //state
     let temp = []
     let teamId = []
-    this.state.add_backlog_team.forEach(function(item){
+    let add_backlog_team = this.state.add_backlog_team
+    if (add_backlog_team === null) { add_backlog_team = [] }
+    add_backlog_team.forEach(function(item){
       let team = objectId()
       temp.push({
         id:item.value,
@@ -499,6 +512,14 @@ export default class ContentScrum extends React.Component {
       }],
       add_backlog_modal:false,
     })
+    this.props.backlog_update({
+      id:task_id+'_'+0,
+      task:value('backlog_issue').split('_')[1],
+      task_id:value('backlog_issue').split('_')[0],
+      type:type_1,
+      team:temp.length,
+      data:temp,
+    },'add')
     NotificationManager.success(success)
     //task
     fetch(`mutation {
@@ -512,7 +533,7 @@ export default class ContentScrum extends React.Component {
       ){_id}
     }`)
     //team
-    this.state.add_backlog_team.forEach(function(item,index){
+    add_backlog_team.forEach(function(item,index){
       fetch(`mutation {
         team_add(
           _id:"`+teamId[index]+`",
@@ -523,7 +544,7 @@ export default class ContentScrum extends React.Component {
     })
     //invite
     let exist = this.state.collaborator
-    let invite = this.state.add_backlog_team
+    let invite = add_backlog_team
     exist.forEach(function(collaborator){
       invite.forEach(function(team,index){
         if (team.value === collaborator.id) { invite.splice(index,1) }
@@ -620,7 +641,7 @@ export default class ContentScrum extends React.Component {
 
   //detail modal
   detail_modal(){
-    const columns = [
+    const columns_leader = [
       {
         cell: (row) => <a href="#!" onClick={()=>{this.detail_remove(row.id)}}><XCircle size={22}/></a>,
         ignoreRowClick: true,
@@ -630,6 +651,13 @@ export default class ContentScrum extends React.Component {
       {name:'Name',selector:'name',sortable:true},
       {name:'Division',selector:'division',sortable:true,width:'25%'},
     ]
+    const columns_employee = [
+      {name:'Name',selector:'name',sortable:true},
+      {name:'Division',selector:'division',sortable:true,width:'25%'},
+    ]
+    let column = []
+    if (localStorage.getItem('leader') === '1'){ column = columns_leader }
+    else if (localStorage.getItem('leader') === '0'){ column = columns_employee }
     return (
       <Modal
         size="lg"
@@ -668,7 +696,7 @@ export default class ContentScrum extends React.Component {
         }
         <LayoutTable
           noHeader={true}
-          columns={columns}
+          columns={column}
           data={this.state.detail_data}
         />
         {localStorage.getItem('leader') === '1' &&
@@ -712,7 +740,7 @@ export default class ContentScrum extends React.Component {
           item.id = item.id.split('_')[0]+'_'+version
           item.team = parseInt(item.team)+1
           item.data = [...item.data,{
-            id:push[0]['_id'],name:push[0]['name'],division:push[0]['division'][0]['name']
+            id:push[0]['_id'],name:push[0]['name'],division:push[0]['division'][0]['name'],team:team
           }]
           state(item.id)
           fetch(`mutation {
@@ -724,22 +752,36 @@ export default class ContentScrum extends React.Component {
           }`)
         }
       })
+      this.props.backlog_update(data,'update')
       //invite
       let invite = this.state.collaborator.filter(function(item){ return item.id === add })
       if (invite.length === 0) {
         let project_id = this.state.project_id
-        let activity_code = 'I0'
-        let activity_detail = push[0]['name']+'_'+push[0]['division'][0]['name']
-        let activity_date = new Date()
-        this.props.activity(activity_code,activity_detail,activity_date)
+        //collaborator
+        let collaborator_id = objectId()
+        let collaborator = {}
+        collaborator.id = push[0]['_id']
+        collaborator.name = push[0]['name']
+        collaborator.email = push[0]['email']
+        collaborator.contact = push[0]['contact']
+        collaborator.division_id = push[0]['division'][0]['_id']
+        collaborator.division_name = push[0]['division'][0]['name']
+        collaborator.collaborator = collaborator_id
+        this.props.collaborator_update(collaborator,'add')
         fetch(`mutation {
           collaborator_add(
-            _id:"`+objectId()+`",
+            _id:"`+collaborator_id+`",
             project:"`+project_id+`",
             employee:"`+push[0]['_id']+`",
             status:"0"
           ){_id}
         }`)
+        //activity
+        let activity_code = 'I0'
+        let activity_detail = push[0]['name']+'_'+push[0]['division'][0]['name']
+        let activity_date = new Date()
+        this.props.activity(activity_code,activity_detail,activity_date)
+        //notification
         NotificationManager.info(push[0]['name']+' from '+push[0]['division'][0]['name']+' division is invited to this project')
       }
       //notification
@@ -758,6 +800,7 @@ export default class ContentScrum extends React.Component {
         const fetch = (query) => { return this.fetch({query:query}) }
         const state = (id,data) => { return this.setState({detail_id:id,detail_data:data}) }
         let detail_id = this.state.detail_id
+        let detail_employee = []
         let data = this.state.backlog
         data.forEach(function(item){
           if (item.id === detail_id) {
@@ -770,8 +813,16 @@ export default class ContentScrum extends React.Component {
             fetch(`mutation {
               team_delete(_id:"`+team[0]['team']+`"){_id}
             }`)
+            detail_employee.push({id:team[0]['id'],name:team[0]['name']})
             NotificationManager.success(success)
           }
+        })
+        this.props.backlog_update(data,'update')
+        this.setState({
+          detail_employee:[
+            ...this.state.detail_employee,
+            detail_employee[0]
+          ]
         })
       }
     })
@@ -789,6 +840,7 @@ export default class ContentScrum extends React.Component {
         let detail_id = this.state.detail_id
         //data
         let data = this.state.backlog.filter(function(item){ return item.id === detail_id })
+        this.props.backlog_update(data[0]['id'],'delete')
         fetch(`mutation {
           task_delete(_id:"`+data[0]['id'].split('_')[0]+`"){_id}
         }`)
@@ -800,6 +852,20 @@ export default class ContentScrum extends React.Component {
         //state
         let backlog = this.state.backlog.filter(function(item){ return item.id !== detail_id })
         this.setState({backlog:backlog,detail_modal:false})
+        //activity
+        let activity_code = 'B1'
+        let activity_detail = data[0]['task']
+        let activity_date = new Date()
+        fetch(`mutation {
+          activity_add(
+            _id:"`+this.props.objectId()+`",
+            project:"`+this.state.project_id+`",
+            code:"`+activity_code+`",
+            detail:"`+activity_detail+`",
+            date:"`+activity_date+`"
+          ){_id}
+        }`)
+        this.props.activity(activity_code,activity_detail,activity_date)
         //notification
         NotificationManager.success(success)
       }
