@@ -1,9 +1,10 @@
 import React from 'react'
 import Select from 'react-select'
+import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
 import { Tab, Card, Nav, Row, Col, Button, OverlayTrigger, Popover, Modal, Form } from 'react-bootstrap'
-import { RefreshCcw, HelpCircle } from 'react-feather'
+import { RefreshCcw, HelpCircle, XCircle } from 'react-feather'
 import LayoutTable from '../../../layout/Table'
 
 //notification
@@ -32,6 +33,8 @@ export default class ContentScrum extends React.Component {
       add_backlog_filter:[],
       add_backlog_team:[],
       add_backlog_disabled:true,
+      detail_modal:false,detail_employee:[],
+      detail_id:null,detail_header:null,detail_data:[]
     }
   }
 
@@ -108,7 +111,7 @@ export default class ContentScrum extends React.Component {
           _id, status
           requirement { _id, name }
           issue { _id, name }
-          team { employee { _id, name, division { name } } }
+          team { _id, employee { _id, name, division { name } } }
         }
       }
     }`}).then(result => {
@@ -122,12 +125,13 @@ export default class ContentScrum extends React.Component {
             data.push({
               id:team.employee[0]['_id'],
               name:team.employee[0]['name'],
-              division:team.employee[0]['division'][0]['name']
+              division:team.employee[0]['division'][0]['name'],
+              team:team._id
             })
           })
           if (item.requirement.length !== 0){
             backlog.push({
-              id:item._id,
+              id:item._id+'_'+0,
               task:item.requirement[0]['name'],
               task_id:item.requirement[0]['_id'],
               type:type_0,
@@ -136,7 +140,7 @@ export default class ContentScrum extends React.Component {
             })
           } else if (item.issue.length !== 0) {
             backlog.push({
-              id:item._id,
+              id:item._id+'_'+0,
               task:item.issue[0]['name'],
               task_id:item.issue[0]['_id'],
               type:type_1,
@@ -355,16 +359,20 @@ export default class ContentScrum extends React.Component {
     let pushActivity = []
     //state
     let temp = []
+    let teamId = []
     this.state.add_backlog_team.forEach(function(item){
+      let team = objectId()
       temp.push({
         id:item.value,
         name:item.label.split('(')[0],
-        division:item.label.split('(')[1].split(')')[0]
+        division:item.label.split('(')[1].split(')')[0],
+        team:team
       })
+      teamId.push(team)
     })
     this.setState({
       backlog:[...this.state.backlog,{
-        id:task_id,
+        id:task_id+'_'+0,
         task:value('backlog_requirement').split('_')[1],
         task_id:value('backlog_requirement').split('_')[0],
         type:type_0,
@@ -386,10 +394,10 @@ export default class ContentScrum extends React.Component {
       ){_id}
     }`)
     //team
-    this.state.add_backlog_team.forEach(function(item){
+    this.state.add_backlog_team.forEach(function(item,index){
       fetch(`mutation {
         team_add(
-          _id:"`+objectId()+`",
+          _id:"`+teamId[index]+`",
           employee:"`+item.value+`",
           task:"`+task_id+`"
         ){_id}
@@ -469,16 +477,20 @@ export default class ContentScrum extends React.Component {
     let pushActivity = []
     //state
     let temp = []
+    let teamId = []
     this.state.add_backlog_team.forEach(function(item){
+      let team = objectId()
       temp.push({
         id:item.value,
         name:item.label.split('(')[0],
-        division:item.label.split('(')[1].split(')')[0]
+        division:item.label.split('(')[1].split(')')[0],
+        team:team
       })
+      teamId.push(team)
     })
     this.setState({
       backlog:[...this.state.backlog,{
-        id:task_id,
+        id:task_id+'_'+0,
         task:value('backlog_issue').split('_')[1],
         task_id:value('backlog_issue').split('_')[0],
         type:type_1,
@@ -500,10 +512,10 @@ export default class ContentScrum extends React.Component {
       ){_id}
     }`)
     //team
-    this.state.add_backlog_team.forEach(function(item){
+    this.state.add_backlog_team.forEach(function(item,index){
       fetch(`mutation {
         team_add(
-          _id:"`+objectId()+`",
+          _id:"`+teamId[index]+`",
           employee:"`+item.value+`",
           task:"`+task_id+`"
         ){_id}
@@ -585,7 +597,213 @@ export default class ContentScrum extends React.Component {
 
   //table handler
   table_handler(id){
-    console.log(id)
+    let detail = this.state.backlog.filter(function(item){ return item.id === id })
+    let leader = this.state.leader
+    let option = []
+    this.state.employee.forEach(function(employee){
+      if (employee._id !== leader) {
+        let exist = 0
+        detail[0]['data'].forEach(function(data){
+          if (data.id === employee._id) { exist = 1 }
+        })
+        if (exist === 0) { option.push({id:employee._id,name:employee.name}) }
+      }
+    })
+    this.setState({
+      detail_id:detail[0]['id'],
+      detail_header:detail[0]['type']+' '+detail[0]['task'],
+      detail_employee:option,
+      detail_data:detail[0]['data'],
+      detail_modal:true,
+    })
+  }
+
+  //detail modal
+  detail_modal(){
+    const columns = [
+      {
+        cell: (row) => <a href="#!" onClick={()=>{this.detail_remove(row.id)}}><XCircle size={22}/></a>,
+        ignoreRowClick: true,
+        allowOverflow: true,
+        button: true,
+      },
+      {name:'Name',selector:'name',sortable:true},
+      {name:'Division',selector:'division',sortable:true,width:'25%'},
+    ]
+    return (
+      <Modal
+        size="lg"
+        centered
+        backdrop="static"
+        keyboard={false}
+        show={this.state.detail_modal}
+        onHide={()=>this.setState({detail_modal:false})}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{this.state.detail_header}</Modal.Title>
+        </Modal.Header>
+        {localStorage.getItem('leader') === '1' &&
+          <Modal.Body>
+            <Form autoComplete="off">
+              <Form.Row>
+                <Col lg={11}>
+                  <Form.Control as="select" id="tambah_teamMember">
+                    <option value="" hidden>Add Team Member</option>
+                    {this.state.detail_employee.map((item,index) => {
+                      return <option value={item.id} key={index}>{item.name}</option>
+                    })}
+                  </Form.Control>
+                </Col>
+                <Col lg={1}>
+                  <Button block
+                    variant="outline-dark"
+                    onClick={()=>this.detail_add()}
+                  >
+                    Add
+                  </Button>
+                </Col>
+              </Form.Row>
+            </Form>
+          </Modal.Body>
+        }
+        <LayoutTable
+          noHeader={true}
+          columns={columns}
+          data={this.state.detail_data}
+        />
+        {localStorage.getItem('leader') === '1' &&
+          <Modal.Footer>
+            <Button
+              variant="danger"
+              onClick={()=>this.detail_delete()}
+            >
+              Delete
+            </Button>
+          </Modal.Footer>
+        }
+      </Modal>
+    )
+  }
+
+  //detail add
+  detail_add(){
+    let add = document.getElementById('tambah_teamMember').value
+    if (add !== '') {
+      //function
+      const fetch = (query) => { return this.fetch({query:query}) }
+      const state = (id) => { return this.setState({detail_id:id}) }
+      const objectId = () => { return this.props.objectId() }
+      //state detail
+      let team = objectId()
+      let push = this.state.employee.filter(function(item){ return item._id === add })
+      let option = this.state.detail_employee.filter(function(item){ return item.id !== add })
+      this.setState({
+        detail_data:[...this.state.detail_data,{
+          id:push[0]['_id'],name:push[0]['name'],division:push[0]['division'][0]['name'],team:team
+        }],
+        detail_employee:option
+      })
+      //state table
+      let detail_id = this.state.detail_id
+      let data = this.state.backlog
+      data.forEach(function(item){
+        if (item.id === detail_id) {
+          let version = parseInt(item.id.split('_')[1])+1
+          item.id = item.id.split('_')[0]+'_'+version
+          item.team = parseInt(item.team)+1
+          item.data = [...item.data,{
+            id:push[0]['_id'],name:push[0]['name'],division:push[0]['division'][0]['name']
+          }]
+          state(item.id)
+          fetch(`mutation {
+            team_add(
+              _id:"`+team+`",
+              employee:"`+push[0]['_id']+`",
+              task:"`+item.id.split('_')[0]+`",
+            ){_id}
+          }`)
+        }
+      })
+      //invite
+      let invite = this.state.collaborator.filter(function(item){ return item.id === add })
+      if (invite.length === 0) {
+        let project_id = this.state.project_id
+        let activity_code = 'I0'
+        let activity_detail = push[0]['name']+'_'+push[0]['division'][0]['name']
+        let activity_date = new Date()
+        this.props.activity(activity_code,activity_detail,activity_date)
+        fetch(`mutation {
+          collaborator_add(
+            _id:"`+objectId()+`",
+            project:"`+project_id+`",
+            employee:"`+push[0]['_id']+`",
+            status:"0"
+          ){_id}
+        }`)
+        NotificationManager.info(push[0]['name']+' from '+push[0]['division'][0]['name']+' division is invited to this project')
+      }
+      //notification
+      NotificationManager.success(success)
+    }
+  }
+
+  //detail remove
+  detail_remove(id){
+    Swal({
+      title:"Remove",
+      text:"This employee will be removed from the team",
+      icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willRemove) => {
+      if (willRemove) {
+        const fetch = (query) => { return this.fetch({query:query}) }
+        const state = (id,data) => { return this.setState({detail_id:id,detail_data:data}) }
+        let detail_id = this.state.detail_id
+        let data = this.state.backlog
+        data.forEach(function(item){
+          if (item.id === detail_id) {
+            let team = item.data.filter(function(item){ return item.id === id })
+            let version = parseInt(item.id.split('_')[1])+1
+            item.id = item.id.split('_')[0]+'_'+version
+            item.team = parseInt(item.team)-1
+            item.data = item.data.filter(function(item){ return item.id !== id })
+            state(item.id,item.data)
+            fetch(`mutation {
+              team_delete(_id:"`+team[0]['team']+`"){_id}
+            }`)
+            NotificationManager.success(success)
+          }
+        })
+      }
+    })
+  }
+
+  //detail delete
+  detail_delete(){
+    Swal({
+      title:"Delete",
+      text:"This backlog will be deleted",
+      icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        const fetch = (query) => { return this.fetch({query:query}) }
+        let detail_id = this.state.detail_id
+        //data
+        let data = this.state.backlog.filter(function(item){ return item.id === detail_id })
+        fetch(`mutation {
+          task_delete(_id:"`+data[0]['id'].split('_')[0]+`"){_id}
+        }`)
+        data[0]['data'].forEach(function(item){
+          fetch(`mutation {
+            team_delete(_id:"`+item.team+`"){_id}
+          }`)
+        })
+        //state
+        let backlog = this.state.backlog.filter(function(item){ return item.id !== detail_id })
+        this.setState({backlog:backlog,detail_modal:false})
+        //notification
+        NotificationManager.success(success)
+      }
+    })
   }
 
   //render
@@ -593,6 +811,7 @@ export default class ContentScrum extends React.Component {
     return (
       <div>
         {this.add_backlog_modal()}
+        {this.detail_modal()}
         <Tab.Container defaultActiveKey="TAB1">
           <Card>
             <Card.Header>

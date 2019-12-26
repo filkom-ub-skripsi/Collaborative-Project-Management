@@ -243,7 +243,10 @@ export default class ContentEmployee extends React.Component {
                   <Form.Control id="sunting_division" as="select" value={this.state.detail_division} onChange={(e)=>this.setState({detail_division:e.target.value})}>
                     <option value="" hidden></option>
                     {this.props.data.map((item,index) => {
-                      return ( <option value={item.id.split('_')[0]} key={index}>{item.name}</option> )
+                      if (item.id !== this.props.leader) {
+                        return ( <option value={item.id.split('_')[0]} key={index}>{item.name}</option> )
+                      }
+                      return null
                     })}
                   </Form.Control>
                 </Col>

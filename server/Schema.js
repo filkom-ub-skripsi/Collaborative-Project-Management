@@ -1266,6 +1266,15 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    task_delete: {
+      type: TaskType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let task = Task.findByIdAndDelete(args._id)
+        return task
+      }
+    },
+
     team_add: {
       type: TeamType,
       args: {
@@ -1280,6 +1289,15 @@ const Mutation = new GraphQLObjectType({
           task:args.task,
         });
         return team.save();
+      }
+    },
+
+    team_delete: {
+      type: TeamType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let team = Team.findByIdAndDelete(args._id)
+        return team
       }
     },
 
