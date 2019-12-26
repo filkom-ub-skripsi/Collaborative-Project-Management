@@ -66,11 +66,10 @@ export default class ViewUsers extends React.Component {
             project { code, name, status,
               module { requirement { status } }
             },
-            collaborator {
+            collaborator { status,
               project { code, name, status,
                 module { requirement { status } }
               },
-              status
             }
           }
         }
@@ -94,6 +93,7 @@ export default class ViewUsers extends React.Component {
             division_id:leader_id,
             division_name:leader_name,
             project:data.length,
+            invitation:'-',
             data:data
           })
         })
@@ -110,6 +110,7 @@ export default class ViewUsers extends React.Component {
           let data = []
           let l_proj = item_e.project
           let l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          let l_wait = item_e.collaborator.filter(function(filter){ return filter.status === '0' })
           l_coll.forEach(function(item){ data = data.concat(item.project) })
           data = data.concat(l_proj)
           employee.push({
@@ -120,6 +121,7 @@ export default class ViewUsers extends React.Component {
             division_id:item_d._id,
             division_name:item_d.name,
             project:data.length,
+            invitation:l_wait.length,
             data:data
           })
         })
@@ -263,6 +265,7 @@ export default class ViewUsers extends React.Component {
           division_id:item_d.id.split('_')[0],
           division_name:item_d.name,
           project:0,
+          invitation:0,
           data:[]
         }]
       }
@@ -321,17 +324,9 @@ export default class ViewUsers extends React.Component {
 
   //employee delete
   employee_delete(id){
-    const fetch = (query) => this.fetch({query:query})
-    this.fetch({query:`{
-      employee(_id:"`+id.split('_')[0]+`") {
-        collaborator {_id}
-      }
-    }`}).then(result => {
-      result.data.employee.collaborator.forEach(function(item){
-        fetch(`mutation{collaborator_delete(_id:"`+item._id+`"){_id}}`)
-      })
-      fetch(`mutation{employee_delete(_id:"`+id.split('_')[0]+`"){_id}}`)
-    })
+    this.fetch({query:`mutation{
+      employee_delete(_id:"`+id.split('_')[0]+`"){_id}
+    }`})
     let data = this.state.data
     data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){

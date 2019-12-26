@@ -169,9 +169,10 @@ export default class ContentEmployee extends React.Component {
     },
     {name:'Name',selector:'name',sortable:true},
     {name:'Email',selector:'email',sortable:true},
-    {name:'Mobile Number',selector:'contact',sortable:true,width:'15%'},
-    {name:'Division',selector:'division_name',sortable:true,width:'15%'},
-    {name:'Project',selector:'project',sortable:true,width:'15%'},
+    {name:'Mobile Number',selector:'contact',sortable:true},
+    {name:'Division',selector:'division_name',sortable:true},
+    {name:'Project Involvement',selector:'project',sortable:true,width:'10%'},
+    {name:'Waiting For Confirmation',selector:'invitation',sortable:true,width:'10%'},
   ]
 
   //table handler
@@ -329,7 +330,7 @@ export default class ContentEmployee extends React.Component {
   detail_delete(){
     let id = this.state.detail_id
     let check = this.state.data.filter(function(item){ return item.id === id })
-    if (check[0]['project'] === 0) {
+    if (check[0]['project'] === 0 && check[0]['invitation'] === 0 ) {
       Swal({
         title:"Delete",
         text:"This employee will be deleted",
@@ -347,7 +348,7 @@ export default class ContentEmployee extends React.Component {
     } else {
       Swal({
         title:"Not Available",
-        text:"There are projects that are currently registered",
+        text:"There are projects or invitations that are currently registered",
         icon:"warning",
         closeOnClickOutside:false,
       })
