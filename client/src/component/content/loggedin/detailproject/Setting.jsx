@@ -320,6 +320,7 @@ export default class ContentSetting extends React.Component {
 
   //delete validation
   delete_validation(){
+    const hashMD5 = (password) => { return this.props.hashMD5(password) }
     let counter = 0
     let name = this.state.overview.name
     let pass = this.state.password
@@ -337,8 +338,8 @@ export default class ContentSetting extends React.Component {
             document.getElementById(item.feedback).innerHTML = 'project name does not match'
           }
         }
-        if (item.field === 'delete_password') { 
-          if (this.props.hashMD5(document.getElementById(item.field).value) === pass) { counter++ }
+        if (item.field === 'delete_password') {
+          if (hashMD5(document.getElementById(item.field).value) === pass) { counter++ }
           else {
             document.getElementById(item.field).className = 'form-control is-invalid'
             document.getElementById(item.feedback).innerHTML = 'wrong password'
