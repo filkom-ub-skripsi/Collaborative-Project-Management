@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
 import { Row, Col, Button, ListGroup, Modal, Form, Badge } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
-import { RefreshCcw } from 'react-feather'
+import { RefreshCcw, MessageSquare } from 'react-feather'
 import LayoutCardContent  from '../../../layout/CardContent'
 
 //refresh
@@ -71,7 +71,7 @@ export default class ContentIssue extends React.Component {
     //data
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        issue { _id, name, status,
+        issue { _id, name, detail, status, comment { comment, employee { name } }
           employee { _id, name }
           requirement { _id, name,
             module { _id, name }
@@ -84,7 +84,7 @@ export default class ContentIssue extends React.Component {
         let requirement = item.requirement[0]
         let module = requirement.module[0]
         data.push({
-          id:item._id,name:item.name,status:item.status,
+          id:item._id,name:item.name,detail:item.detail,status:item.status,comment:item.comment,
           module:module.name,module_id:module._id,
           requirement:requirement.name,requirement_id:requirement._id,
           employee:item.employee[0]['name'],employee_id:item.employee[0]['_id']
@@ -229,7 +229,7 @@ export default class ContentIssue extends React.Component {
       this.setState({
         add_issue_modal:false,
         data:[...this.state.data,{
-          id:id,name:value('tambah_name'),status:'0',
+          id:id,name:value('tambah_name'),status:'0',detail:value('tambah_detail'),comment:[],
           module:requirement[0]['module'],module_id:requirement[0]['module_id'],
           requirement:requirement[0]['name'],requirement_id:requirement[0]['id'],
           employee:this.state.myName,employee_id:localStorage.getItem('user')
@@ -301,6 +301,13 @@ export default class ContentIssue extends React.Component {
             let status = null
             if (item.status === '0') { status = <Badge variant="warning">open</Badge> }
             else if (item.status === '1') { status = <Badge variant="danger">closed</Badge> }
+            let lastComment = ''
+            if (item.comment.length > 0) {
+              lastComment =
+              `Last Comment : (`+
+              item.comment[0]['employee'][0]['name']+') '+
+              item.comment[item.comment.length-1]['comment']
+            }
             return (
               <Link
                 key={index}
@@ -309,6 +316,11 @@ export default class ContentIssue extends React.Component {
               >
                 <div style={{fontWeight:600}}>{item.name} {status}</div>
                 <small>Created by {item.employee}. Issue about {item.requirement} Requirement of {item.requirement} Module.</small>
+                <hr style={{marginTop:7.5,marginBottom:7.5}}/>
+                <div className="clipped" style={{fontSize:15,marginBottom:5,width:'100%'}}>{item.detail}</div>
+                <div className="clipped" style={{fontSize:15,width:'100%'}}>
+                  {item.comment.length} <MessageSquare size={17.5}/> {lastComment}
+                </div>
               </Link>
             )
           })
