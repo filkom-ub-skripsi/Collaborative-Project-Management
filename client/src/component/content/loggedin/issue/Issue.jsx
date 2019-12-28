@@ -1,7 +1,8 @@
 import React from 'react'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
-import { Card, Badge, Row, Col, Form, Button, Modal } from 'react-bootstrap'
+import { createApolloFetch } from 'apollo-fetch'
+import { Card, Badge, Row, Col, Form, Button, Modal, Spinner } from 'react-bootstrap'
 import { Send } from 'react-feather'
 
 //prewrap
@@ -17,6 +18,10 @@ const issue_edit_form = [
   {field:'sunting_detail',feedback:'sunting_fdetail'},
 ]
 
+//delete
+const delete_false = 'Delete'
+const delete_true = <Spinner animation="border" size="sm"/>
+
 //class
 export default class ContentIssue extends React.Component {
 
@@ -25,19 +30,25 @@ export default class ContentIssue extends React.Component {
     super(props)
     this.state = {
       issue:{name:null,detail:null,requirement:null,requirement_id:null,module:null,module_id:null,employee:null,employee_id:null,status:null},
-      module:[],requirement:[],filter:[],filter_module:null,filter_requirement:null,comment:[],edit_modal:false,
+      module:[],requirement:[],filter:[],filter_module:null,filter_requirement:null,comment:[],
+      edit_modal:false,delete_button:delete_false,delete_state:false,issue_id:null,project_id:null
     }
   }
 
   //get derived state from props
-  static getDerivedStateFromProps(props) {
+  static getDerivedStateFromProps(props,state) {
     return {
       issue:props.data,
       comment:props.comment,
       module:props.module,
       requirement:props.requirement,
+      issue_id:props.issue_id,
+      project_id:props.project_id,
     }
   }
+
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
 
   //form validation
   form_validation(form){
@@ -144,7 +155,17 @@ export default class ContentIssue extends React.Component {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={()=>this.edit_save()}>
+          <Button
+            variant="danger"
+            disabled={this.state.delete_state}
+            onClick={()=>this.edit_delete()}
+          >
+            {this.state.delete_button}
+          </Button>
+          <Button
+            disabled={this.state.delete_state}
+            onClick={()=>this.edit_save()}
+          >
             Save
           </Button>
         </Modal.Footer>
@@ -162,12 +183,56 @@ export default class ContentIssue extends React.Component {
     }
   }
 
+  //edit delete
+  edit_delete(){
+    Swal({
+      title:"Delete",text:"This issue will be deleted",
+      icon:"warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        this.setState({
+          delete_state:true,
+          delete_button:delete_true
+        })
+        this.fetch({query:`{
+          issue(_id:"`+this.state.issue_id+`") {
+            task { _id }
+          }
+        }`}).then(result => {
+          if (result.data.issue.task.length === 0) {
+            Swal({
+              title:"Success",text:"This issue is successfully deleted",
+              icon:"success",closeOnClickOutside:false,button:false
+            })
+            this.setState({
+              delete_state:false,
+              delete_button:delete_false
+            })
+            this.fetch({query:`mutation {
+              issue_delete(_id:"`+this.state.issue_id+`"){_id}
+            }`})
+            setTimeout(()=>{window.location.href='/detail-project/'+this.state.project_id},1500)
+          } else {
+            Swal({
+              title:"Failed",text:"This issue is registered on task",
+              icon:"warning",closeOnClickOutside:false,
+            })
+            this.setState({
+              delete_state:false,
+              delete_button:delete_false
+            })
+          }
+        })
+      }
+    })
+  }
+
   //render
   render() {
 
     let status = null
     let disabled = true
-    if (this.state.issue.status === '0') {
+    if (this.state.issue.status === '0' && this.state.delete_state === false) {
       status = <Badge variant="warning">open</Badge>
       disabled = false
     }
@@ -192,7 +257,7 @@ export default class ContentIssue extends React.Component {
                 <small className="text-muted" style={display}>Created by {this.state.issue.employee}. Issue about {this.state.issue.requirement} Requirement of {this.state.issue.module} Module.</small>
               </Col>
               <Col lg={2} className="text-right">
-                {this.state.issue.employee_id === localStorage.getItem('user') &&
+                {this.state.issue.employee_id === localStorage.getItem('user') && this.state.issue.status === '0' &&
                   <div>
                     <a href="#!" onClick={()=>this.edit_open()} className={this.props.loading}>Edit </a>/
                     <a href="#!" onClick={()=>this.props.reload()} className={this.props.loading}> {reload}</a>
@@ -217,6 +282,7 @@ export default class ContentIssue extends React.Component {
             <Col>
               <Button
                 block
+                disabled={this.state.delete_state}
                 onClick={()=>this.commentHandler()}
               >
                 <Send size={18}/>

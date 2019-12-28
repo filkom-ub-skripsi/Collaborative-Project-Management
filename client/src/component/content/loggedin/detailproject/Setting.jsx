@@ -382,7 +382,7 @@ export default class ContentSetting extends React.Component {
           })
           Swal({
             title:"Success",
-            text:"Your project was successfully deleted",
+            text:"Your project is successfully deleted",
             icon:"success",
             closeOnClickOutside:false,
             button:false

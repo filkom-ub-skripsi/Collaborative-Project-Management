@@ -1164,6 +1164,15 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    issue_delete: {
+      type: IssueType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let issue = Issue.findByIdAndDelete(args._id)
+        return issue
+      }
+    },
+
     comment_add: {
       type: CommentType,
       args: {

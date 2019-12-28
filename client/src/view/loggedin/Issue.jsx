@@ -207,6 +207,9 @@ export default class ViewIssue extends React.Component {
         <LayoutBreadcrumb breadcrumb={this.state.breadcrumb}/>
         <Container>
           <ContentIssue
+            project_id={this.state.project_id}
+            issue_id={this.state.issue_id}
+            webservice={this.props.webservice}
             loading={this.state.loading}
             module={this.state.module}
             requirement={this.state.requirement}
