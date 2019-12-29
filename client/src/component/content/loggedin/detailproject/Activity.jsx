@@ -154,19 +154,25 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'S1') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is edited',
+          detail:temp[i]['detail']+' issue is edited',
           icon:<AlertCircle size={size}/>,iconColor:color.orange
         })
       } else if (temp[i]['code'] === 'S2') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is resolved',
+          detail:temp[i]['detail']+' issue is resolved',
           icon:<AlertCircle size={size}/>,iconColor:color.green
         })
       } else if (temp[i]['code'] === 'S3') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is back to unsolved',
+          detail:temp[i]['detail']+' issue is back to unsolved',
+          icon:<AlertCircle size={size}/>,iconColor:color.red
+        })
+      } else if (temp[i]['code'] === 'S4') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' issue is deleted',
           icon:<AlertCircle size={size}/>,iconColor:color.red
         })
       } else if (temp[i]['code'] === 'B0') {

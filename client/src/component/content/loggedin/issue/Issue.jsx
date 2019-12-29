@@ -197,9 +197,24 @@ export default class ContentIssue extends React.Component {
         this.fetch({query:`{
           issue(_id:"`+this.state.issue_id+`") {
             task { _id }
+            comment { _id }
           }
         }`}).then(result => {
           if (result.data.issue.task.length === 0) {
+            const fetch = (query) => this.fetch({query:query})
+            result.data.issue.comment.forEach(function(item){
+              fetch('mutation{comment_delete(_id:"'+item._id+'"){_id}}')
+            })
+            fetch('mutation{issue_delete(_id:"'+this.state.issue_id+'"){_id}}')
+            fetch(`mutation {
+              activity_add(
+                _id:"`+this.props.objectId()+`",
+                project:"`+this.state.project_id+`",
+                code:"S4",
+                detail:"`+this.state.issue.name+`",
+                date:"`+new Date()+`"
+              ){_id}
+            }`)
             Swal({
               title:"Success",text:"This issue is successfully deleted",
               icon:"success",closeOnClickOutside:false,button:false
@@ -208,9 +223,6 @@ export default class ContentIssue extends React.Component {
               delete_state:false,
               delete_button:delete_false
             })
-            this.fetch({query:`mutation {
-              issue_delete(_id:"`+this.state.issue_id+`"){_id}
-            }`})
             setTimeout(()=>{window.location.href='/detail-project/'+this.state.project_id},1500)
           } else {
             Swal({
