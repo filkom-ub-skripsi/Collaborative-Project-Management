@@ -6,7 +6,8 @@ import 'react-notifications/lib/notifications.css'
 import Unlogged from './view/Unlogged'
 import Loggedin from './view/Loggedin'
 
-const webservice = 'http://localhost:4000/graphql'
+//global variable
+const webservice = 'https://cpm-graphql.inhuaschool.com/graphql'
 
 function App() {
   if (localStorage.getItem('user') === null) {
