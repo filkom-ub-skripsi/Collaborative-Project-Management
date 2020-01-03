@@ -7,7 +7,6 @@ import { Send } from 'react-feather'
 
 //prewrap
 const prewrap = { whiteSpace:'pre-wrap' }
-const padding = { paddingTop:15 }
 
 //notification
 const success = 'Your changes have been successfully saved'
@@ -281,28 +280,7 @@ export default class ContentIssue extends React.Component {
             <div style={prewrap}>{this.state.issue.detail}</div>
           </Card.Body>
         </Card>
-        <Form autoComplete="off" style={padding} className="animated faster fadeIn">
-          <Form.Row>
-            <Col lg={11}>
-              <Form.Control
-                type="text"
-                id="tambah_comment"
-                placeholder="Leave a comment..."
-                disabled={disabled}
-              />
-            </Col>
-            <Col>
-              <Button
-                block
-                disabled={this.state.delete_state}
-                onClick={()=>this.commentHandler()}
-              >
-                <Send size={18}/>
-              </Button>
-            </Col>
-          </Form.Row>
-        </Form>
-        <div className="qa-message-list" style={padding}>
+        <div className="qa-message-list" style={{paddingTop:15}}>
           {this.state.comment.map((item,index) => {
             return (
               <div className="message-item animated faster fadeIn" key={index}>
@@ -329,6 +307,27 @@ export default class ContentIssue extends React.Component {
             )
           })}
         </div>
+        <Form autoComplete="off" className="animated faster fadeIn">
+          <Form.Row>
+            <Col lg={11}>
+              <Form.Control
+                type="text"
+                id="tambah_comment"
+                placeholder="Leave a comment..."
+                disabled={disabled}
+              />
+            </Col>
+            <Col>
+              <Button
+                block
+                disabled={this.state.delete_state}
+                onClick={()=>this.commentHandler()}
+              >
+                <Send size={18}/>
+              </Button>
+            </Col>
+          </Form.Row>
+        </Form>
       </div>
     )
   }
