@@ -1,6 +1,6 @@
 import React from 'react'
 import { createApolloFetch } from 'apollo-fetch'
-import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle, Clipboard } from 'react-feather'
+import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle, Clipboard, Briefcase } from 'react-feather'
 import { Timeline, TimelineEvent } from 'react-event-timeline'
 
 const color = {
@@ -186,6 +186,24 @@ export default class ContentActivity extends React.Component {
           date:temp[i]['date'],
           detail:temp[i]['detail']+' is deleted from backlog',
           icon:<Clipboard size={size}/>,iconColor:color.red
+        })
+      } else if (temp[i]['code'] === 'N0') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' sprint is added',
+          icon:<Briefcase size={size}/>,iconColor:color.blue
+        })
+      } else if (temp[i]['code'] === 'N1') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' sprint is edited',
+          icon:<Briefcase size={size}/>,iconColor:color.orange
+        })
+      } else if (temp[i]['code'] === 'N2') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' sprint is deleted',
+          icon:<Briefcase size={size}/>,iconColor:color.red
         })
       }
     }

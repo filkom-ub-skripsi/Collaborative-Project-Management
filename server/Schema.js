@@ -1275,6 +1275,19 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    task_assign: {
+      type: TaskType,
+      args: {
+        _id: { type : GraphQLString },
+        sprint: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = { sprint:args.sprint };
+        let task = Task.findByIdAndUpdate(args._id, update, {new: true})
+        return task
+      }
+    },
+
     task_delete: {
       type: TaskType,
       args: {_id: { type : GraphQLString }},
@@ -1307,6 +1320,49 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args){
         let team = Team.findByIdAndDelete(args._id)
         return team
+      }
+    },
+
+    sprint_add: {
+      type: SprintType,
+      args: {
+        _id: { type : GraphQLString },
+        project: { type : GraphQLString },
+        name: { type : GraphQLString },
+        start: { type : GraphQLString },
+        end: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let sprint = new Sprint({
+          _id:args._id,
+          project:args.project,
+          name:args.name,
+          start:args.start,
+          end:args.end,
+        });
+        return sprint.save();
+      }
+    },
+
+    sprint_edit: {
+      type: SprintType,
+      args: {
+        _id: { type : GraphQLString },
+        name: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = { name:args.name };
+        let sprint = Sprint.findByIdAndUpdate(args._id, update, {new: true})
+        return sprint
+      }
+    },
+
+    sprint_delete: {
+      type: SprintType,
+      args: {_id: { type : GraphQLString }},
+      resolve(parent, args){
+        let sprint = Sprint.findByIdAndDelete(args._id)
+        return sprint
       }
     },
 
