@@ -4,7 +4,7 @@ import { Form, Nav, Badge, Dropdown, Container, Row, Col, ListGroup } from 'reac
 import { Settings, Bell } from 'react-feather'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
-import { Check, X } from 'react-feather'
+import { Check } from 'react-feather'
 import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import LayoutAppbar from '../../layout/Appbar'
@@ -109,35 +109,6 @@ export default class ContentNavbar extends React.Component {
     })
   }
 
-  //decline
-  decline(id,project,detail){
-    Swal({
-      title:"Decline",
-      text:"You will decline this invitation",
-      icon:"warning",buttons:true,dangerMode:true,
-    })
-    .then((willDecline) => {
-      if (willDecline) {
-        this.fetch({query:`mutation {
-          collaborator_delete(_id:"`+id+`"){_id}
-        }`})
-        let data = this.state.data.filter(function(item){ return item._id !== id })
-        this.setState({data:data})
-        let activity_id = RDS.generate({length:32,charset:'alphabetic'})
-        this.fetch({query:`
-          mutation {
-            activity_add(
-              _id:"`+activity_id+`",project:"`+project+`",
-              code:"I3",detail:"`+detail+`",
-              date:"`+new Date()+`"
-            ){_id}
-          }`
-        })
-        NotificationManager.warning('You decline the invitation')
-      }
-    })
-  }
-
   //logout
   logout(){
     Swal({
@@ -201,12 +172,10 @@ export default class ContentNavbar extends React.Component {
                 let func_detail = this.state.name+'_'+this.state.division
                 return (
                   <ListGroup.Item key={index} className="list-group-notification">
-                    <Row><Col lg={9}>
+                    <Row><Col lg={10}>
                       <div className="clipped" style={{fontWeight:500,width:350}}>{item.project[0]['name']}</div>
                       <small style={{color:'grey'}}>{item.project[0]['employee'][0]['email']}</small>
-                    </Col><Col lg={3} className="text-right" style={{paddingTop:7}}>
-                      <X size={20} style={{color:'#BD2031'}} onClick={()=>this.decline(func_id,func_project,func_detail)}/>
-                      <span style={{paddingLeft:10}}/>
+                    </Col><Col lg={2} className="text-right" style={{paddingTop:7}}>
                       <Check size={20} style={{color:'#0B6623'}} onClick={()=>this.accept(func_id,func_project,func_detail)}/>
                     </Col></Row>
                   </ListGroup.Item>

@@ -160,7 +160,7 @@ export default class ContentScrum extends React.Component {
       })
       let sprint = []
       result.data.project.sprint.forEach(function(item){
-        let date = '-'; let duration = '-'; let status = '-';
+        let date = null; let duration = null; let status = null;
         if(item.date === undefined){ status = sprint_0 }
         sprint.push({
           id:item._id+'_'+0,name:item.name,date:date,duration:duration,

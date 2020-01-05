@@ -136,12 +136,6 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'I3') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division declined the invitation',
-          icon:<UserX size={size}/>,iconColor:color.red
-        })
-      } else if (temp[i]['code'] === 'I4') {
-        data.push({
-          date:temp[i]['date'],
           detail:temp[i]['detail'].split('_')[0]+' from the '+temp[i]['detail'].split('_')[1]+' division is kicked',
           icon:<UserX size={size}/>,iconColor:color.red
         })
