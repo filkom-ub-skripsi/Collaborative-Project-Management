@@ -1,7 +1,7 @@
 import React from 'react'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
-import { ListGroup, Modal, Button, Form, Spinner } from 'react-bootstrap'
+import { ListGroup, Modal, Button, Form } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import LayoutCardContent from '../../../layout/CardContent'
 
@@ -13,9 +13,6 @@ const div = { fontWeight:500 }
 const small = { color:'gray' }
 const danger = { fontWeight:500, color:'red' }
 
-//spinner
-const spinner = <Spinner animation="border" size="sm"/>
-
 //edit
 const edit_form = [
   {field:'edit_code',feedback:'edit_fcode'},
@@ -26,7 +23,6 @@ const edit_form = [
 ]
 
 //delete
-const delete_button = 'Delete'
 const delete_form = [
   {field:'delete_name',feedback:'delete_fname'},
   {field:'delete_password',feedback:'delete_fpassword'},
@@ -41,9 +37,9 @@ export default class ContentSetting extends React.Component {
     this.state = { 
       project_id:this.props.id,
       edit_modal:false,delete_modal:false,
-      delete_button:delete_button,delete_state:false,
       client:[],password:null,status:null,
       overview:{code:null,name:null,client:null,client_id:null,start:null,end:null},
+      requirement:[],
     }
   }
 
@@ -56,7 +52,8 @@ export default class ContentSetting extends React.Component {
   static getDerivedStateFromProps(props) {
     return {
       overview:props.data[0],
-      status:props.status
+      requirement:props.requirement,
+      status:props.status,
     }
   }
 
@@ -93,78 +90,69 @@ export default class ContentSetting extends React.Component {
       icon:"info",closeOnClickOutside:false,buttons:true,dangerMode:true,
     }).then((willStart) => {
       if (willStart) {
-        NotificationManager.info('Checking all requirements...')
-        this.fetch({query:`{
-          project(_id:"`+this.state.project_id+`") {
-            start,
-            module { _id, name,
-              requirement { _id, name }
-            }
-          }
-        }`}).then(result => {
-          if (result.data.project.module.length !== 0) {
-            let data = result.data.project.module.filter(function(item){ return item.requirement.length === 0 })
-            if (data.length === 0) {
-              const fetch = (query) => this.fetch({query:query})
-              let project_id = this.state.project_id
-              result.data.project.module.forEach(function(module){
+        if (this.state.requirement.length !== 0) {
+          let checkRequirement = 0
+          this.state.requirement.forEach(function(item){
+            if (item.requirement.length === 0) { checkRequirement = 1 }
+          })
+          if (checkRequirement === 0) {
+            const fetch = (query) => this.fetch({query:query})
+            let project_id = this.state.project_id
+            let start = this.state.overview.start
+            this.state.requirement.forEach(function(module){
+              fetch(`mutation {
+                gantt_add(
+                  _id:"`+module.id.split('_')[0]+`",
+                  project:"`+project_id+`",
+                  name:"`+module.name+`",
+                  start:"`+start+` 00:00",
+                  duration:"7",
+                  parent:""
+                ){_id}
+              }`)
+              module.requirement.forEach(function(requirement){
                 fetch(`mutation {
                   gantt_add(
-                    _id:"`+module._id+`",
+                    _id:"`+requirement.id+`",
                     project:"`+project_id+`",
-                    name:"`+module.name+`",
-                    start:"`+result.data.project.start+` 00:00",
-                    duration:"7",
-                    parent:""
+                    name:"`+requirement.name+`",
+                    start:"`+start+` 00:00",
+                    duration:"3",
+                    parent:"`+module.id.split('_')[0]+`"
                   ){_id}
                 }`)
-                module.requirement.forEach(function(requirement){
-                  fetch(`mutation {
-                    gantt_add(
-                      _id:"`+requirement._id+`",
-                      project:"`+project_id+`",
-                      name:"`+requirement.name+`",
-                      start:"`+result.data.project.start+` 00:00",
-                      duration:"3",
-                      parent:"`+module._id+`"
-                    ){_id}
-                  }`)
-                })
               })
-              let activity_id = this.props.objectId()
-              let activity_code = 'P3'
-              let activity_date = new Date()
-              this.fetch({query:`mutation {
-                activity_add(
-                  _id:"`+activity_id+`",
-                  project:"`+project_id+`",
-                  code:"`+activity_code+`",
-                  detail:"",
-                  date:"`+activity_date+`"
-                ){_id}
-              }`})
-              Swal({
-                title:"Success",text:"Your project is now started",
-                icon:"success",closeOnClickOutside:false,button:false,timer:1500
-              })
-              this.props.activity(activity_code,'',activity_date)
-              this.props.start()
-              NotificationManager.success('All your requirements are good!')
-            } else {
-              Swal({
-                title:"Failed",text:"There are still modules that don't have requirements",
-                icon:"warning",closeOnClickOutside:false,
-              })
-              NotificationManager.error('Please complete your requirements!')
-            }
+            })
+            let activity_id = this.props.objectId()
+            let activity_code = 'P3'
+            let activity_date = new Date()
+            this.fetch({query:`mutation {
+              activity_add(
+                _id:"`+activity_id+`",
+                project:"`+project_id+`",
+                code:"`+activity_code+`",
+                detail:"",
+                date:"`+activity_date+`"
+              ){_id}
+            }`})
+            Swal({
+              title:"Success",text:"Your project is now started",
+              icon:"success",closeOnClickOutside:false,button:false,timer:1500
+            })
+            this.props.activity(activity_code,'',activity_date)
+            this.props.start()
           } else {
             Swal({
-              title:"Failed",text:"This project still doesn't have any requirements",
+              title:"Failed",text:"There are still modules that don't have requirements",
               icon:"warning",closeOnClickOutside:false,
             })
-            NotificationManager.error('Please add a few requirements before you start the project!')
           }
-        })
+        } else {
+          Swal({
+            title:"Failed",text:"This project still doesn't have any requirements",
+            icon:"warning",closeOnClickOutside:false,
+          })
+        }
       }
     })
   }
@@ -308,10 +296,9 @@ export default class ContentSetting extends React.Component {
         <Modal.Footer>
           <Button
             variant="danger"
-            disabled={this.state.delete_state}
             onClick={()=>this.delete_project()}
           >
-            {this.state.delete_button}
+            Delete
           </Button>
         </Modal.Footer>
       </Modal>
@@ -355,48 +342,30 @@ export default class ContentSetting extends React.Component {
   //delete handler
   delete_project(){
     if (this.delete_validation() === true) {
-      this.setState({delete_button:spinner,delete_state:true})
-      this.fetch({query:`{
-        project(_id:"`+this.state.project_id+`") {
-          module {_id}
-        }
-      }`}).then(result => {
-        this.setState({delete_button:delete_button,delete_state:false,delete_modal:false})
-        if (result.data.project.module.length === 0) {
-          this.fetch({
-            query:`{
-              project(_id:"`+this.state.project_id+`") {
-                activity{_id}
-              }
-            }`
-          }).then(result => {
-            const delActivity = (query) => this.fetch({query:query})
-            result.data.project.activity.forEach(function(item){
-              delActivity('mutation{activity_delete(_id:"'+item._id+'"){_id}}')
-            })
-            this.fetch({query:`
-              mutation {
-                project_delete(_id:"`+this.state.project_id+`"){_id}
-              }`
-            })
+      if (this.state.requirement.length === 0) {
+        const delActivity = (query) => this.fetch({query:query})
+        this.fetch({query:`{
+          project(_id:"`+this.state.project_id+`") { activity {_id} }
+        }`}).then(result => {
+          result.data.project.activity.forEach(function(item){
+            delActivity('mutation{activity_delete(_id:"'+item._id+'"){_id}}')
           })
-          Swal({
-            title:"Success",
-            text:"Your project is successfully deleted",
-            icon:"success",
-            closeOnClickOutside:false,
-            button:false
-          })
-          setTimeout(()=>{window.location.href='/projects'},1500)
-        } else {
-          Swal({
-            title:"Failed",
-            text:"Project requirement must be empty",
-            icon:"warning",
-            closeOnClickOutside:false,
-          })
-        }
-      })
+        })
+        this.fetch({query:`mutation{
+          project_delete(_id:"`+this.state.project_id+`"){_id}
+        }`})
+        Swal({
+          title:"Success",text:"Your project is successfully deleted",
+          icon:"success",closeOnClickOutside:false,button:false
+        })
+        this.setState({delete_modal:false})
+        setTimeout(()=>{window.location.href='/projects'},1500)
+      } else {
+        Swal({
+          title:"Failed",text:"Project requirement must be empty",
+          icon:"warning",closeOnClickOutside:false,
+        })
+      }
     }
   }
 

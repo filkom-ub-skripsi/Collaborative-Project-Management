@@ -1185,6 +1185,7 @@ export default class ContentScrum extends React.Component {
           item.sprint = sprint_id.split('_')[0]
         }
       })
+      this.props.backlog_update(backlog,'update')
       let sprint = this.state.sprint
       sprint.forEach(function(item){ if (item.id.split('_')[0] === sprint_id.split('_')[0]) {
         let version = parseInt(item.id.split('_')[1])+1
@@ -1220,6 +1221,7 @@ export default class ContentScrum extends React.Component {
           option.label = '['+item.type+'] '+item.task
           item.sprint = null
         }})
+        this.props.backlog_update(backlog,'update')
         this.setState({sprint_option:[...this.state.sprint_option,option]})
         let sprint = this.state.sprint
         let sprint_id = this.state.sprint_id
