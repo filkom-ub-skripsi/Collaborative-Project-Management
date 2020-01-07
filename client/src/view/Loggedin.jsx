@@ -9,6 +9,7 @@ import Projects from './loggedin/Projects'
 import DetailProject from './loggedin/DetailProject'
 import Document from './loggedin/Document'
 import GanttChart from './loggedin/GanttChart'
+import ScrumBoard from './loggedin/ScrumBoard'
 import Issue from './loggedin/Issue'
 import Users from './loggedin/Users'
 import Profile from './loggedin/Profile'
@@ -57,6 +58,14 @@ export default class Loggedin extends React.Component {
               <GanttChart {...props}
                 webservice={this.props.webservice}
                 objectId={this.props.objectId}
+              />
+            }
+          />
+          <Route
+            path="/scrum-board/:id"
+            render = {(props) =>
+              <ScrumBoard {...props}
+                webservice={this.props.webservice}
               />
             }
           />

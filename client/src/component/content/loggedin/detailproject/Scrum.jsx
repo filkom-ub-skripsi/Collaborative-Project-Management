@@ -1,6 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 import Swal from 'sweetalert'
+import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
 import { Tab, Card, Nav, Row, Col, Button, OverlayTrigger, Popover, Modal, Form, InputGroup } from 'react-bootstrap'
@@ -194,7 +195,7 @@ export default class ContentScrum extends React.Component {
       const date_counter = (start, end) => { return this.date_counter(start, end) }
       const date_checker = (end) => { return this.date_checker(end) }
       result.data.project.sprint.forEach(function(item){
-        let date = null; let duration = null; let status = null;
+        let date = '-'; let duration = '-'; let status = null;
         if(item.start.length === 0){ status = sprint_0 }
         else {
           date = date_reformatter(item.start)+' - '+date_reformatter(item.end)
@@ -1093,6 +1094,8 @@ export default class ContentScrum extends React.Component {
     let column = []
     if (localStorage.getItem('leader') === '1' && this.state.sprint_status === sprint_0){ column = columns_leader }
     else { column = columns_employee }
+    let sprint_id = this.state.sprint_id
+    if (sprint_id !== null) { sprint_id = sprint_id.split('_')[0] }
     return (
       <Modal
         size="lg" centered backdrop="static" keyboard={false}
@@ -1163,12 +1166,12 @@ export default class ContentScrum extends React.Component {
         }
         {this.state.sprint_status !== sprint_0 &&
           <Modal.Footer>
-            <Button
-              variant="primary"
-              onClick={()=>console.log('open')}
+            <Link
+              to={'/scrum-board/'+sprint_id}
+              className="btn btn-primary"
             >
-              Open
-            </Button>
+              Scrum Board
+            </Link>
           </Modal.Footer>
         }
       </Modal>
