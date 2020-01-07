@@ -199,6 +199,12 @@ export default class ContentActivity extends React.Component {
           detail:temp[i]['detail']+' sprint is deleted',
           icon:<Briefcase size={size}/>,iconColor:color.red
         })
+      } else if (temp[i]['code'] === 'N3') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail'].split('_')[0]+' sprint is started for '+temp[i]['detail'].split('_')[1]+' weeks',
+          icon:<Briefcase size={size}/>,iconColor:color.green
+        })
       }
     }
     return (

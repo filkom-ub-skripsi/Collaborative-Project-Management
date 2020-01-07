@@ -1353,6 +1353,7 @@ export default class ContentScrum extends React.Component {
         }`})
         let date = this.date_reformatter(start)+' - '+this.date_reformatter(end)
         let sprint = this.state.sprint
+        let sprintName = null
         sprint.forEach(function(item){
           if (item.id === sprint_id) {
             let version = parseInt(item.id.split('_')[1])+1
@@ -1360,12 +1361,26 @@ export default class ContentScrum extends React.Component {
             item.date = date
             item.duration = week+' Weeks'
             item.status = sprint_1
+            sprintName = item.name
           }
         })
         this.setState({
           sprint_start:false,
           sprint_week:1,
         })
+        let activity_code = 'N3'
+        let activity_detail = sprintName+'_'+week
+        let activity_date = new Date()
+        this.fetch({query:`mutation {
+          activity_add(
+            _id:"`+this.props.objectId()+`",
+            project:"`+this.state.project_id+`",
+            code:"`+activity_code+`",
+            detail:"`+activity_detail+`",
+            date:"`+activity_date+`"
+          ){_id}
+        }`})
+        this.props.activity(activity_code,activity_detail,activity_date)
         NotificationManager.success(success)
       }
     })
