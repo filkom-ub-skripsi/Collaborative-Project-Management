@@ -3,8 +3,8 @@ import Select from 'react-select'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
-import { Tab, Card, Nav, Row, Col, Button, OverlayTrigger, Popover, Modal, Form } from 'react-bootstrap'
-import { RefreshCcw, HelpCircle, XCircle } from 'react-feather'
+import { Tab, Card, Nav, Row, Col, Button, OverlayTrigger, Popover, Modal, Form, InputGroup } from 'react-bootstrap'
+import { RefreshCcw, HelpCircle, XCircle, Minus, Plus } from 'react-feather'
 import LayoutTable from '../../../layout/Table'
 
 //notification
@@ -14,8 +14,8 @@ const success = 'Your changes have been successfully saved'
 const type_0 = 'Requirement'
 const type_1 = 'Issue'
 const sprint_0 = 'Preparing'
-// const sprint_1 = 'On Going'
-// const sprint_2 = 'Done'
+const sprint_1 = 'Progress'
+const sprint_2 = 'Done'
 
 //class
 export default class ContentScrum extends React.Component {
@@ -33,7 +33,8 @@ export default class ContentScrum extends React.Component {
       add_backlog_requirement_disabled:true,add_backlog_filter:[],add_backlog_team:[],add_backlog_disabled:true,
       detail_modal:false,detail_employee:[],detail_id:null,detail_header:null,detail_data:[],
       add_sprint_modal:false,add_sprint_backlog:[],
-      sprint_detail:false,sprint_id:null,sprint_status:null,sprint_header:null,sprint_data:[],sprint_option:[]
+      sprint_detail:false,sprint_id:null,sprint_status:null,sprint_header:null,sprint_data:[],sprint_option:[],
+      sprint_start:false,sprint_week:1
     }
   }
 
@@ -98,6 +99,36 @@ export default class ContentScrum extends React.Component {
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
 
+  //date reformatter
+  date_reformatter(date){
+    let month = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    let old_format = new Date(date);
+    let new_format = old_format.getDate()+' '+month[old_format.getMonth()]+', '+old_format.getFullYear()
+    return new_format
+  }
+
+  //date creater
+  date_creater(date){
+    let month = date.getMonth() + 1
+      if (String(month).length === 1) { month = '0'+month }
+    let day = date.getDate()
+      if (String(day).length === 1) { day = '0'+day }
+    return date.getFullYear()+'-'+month+'-'+day
+  }
+
+  //date counter
+  date_counter(start,end){
+    let count = new Date(end).getTime() - new Date(start).getTime()
+    let weeks = (count / (1000*60*60*24)) / 7
+    return weeks + ' Weeks'
+  }
+
+  //date checker
+  date_checker(end){
+    let check = new Date(end).getTime() - new Date()
+    if (check > 0) { return true } else { return false }
+  }
+
   //push
   push(){
     this.fetch({query:`{
@@ -159,9 +190,18 @@ export default class ContentScrum extends React.Component {
         }
       })
       let sprint = []
+      const date_reformatter = (date) => { return this.date_reformatter(date) }
+      const date_counter = (start, end) => { return this.date_counter(start, end) }
+      const date_checker = (end) => { return this.date_checker(end) }
       result.data.project.sprint.forEach(function(item){
         let date = null; let duration = null; let status = null;
-        if(item.date === undefined){ status = sprint_0 }
+        if(item.start.length === 0){ status = sprint_0 }
+        else {
+          date = date_reformatter(item.start)+' - '+date_reformatter(item.end)
+          duration = date_counter(item.start,item.end)
+          if (date_checker(item.end)) { status = sprint_1 }
+          else { status = sprint_2 }
+        }
         sprint.push({
           id:item._id+'_'+0,name:item.name,date:date,duration:duration,
           backlog:item.task.length,status:status
@@ -1109,7 +1149,7 @@ export default class ContentScrum extends React.Component {
           <Modal.Footer>
             <Button
               variant="primary"
-              onClick={()=>console.log('start')}
+              onClick={()=>this.setState({sprint_detail:false,sprint_start:true})}
             >
               Start
             </Button>
@@ -1237,6 +1277,97 @@ export default class ContentScrum extends React.Component {
     })
   }
 
+  //sprint start
+  sprint_start(){
+    return (
+      <Modal
+        size="sm" centered backdrop="static" keyboard={false}
+        show={this.state.sprint_start} onHide={()=>this.setState({sprint_start:false,sprint_week:1})}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{this.state.sprint_header}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h6>Week Duration</h6>
+          <InputGroup>
+            <InputGroup.Prepend>
+              <Button
+                size="sm"
+                variant="outline-dark"
+                onClick={()=>{
+                  if(this.state.sprint_week !== 1) {
+                    this.setState({sprint_week:this.state.sprint_week-1})
+                  }
+                }}
+              >
+                <Minus size={20}/>
+              </Button>
+            </InputGroup.Prepend>
+            <Form.Control value={this.state.sprint_week} readOnly/>
+            <InputGroup.Prepend>
+              <Button
+                size="sm"
+                variant="outline-dark"
+                onClick={()=>
+                  this.setState({sprint_week:this.state.sprint_week+1})
+                }
+              >
+                <Plus size={20}/>
+              </Button>
+            </InputGroup.Prepend>
+          </InputGroup>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="primary"
+            onClick={()=>this.sprint_startHandler()}
+          >
+            Start
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+
+  //sprint start handler
+  sprint_startHandler(){
+    Swal({
+      title:"Start",text:"This sprint will be started and cannot be undone",
+      icon:"info",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willStart) => {
+      if (willStart) {
+        let sprint_id = this.state.sprint_id
+        let week = this.state.sprint_week
+        let addw = week * 7
+        let start = this.date_creater(new Date())
+        let end = this.date_creater(new Date(new Date().setDate(new Date().getDate() + addw)))
+        this.fetch({query:`mutation {
+          sprint_start(
+            _id:"`+sprint_id.split('_')[0]+`",
+            start:"`+start+`",
+            end:"`+end+`"
+          ){_id}
+        }`})
+        let date = this.date_reformatter(start)+' - '+this.date_reformatter(end)
+        let sprint = this.state.sprint
+        sprint.forEach(function(item){
+          if (item.id === sprint_id) {
+            let version = parseInt(item.id.split('_')[1])+1
+            item.id = item.id.split('_')[0]+'_'+version
+            item.date = date
+            item.duration = week+' Weeks'
+            item.status = sprint_1
+          }
+        })
+        this.setState({
+          sprint_start:false,
+          sprint_week:1,
+        })
+        NotificationManager.success(success)
+      }
+    })
+  }
+
   //sprint delete
   sprint_delete(){
     if(this.state.sprint_status === sprint_0) {
@@ -1296,6 +1427,7 @@ export default class ContentScrum extends React.Component {
         {this.detail_modal()}
         {this.sprint_modal()}
         {this.sprint_detail()}
+        {this.sprint_start()}
         <Tab.Container defaultActiveKey="TAB1">
           <Card>
             <Card.Header>

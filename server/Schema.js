@@ -1344,6 +1344,23 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    sprint_start: {
+      type: SprintType,
+      args: {
+        _id: { type : GraphQLString },
+        start: { type : GraphQLString },
+        end: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = {
+          start:args.start,
+          end:args.end
+        };
+        let sprint = Sprint.findByIdAndUpdate(args._id, update, {new: true})
+        return sprint
+      }
+    },
+
     sprint_edit: {
       type: SprintType,
       args: {
