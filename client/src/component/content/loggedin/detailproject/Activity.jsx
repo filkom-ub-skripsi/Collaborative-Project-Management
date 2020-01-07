@@ -106,13 +106,13 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'R3') {
         data.push({
           date:temp[i]['date'],
-          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' module is finished',
+          detail:temp[i]['detail']+' requirement is finished',
           icon:<Check size={size}/>,iconColor:color.green
         })
       } else if (temp[i]['code'] === 'R4') {
         data.push({
           date:temp[i]['date'],
-          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' is back to progress',
+          detail:temp[i]['detail']+' requirement is back to progress',
           icon:<X size={size}/>,iconColor:color.red
         })
       } else if (temp[i]['code'] === 'I0') {

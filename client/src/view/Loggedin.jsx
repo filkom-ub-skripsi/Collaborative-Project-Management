@@ -66,6 +66,7 @@ export default class Loggedin extends React.Component {
             render = {(props) =>
               <ScrumBoard {...props}
                 webservice={this.props.webservice}
+                objectId={this.props.objectId}
               />
             }
           />

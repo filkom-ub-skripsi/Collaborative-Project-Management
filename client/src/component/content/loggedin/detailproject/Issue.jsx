@@ -300,7 +300,7 @@ export default class ContentIssue extends React.Component {
           this.state.data.map((item,index) => {
             let status = null
             if (item.status === '0') { status = <Badge variant="warning">open</Badge> }
-            else if (item.status === '1') { status = <Badge variant="danger">closed</Badge> }
+            else if (item.status === '1') { status = <Badge variant="success">closed</Badge> }
             let lastComment = ''
             if (item.comment.length > 0) {
               lastComment =

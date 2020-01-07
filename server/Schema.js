@@ -1164,6 +1164,19 @@ const Mutation = new GraphQLObjectType({
       }
     },
 
+    issue_status: {
+      type: IssueType,
+      args: {
+        _id: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = { status:args.status };
+        let issue = Issue.findByIdAndUpdate(args._id, update, {new: true})
+        return issue
+      }
+    },
+
     issue_delete: {
       type: IssueType,
       args: {_id: { type : GraphQLString }},
@@ -1283,6 +1296,19 @@ const Mutation = new GraphQLObjectType({
       },
       resolve(parent, args){
         let update = { sprint:args.sprint };
+        let task = Task.findByIdAndUpdate(args._id, update, {new: true})
+        return task
+      }
+    },
+
+    task_status: {
+      type: TaskType,
+      args: {
+        _id: { type : GraphQLString },
+        status: { type : GraphQLString },
+      },
+      resolve(parent, args){
+        let update = { status:args.status };
         let task = Task.findByIdAndUpdate(args._id, update, {new: true})
         return task
       }

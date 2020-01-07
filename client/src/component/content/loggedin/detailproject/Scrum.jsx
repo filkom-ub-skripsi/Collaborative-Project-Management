@@ -139,7 +139,7 @@ export default class ContentScrum extends React.Component {
           employee { _id, name, contact, email, division { _id, name } } 
         }
         task {
-          _id, status
+          _id,
           sprint { _id }
           issue { _id, name }
           requirement { _id, name }
@@ -155,39 +155,37 @@ export default class ContentScrum extends React.Component {
       let leader = result.data.project.organization[0]['leader'][0]['leader'][0]['_id']
       let backlog = []
       result.data.project.task.forEach(function(item){
-        if (item.status === '0') {
-          let data = []
-          item.team.forEach(function(team){
-            data.push({
-              id:team.employee[0]['_id'],
-              name:team.employee[0]['name'],
-              division:team.employee[0]['division'][0]['name'],
-              team:team._id
-            })
+        let data = []
+        item.team.forEach(function(team){
+          data.push({
+            id:team.employee[0]['_id'],
+            name:team.employee[0]['name'],
+            division:team.employee[0]['division'][0]['name'],
+            team:team._id
           })
-          let sprint = null
-          if (item.sprint.length !== 0){ sprint = item.sprint[0]['_id'] }
-          if (item.requirement.length !== 0){
-            backlog.push({
-              id:item._id+'_'+0,
-              task:item.requirement[0]['name'],
-              task_id:item.requirement[0]['_id'],
-              type:type_0,
-              team:item.team.length,
-              data:data,
-              sprint:sprint
-            })
-          } else if (item.issue.length !== 0) {
-            backlog.push({
-              id:item._id+'_'+0,
-              task:item.issue[0]['name'],
-              task_id:item.issue[0]['_id'],
-              type:type_1,
-              team:item.team.length,
-              data:data,
-              sprint:sprint
-            })
-          }
+        })
+        let sprint = null
+        if (item.sprint.length !== 0){ sprint = item.sprint[0]['_id'] }
+        if (item.requirement.length !== 0){
+          backlog.push({
+            id:item._id+'_'+0,
+            task:item.requirement[0]['name'],
+            task_id:item.requirement[0]['_id'],
+            type:type_0,
+            team:item.team.length,
+            data:data,
+            sprint:sprint
+          })
+        } else if (item.issue.length !== 0) {
+          backlog.push({
+            id:item._id+'_'+0,
+            task:item.issue[0]['name'],
+            task_id:item.issue[0]['_id'],
+            type:type_1,
+            team:item.team.length,
+            data:data,
+            sprint:sprint
+          })
         }
       })
       let sprint = []
