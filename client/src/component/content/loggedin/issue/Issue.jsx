@@ -71,8 +71,8 @@ export default class ContentIssue extends React.Component {
   commentHandler(){
     let field = document.getElementById('tambah_comment')
     if (field.value.length !== 0) {
-      this.props.commentHandler(field.value)
-      field.value = ''
+      this.props.commentHandler(field.value); field.value = '';
+      NotificationManager.success(success)
     }
   }
 
@@ -84,6 +84,7 @@ export default class ContentIssue extends React.Component {
     }).then((willDelete) => {
       if (willDelete) {
         this.props.commentDelete(id)
+        NotificationManager.success(success)
       }
     })
   }
@@ -280,7 +281,7 @@ export default class ContentIssue extends React.Component {
             <div style={prewrap}>{this.state.issue.detail}</div>
           </Card.Body>
         </Card>
-        <div className="qa-message-list" style={{paddingTop:15}}>
+        <div className="qa-message-list" style={{paddingTop:25}}>
           {this.state.comment.map((item,index) => {
             return (
               <div className="message-item animated faster fadeIn" key={index}>

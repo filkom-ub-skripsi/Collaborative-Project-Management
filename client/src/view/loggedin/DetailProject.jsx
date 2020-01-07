@@ -303,6 +303,7 @@ export default class ViewDetailProject extends React.Component {
         requirement={this.state.requirement}
         data={this.state.overview}
         activity={this.activity_add}
+        update={this.module_update}
         start={this.start}
         edit={this.edit}
       />

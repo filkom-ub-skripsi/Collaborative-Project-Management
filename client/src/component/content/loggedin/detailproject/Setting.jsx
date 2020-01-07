@@ -140,6 +140,7 @@ export default class ContentSetting extends React.Component {
               icon:"success",closeOnClickOutside:false,button:false,timer:1500
             })
             this.props.activity(activity_code,'',activity_date)
+            this.props.update([])
             this.props.start()
           } else {
             Swal({
