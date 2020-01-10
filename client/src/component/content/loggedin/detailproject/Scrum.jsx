@@ -1150,7 +1150,16 @@ export default class ContentScrum extends React.Component {
           <Modal.Footer>
             <Button
               variant="primary"
-              onClick={()=>this.setState({sprint_detail:false,sprint_start:true})}
+              onClick={()=>{
+                if (this.state.sprint_data.length !== 0) {
+                  this.setState({sprint_detail:false,sprint_start:true})
+                } else {
+                  Swal({
+                    title:"Not Available",text:"Sprint must contain at least one backlog",
+                    icon:"warning",closeOnClickOutside:false,
+                  })
+                }
+              }}
             >
               Start
             </Button>
