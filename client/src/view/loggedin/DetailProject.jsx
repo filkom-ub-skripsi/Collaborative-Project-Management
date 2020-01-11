@@ -114,7 +114,6 @@ export default class ViewDetailProject extends React.Component {
         id={this.state.project_id}
         update={this.overview_update}
         status={this.state.status}
-        requirement={this.state.requirement}
         progress={this.state.progress}
         data={this.state.overview}
         activity={this.activity_add}

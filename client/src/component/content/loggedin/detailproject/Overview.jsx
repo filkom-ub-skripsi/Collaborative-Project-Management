@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
 import { createApolloFetch } from 'apollo-fetch'
 import { FileText } from 'react-feather'
@@ -24,7 +25,6 @@ export default class ContentOverview extends React.Component {
       overview:{code:null,name:null,client:null,start:null,end:null},
       problem:spinner,goal:spinner,objective:spinner,success:spinner,obstacle:spinner,
       status:props.status,status_text:'',progress:props.progress,update_project_modal:false,
-      requirement:[]
     }
   }
 
@@ -42,7 +42,6 @@ export default class ContentOverview extends React.Component {
       return {
         overview:props.data[0],progress:props.progress,
         status:props.status,status_text:status_text,
-        requirement:props.requirement
       }
   }
 
@@ -180,32 +179,6 @@ export default class ContentOverview extends React.Component {
     return new_format
   }
 
-  //download document
-  download_document(){
-    let document = {}
-    //overview
-    document.name = this.state.overview.name
-    document.client = this.state.overview.client
-    document.start = this.date_reformatter(this.state.overview.start)
-    document.end = this.date_reformatter(this.state.overview.end)
-    //detail
-    let requirement = []
-    this.state.requirement.forEach(function(module,index){
-      let reqtmp = []
-      module.requirement.forEach(function(req){
-        reqtmp.push({
-          number:'-',name:req.name,detail:req.detail,
-        })
-      })
-      requirement.push({
-        number:index + 1,name:module.name,detail:module.detail,
-        requirement:reqtmp
-      })
-    })
-    document.requirement = requirement
-    console.log(document)
-  }
-
   //card header
   card_header(){
     let disabled = true
@@ -228,13 +201,12 @@ export default class ContentOverview extends React.Component {
           }
             <span style={{paddingRight:15}}/>
           {localStorage.getItem('leader') === '1' &&
-            <Button
-              size="sm"
-              variant="outline-dark"
-              onClick={()=>this.download_document()}
+            <Link
+              to={'/document/'+this.state.project_id}
+              className="btn btn-sm btn-outline-dark"
             >
               <FileText size={15} style={{marginBottom:2}}/>
-            </Button>
+            </Link>
           }
         </Col>
       </Row>
