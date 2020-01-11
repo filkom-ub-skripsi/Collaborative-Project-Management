@@ -35,6 +35,8 @@ export default class ViewScrumBoard extends React.Component {
 
   //push
   push(){
+    let draggable = false
+    if (localStorage.getItem('leader') === '1') { draggable = true }
     this.fetch({query:`{
       sprint(_id:"`+this.state.sprint_id+`") {
         project { _id, name }
@@ -56,11 +58,13 @@ export default class ViewScrumBoard extends React.Component {
           data.title = item.requirement[0]['name']
           data.description = item.requirement[0]['detail']
           data.label = TYPE0
+          data.draggable = draggable
           data.taskId = item.requirement[0]['_id']
         } else if (item.issue.length !== 0) {
           data.title = item.issue[0]['name']
           data.description = item.issue[0]['detail']
           data.label = TYPE1
+          data.draggable = draggable
           data.taskId = item.issue[0]['_id']
         }
         if (item.status === '0') { tempData.backlog.push(data) }

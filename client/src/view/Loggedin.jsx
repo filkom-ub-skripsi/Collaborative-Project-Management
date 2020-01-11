@@ -7,7 +7,6 @@ import Home from './loggedin/Home'
 import Client from './loggedin/Client'
 import Projects from './loggedin/Projects'
 import DetailProject from './loggedin/DetailProject'
-import Document from './loggedin/Document'
 import GanttChart from './loggedin/GanttChart'
 import ScrumBoard from './loggedin/ScrumBoard'
 import Issue from './loggedin/Issue'
@@ -41,14 +40,6 @@ export default class Loggedin extends React.Component {
                 webservice={this.props.webservice}
                 objectId={this.props.objectId}
                 hashMD5={this.props.hashMD5}
-              />
-            }
-          />
-          <Route
-            path="/document/:id"
-            render = {(props) =>
-              <Document {...props}
-                webservice={this.props.webservice}
               />
             }
           />

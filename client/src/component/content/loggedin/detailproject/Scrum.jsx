@@ -1413,7 +1413,7 @@ export default class ContentScrum extends React.Component {
               item.sprint = null
             }
           })
-          let sprint = this.state.sprint.filter(function(item){ return item.id !== sprint_id })
+          let sprint = this.state.sprint.filter(function(item){ return item.id.split('_')[0] !== sprint_id.split('_')[0] })
           this.setState({sprint:sprint,sprint_detail:false})
           fetch(`mutation {
             sprint_delete(_id:"`+sprint_id.split('_')[0]+`"){_id}
