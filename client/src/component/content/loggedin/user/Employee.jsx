@@ -1,8 +1,9 @@
 import React from 'react'
 import Swal from 'sweetalert'
-import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
+import { Row, Col, Button, Modal, Form, Spinner } from 'react-bootstrap'
 import { HelpCircle, RefreshCcw } from 'react-feather'
 import { NotificationManager } from 'react-notifications'
+import { createApolloFetch } from 'apollo-fetch'
 import LayoutCardContent  from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 
@@ -17,6 +18,10 @@ const employee_add_form = [
   {field:'tambah_division',feedback:'tambah_fdivision'},
 ]
 
+//misc
+const add_default = 'Add'
+const add_loading = <Spinner animation="border" size="sm"/>
+
 //class
 export default class ContentEmployee extends React.Component {
 
@@ -25,23 +30,25 @@ export default class ContentEmployee extends React.Component {
     super(props)
     this.state = {
       data:[],
-      add_employee_modal:false,
+      add_employee_modal:false,add_button:add_default,add_state:false,
       detail_modal:false,detail_id:null,detail_header:null,
       detail_leader:null,detail_division:'',detail_division_default:''
     }
   }
 
-  // component will receive props
-  UNSAFE_componentWillReceiveProps(props){
-    var data = []
-    var temp = props.data
-    temp.forEach(function(item_d){
-      item_d.employee.forEach(function(item_e){
-        data.push(item_e)
-      })
+  //get derived state from props
+  static getDerivedStateFromProps(props) {
+    let data = []
+    props.data.forEach(function(item_d){
+      item_d.employee.forEach(function(item_e){ data.push(item_e) })
     })
-    this.setState({data:data})
+    return {
+      data:data
+    }
   }
+
+  //fetch
+  fetch = createApolloFetch({uri:this.props.webservice})
 
   //add employee modal
   add_employee_modal(){
@@ -77,9 +84,13 @@ export default class ContentEmployee extends React.Component {
               <Form.Label>Division</Form.Label>
               <Form.Control id="tambah_division" as="select" defaultValue="">
                 <option value="" hidden></option>
-                {this.props.data.map((item,index) => {
-                  return ( <option value={item.id} key={index}>{item.name}</option> )
-                })}
+                {
+                  this.props.data
+                    .filter(item => item.id !== this.props.leader)
+                    .map((item,index) => {
+                    return <option value={item.id} key={index}>{item.name}</option>
+                  })
+                }
               </Form.Control>
               <div id="tambah_fdivision" className="invalid-feedback d-block"/>
             </Form.Group>
@@ -88,9 +99,10 @@ export default class ContentEmployee extends React.Component {
         <Modal.Footer>
           <Button
             variant="primary"
+            disabled={this.state.add_state}
             onClick={()=>this.add_employee_handler()}
           >
-            Add
+            {this.state.add_button}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -99,7 +111,7 @@ export default class ContentEmployee extends React.Component {
 
   //add employee validation
   add_employee_validation(){
-    var counter = 0
+    let counter = 0
     employee_add_form.forEach(function(item){
       if (document.getElementById(item.field).value === '') {
         document.getElementById(item.field).className = 'form-control is-invalid'
@@ -118,20 +130,31 @@ export default class ContentEmployee extends React.Component {
   //add employee handler
   add_employee_handler(){
     if (this.add_employee_validation() === true) {
-      var check = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
+      this.setState({add_button:add_loading,add_state:true})
+      let check = this.state.data.filter(function(item){ return item.email === document.getElementById('tambah_email').value })
       if (check.length === 0) {
-        this.props.add(
-          document.getElementById('tambah_name').value,
-          document.getElementById('tambah_email').value,
-          document.getElementById('tambah_contact').value,
-          document.getElementById('tambah_division').value,
-        )
-        this.setState({add_employee_modal:false})
-        NotificationManager.success(success)
-        NotificationManager.info('Default password is 1234')
+        this.fetch({query:'{employee(email:"'+document.getElementById('tambah_email').value+'"){_id}}'})
+        .then(result => {
+          if (result.data.employee === null) {
+            this.props.add(
+              document.getElementById('tambah_name').value,
+              document.getElementById('tambah_email').value,
+              document.getElementById('tambah_contact').value,
+              document.getElementById('tambah_division').value,
+            )
+            this.setState({add_employee_modal:false,add_button:add_default,add_state:false})
+            NotificationManager.success(success)
+            NotificationManager.info('Default password is 1234')
+          } else {
+            document.getElementById('tambah_email').className = 'form-control is-invalid'
+            document.getElementById('tambah_femail').innerHTML = 'this email has already been used in another organization'
+            this.setState({add_button:add_default,add_state:false})
+          }
+        })
       } else {
         document.getElementById('tambah_email').className = 'form-control is-invalid'
-        document.getElementById('tambah_femail').innerHTML = 'this email is already in use'
+        document.getElementById('tambah_femail').innerHTML = 'this email is already being used at this organization'
+        this.setState({add_button:add_default,add_state:false})
       }
     }
   }
@@ -146,15 +169,16 @@ export default class ContentEmployee extends React.Component {
     },
     {name:'Name',selector:'name',sortable:true},
     {name:'Email',selector:'email',sortable:true},
-    {name:'Mobile Number',selector:'contact',sortable:true,width:'15%'},
-    {name:'Division',selector:'division_name',sortable:true,width:'15%'},
-    {name:'Project',selector:'project',sortable:true,width:'15%'},
+    {name:'Mobile Number',selector:'contact',sortable:true},
+    {name:'Division',selector:'division_name',sortable:true},
+    {name:'Project Involvement',selector:'project',sortable:true,width:'10%'},
+    {name:'Waiting For Confirmation',selector:'invitation',sortable:true,width:'10%'},
   ]
 
   //table handler
   table_handler(id){
-    var data = this.state.data.filter(function(item){ return item.id === id })
-    var leader = null
+    let data = this.state.data.filter(function(item){ return item.id === id })
+    let leader = null
     if (data[0]['division_id'] === this.props.leader) { leader = true }
     else { leader = false }
     this.setState({
@@ -169,37 +193,35 @@ export default class ContentEmployee extends React.Component {
 
   //detail modal
   detail_modal(){
-    var data = []
-    var temp = []
-    var id = this.state.detail_id
+    let data = []
+    let temp = []
+    let id = this.state.detail_id
     this.props.data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){
-        if (item_e.id === id) { temp.push(item_e)}
+        if (item_e.id === id) { temp.push(item_e) }
       })
     })
     temp.forEach(function(item_temp){
       item_temp.data.forEach(function(item){
-        var progress = null
+        let progress = null
         if (item.status === '0') { progress = 'Preparing' }
         else if (item.status === '2') { progress = 'Closed' }
         else if (item.status === '1') {
-          var counter = 0
+          let counter = 0
           item.module.forEach(function(module){
-            var done = module.requirement.filter(function(search){ return search.status === '1' })
+            let done = module.requirement.filter(function(search){ return search.status === '1' })
             if (module.requirement.length === done.length) { counter++ }
           })
           progress = 'On Progress ('+Math.round(counter/item.module.length*100)+'%)'
         }
         data.push({
           project:'['+item.code+'] '+item.name,
-          leader:item.employee[0]['name'],
           progress:progress
         })
       })
     })
     const columns = [
       {name:'Project',selector:'project',sortable:true},
-      {name:'Leader',selector:'leader',sortable:true,width:'25%'},
       {name:'Progress',selector:'progress',sortable:true,width:'25%'},
     ]
     return (
@@ -222,7 +244,10 @@ export default class ContentEmployee extends React.Component {
                   <Form.Control id="sunting_division" as="select" value={this.state.detail_division} onChange={(e)=>this.setState({detail_division:e.target.value})}>
                     <option value="" hidden></option>
                     {this.props.data.map((item,index) => {
-                      return ( <option value={item.id.split('_')[0]} key={index}>{item.name}</option> )
+                      if (item.id !== this.props.leader) {
+                        return ( <option value={item.id.split('_')[0]} key={index}>{item.name}</option> )
+                      }
+                      return null
                     })}
                   </Form.Control>
                 </Col>
@@ -303,9 +328,9 @@ export default class ContentEmployee extends React.Component {
 
   //detail delete
   detail_delete(){
-    var id = this.state.detail_id
-    var check = this.state.data.filter(function(item){ return item.id === id })
-    if (check[0]['project'] === 0) {
+    let id = this.state.detail_id
+    let check = this.state.data.filter(function(item){ return item.id === id })
+    if (check[0]['project'] === 0 && check[0]['invitation'] === 0 ) {
       Swal({
         title:"Delete",
         text:"This employee will be deleted",
@@ -323,7 +348,7 @@ export default class ContentEmployee extends React.Component {
     } else {
       Swal({
         title:"Not Available",
-        text:"There are projects that are currently registered",
+        text:"There are projects or invitations that are currently registered",
         icon:"warning",
         closeOnClickOutside:false,
       })
@@ -367,7 +392,7 @@ export default class ContentEmployee extends React.Component {
     return (
       <LayoutTable
         noHeader={true}
-        loading={this.props.loading}
+        loading={this.props.table}
         columns={this.table_columns}
         data={this.state.data}
       />

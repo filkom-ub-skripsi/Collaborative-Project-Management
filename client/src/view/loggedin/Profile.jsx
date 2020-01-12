@@ -17,7 +17,10 @@ export default class ViewProfile extends React.Component {
       <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
         <Container fluid>
-          <ContentProfile webservice={this.props.webservice}/>
+          <ContentProfile
+            webservice={this.props.webservice}
+            hashMD5={this.props.hashMD5}
+          />
         </Container>
       </div>
     )

@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+    frontend-vps-inhuaschool:
+        build: 
+            context: ./client
+        image: 'docker-local.artifactory.inhuaschool.com/cpm-frontend'
+        

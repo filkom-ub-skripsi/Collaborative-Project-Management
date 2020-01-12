@@ -84,8 +84,8 @@ export default class ContentDivision extends React.Component {
 
   //table handler
   table_handler(id){
-    var data = this.props.data.filter(function(item){ return item.id === id })
-    var leader = null
+    let data = this.props.data.filter(function(item){ return item.id === id })
+    let leader = null
     if (id === this.props.leader) { leader = true }
     else { leader = false }
     this.setState({
@@ -176,8 +176,9 @@ export default class ContentDivision extends React.Component {
 
   //detail edit
   detail_edit(){
-    if (document.getElementById('detail_name').value === '') { document.getElementById('detail_name').className = 'form-control is-invalid' }
-    else {
+    if (document.getElementById('detail_name').value === '') {
+      document.getElementById('detail_name').className = 'form-control is-invalid'
+    } else {
       document.getElementById('detail_name').className = 'form-control is-valid'
       this.props.edit(this.state.detail_id,document.getElementById('detail_name').value)
       this.detail_close()
@@ -250,7 +251,7 @@ export default class ContentDivision extends React.Component {
     return (
       <LayoutTable
         noHeader={true}
-        loading={this.props.loading}
+        loading={this.props.table}
         columns={this.table_columns}
         data={this.props.data}
       />

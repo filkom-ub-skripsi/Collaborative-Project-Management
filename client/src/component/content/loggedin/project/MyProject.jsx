@@ -1,5 +1,4 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { Link } from 'react-router-dom'
 import { NotificationManager } from 'react-notifications'
@@ -42,65 +41,51 @@ export default class ContentMyProject extends React.Component {
 
   //component did mount
   componentDidMount(){
-    this.push()
+    if (localStorage.getItem('leader') === '1') { this.leader() }
+    else { this.collaborator() }
   }
 
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
 
-  //push
-  push(){
+  //leader
+  leader(){
     this.fetch({query:`{
-        myProject(employee:"`+localStorage.getItem('user')+`") {
-          _id,
-          code,
-          name,
-          status,
-          start,
-          end,
-          client {
-            name
-          },
-          employee {
-            _id
-          },
-          module {
-            requirement {
-              status
-            }
-          }
-        }
-      }`
-    }).then(result => {
-      var data = []
-      var temp = result.data.myProject
-      var counter = 0
+      myProject(employee:"`+localStorage.getItem('user')+`") {
+        _id, code, name, status, start, end,
+        client { name },
+        module { requirement { status } }
+      }
+    }`})
+    .then(result => {
+      let data = []
+      let temp = result.data.myProject
+      let counter = 0
       temp.forEach(function(item_project,index_project){
-        if (item_project.employee[0]['_id'] === localStorage.getItem('user')) {  
-          var start = new Date(item_project.start);var end = new Date(item_project.end)
-          var start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
-          var end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
-          var status = null
-          if (item_project.status === '0') { status = 'Preparing' }
-          else if (item_project.status === '2') { status = 'Closed' }
-          else if (item_project.status === '1') {
-            item_project.module.forEach(function(item_progress,index_progress){
-              var all = temp[index_project].module[index_progress]['requirement'].length
-              var done = item_progress.requirement.filter(function(search){ return search.status === '1' })
-              if (all === done.length) { counter++ }
-            })
-            var progress = Math.round(counter/temp[index_project].module.length*100)+'%'
-            status = 'On Progress ('+progress+')'
-          }     
-          data.push({
-            id:item_project._id,
-            project:'['+item_project.code+'] '+item_project.name,
-            client:item_project.client[0]['name'],
-            date:start_text+' - '+end_text,
-            progress:status
+        let start = new Date(item_project.start);let end = new Date(item_project.end)
+        let start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
+        let end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
+        let status = null
+        let value = null
+        if (item_project.status === '0') { status = 'Preparing' }
+        else if (item_project.status === '2') { status = 'Closed' }
+        else if (item_project.status === '1') {
+          item_project.module.forEach(function(item_progress,index_progress){
+            let all = temp[index_project].module[index_progress]['requirement'].length
+            let done = item_progress.requirement.filter(function(search){ return search.status === '1' })
+            if (all === done.length) { counter++ }
           })
-          counter = 0
+          value = Math.round(counter/temp[index_project].module.length*100)+'%'
+          status = 'On Progress ('+value+')'
         }
+        data.push({
+          id:item_project._id,
+          project:'['+item_project.code+'] '+item_project.name,
+          client:item_project.client[0]['name'],
+          date:start_text+' - '+end_text,
+          progress:status
+        })
+        counter = 0
       })
       this.setState({
         data:data,
@@ -111,15 +96,13 @@ export default class ContentMyProject extends React.Component {
     this.fetch({
       query:`{
         organization(_id:"`+localStorage.getItem('organization')+`") {
-          client {
-            _id,
-            name
-          }
+          client { _id, name }
         }
       }`
-    }).then(result => {
-      var data = []
-      var temp = result.data.organization.client
+    })
+    .then(result => {
+      let data = []
+      let temp = result.data.organization.client
       temp.forEach(function(item){
         data.push({
           value:item._id,
@@ -127,6 +110,63 @@ export default class ContentMyProject extends React.Component {
         })
       })
       this.setState({data_client:data})
+    })
+    .catch(() => {
+      this.setState({data_loading:false})
+      NotificationManager.error('503 Service Unavailable')
+    })
+  }
+
+  //collaborator
+  collaborator(){
+    this.fetch({query:`{
+      myCollaboration(employee:"`+localStorage.getItem('user')+`") {
+        project {
+          _id, code, name, status, start, end,
+          client { name },
+          module {
+            requirement {
+              status
+            }
+          }
+        }
+        status
+      }
+    }`}).then(result => {
+      let data = []
+      let temp = result.data.myCollaboration.filter(function(item){ return item.status === '1' })
+      let counter = 0
+      temp.forEach(function(item){
+        let start = new Date(item.project[0]['start']); let end = new Date(item.project[0]['end']);
+        let start_text = start.getDate()+' '+bulan[start.getMonth()]+', '+start.getFullYear()
+        let end_text = end.getDate()+' '+bulan[end.getMonth()]+', '+end.getFullYear()
+        let status = null
+        let value = null
+        if (item.project[0]['status'] === '0') { status = 'Preparing' }
+        else if (item.project[0]['status'] === '2') { status = 'Closed' }
+        else if (item.project[0]['status'] === '1') {
+          item.project[0].module.forEach(function(item_progress,index_progress){
+            let all = item.project[0].module[index_progress]['requirement'].length
+            let done = item_progress.requirement.filter(function(search){ return search.status === '1' })
+            if (all === done.length) { counter++ }
+          })
+          value = Math.round(counter/item.project[0].module.length*100)+'%'
+          status = 'On Progress ('+value+')'
+        }
+        data.push({
+          id:item.project[0]._id,
+          project:'['+item.project[0].code+'] '+item.project[0].name,
+          client:item.project[0].client[0]['name'],
+          date:start_text+' - '+end_text,
+          progress:status
+        })
+        counter = 0
+      })
+      this.setState({
+        data:data,
+        data_loading:false,
+        header_button:false
+      })
     })
   }
   
@@ -136,7 +176,8 @@ export default class ContentMyProject extends React.Component {
       data_loading:true,
       header_button:true
     })
-    this.push()
+    if (localStorage.getItem('leader') === '1') { this.leader() }
+    else { this.collaborator() }
   }
 
   //replace \n
@@ -192,7 +233,7 @@ export default class ContentMyProject extends React.Component {
   //add project 1
   AddProject1(props){
     const validation = () => {
-      var counter = 0
+      let counter = 0
       const form = [
         {field:'tambah_name',feedback:'tambah_fname'},
         {field:'tambah_code',feedback:'tambah_fcode'},
@@ -214,14 +255,18 @@ export default class ContentMyProject extends React.Component {
         return true
       }
     }
+    const value = (id) => {
+      return document.getElementById(id).value
+    }
     const next = () => {
       if (validation() === true){
-        var code = document.getElementById('tambah_code').value
-        var name = document.getElementById('tambah_name').value
-        var client = document.getElementById('tambah_client').value
-        var start = document.getElementById('tambah_start').value
-        var end = document.getElementById('tambah_end').value
-        props.handler(code,name,client,start,end)
+        props.handler(
+          value('tambah_code'),
+          value('tambah_name'),
+          value('tambah_client'),
+          value('tambah_start'),
+          value('tambah_end')
+        )
         window.location.hash = "step2"
       }
     }
@@ -230,18 +275,16 @@ export default class ContentMyProject extends React.Component {
         Swal({
           title: "Save anyway?",
           text: "You can still fill in other blank fields later",
-          icon: "warning",
-          closeOnClickOutside:false,
-          buttons: true,
-          dangerMode: true,
+          icon: "warning",closeOnClickOutside:false,buttons:true,dangerMode:true,
         }).then((willSave) => {
           if (willSave) {
-            var code = document.getElementById('tambah_code').value
-            var name = document.getElementById('tambah_name').value
-            var client = document.getElementById('tambah_client').value
-            var start = document.getElementById('tambah_start').value
-            var end = document.getElementById('tambah_end').value
-            props.save(code,name,client,start,end)
+            props.save(
+              value('tambah_code'),
+              value('tambah_name'),
+              value('tambah_client'),
+              value('tambah_start'),
+              value('tambah_end')
+            )
           }
         })
       }
@@ -305,8 +348,7 @@ export default class ContentMyProject extends React.Component {
   //add project 2
   AddProject2(props){
     const next = () => {
-      var problem = document.getElementById('tambah_problem').value
-      props.handler(problem)
+      props.handler(document.getElementById('tambah_problem').value)
       window.location.hash = "step3"
     }
     const back = () => {
@@ -333,8 +375,7 @@ export default class ContentMyProject extends React.Component {
   //add project 3
   AddProject3(props){
     const next = () => {
-      var goal = document.getElementById('tambah_goal').value
-      props.handler(goal)
+      props.handler(document.getElementById('tambah_goal').value)
       window.location.hash = "step4"
     }
     const back = () => {
@@ -361,8 +402,7 @@ export default class ContentMyProject extends React.Component {
   //add project 4
   AddProject4(props){
     const next = () => {
-      var objective = document.getElementById('tambah_objective').value
-      props.handler(objective)
+      props.handler(document.getElementById('tambah_objective').value)
       window.location.hash = "step5"
     }
     const back = () => {
@@ -389,8 +429,7 @@ export default class ContentMyProject extends React.Component {
   //add project 5
   AddProject5(props){
     const next = () => {
-      var success = document.getElementById('tambah_success').value
-      props.handler(success)
+      props.handler(document.getElementById('tambah_success').value)
       window.location.hash = "step6"
     }
     const back = () => {
@@ -417,8 +456,7 @@ export default class ContentMyProject extends React.Component {
   //add project 6
   AddProject6(props){
     const next = () => {
-      var obstacle = document.getElementById('tambah_obstacle').value
-      props.handler(obstacle)
+      props.handler(document.getElementById('tambah_obstacle').value)
     }
     const back = () => {
       props.back(5)
@@ -512,10 +550,10 @@ export default class ContentMyProject extends React.Component {
   //handler 6
   handler_6(obstacle){
     if (this.handler_validation() === true) {
-      var id = RDS.generate({length:32,charset:'alphabetic'})
-      var start_date = new Date(this.state.add_form_start);var end_date = new Date(this.state.add_form_end)
-      var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
-      var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
+      let id = this.props.objectId()
+      let start_date = new Date(this.state.add_form_start);let end_date = new Date(this.state.add_form_end)
+      let start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
+      let end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
       this.fetch({query:`
         mutation {
           project_add(
@@ -536,8 +574,8 @@ export default class ContentMyProject extends React.Component {
           ){_id}
         }`
       })
-      var activity_id = RDS.generate({length:32,charset:'alphabetic'})
-      var activity_date = new Date()
+      let activity_id = this.props.objectId()
+      let activity_date = new Date()
       this.fetch({query:`
         mutation {
           activity_add(
@@ -555,7 +593,15 @@ export default class ContentMyProject extends React.Component {
           project:'['+this.state.add_form_code+'] '+this.state.add_form_name,
           client:this.state.add_form_client.split('_')[1],
           date:start_text+' - '+end_text,
-          progress:'Preparing'
+          progress:'Preparing',
+
+          code:this.state.add_form_code,
+          name:this.state.add_form_name,
+          client_id:this.state.add_form_client.split('_')[0],
+          status:'0',
+          start:this.state.add_form_start,
+          end:this.state.add_form_end,
+          value:null
         }] 
       })
       this.add_project_close()
@@ -566,10 +612,10 @@ export default class ContentMyProject extends React.Component {
   //handler save
   handler_save(code,name,client,start,end){
     this.setState({add_form_progress:100})
-    var id = RDS.generate({length:32,charset:'alphabetic'})
-    var start_date = new Date(start);var end_date = new Date(end)
-    var start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
-    var end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
+    let id = this.props.objectId()
+    let start_date = new Date(start);let end_date = new Date(end)
+    let start_text = start_date.getDate()+' '+bulan[start_date.getMonth()]+', '+start_date.getFullYear()
+    let end_text = end_date.getDate()+' '+bulan[end_date.getMonth()]+', '+end_date.getFullYear()
     this.fetch({query:`
       mutation {
         project_add(
@@ -590,8 +636,8 @@ export default class ContentMyProject extends React.Component {
         ){_id}
       }`
     })
-    var activity_id = RDS.generate({length:32,charset:'alphabetic'})
-    var activity_date = new Date()
+    let activity_id = this.props.objectId()
+    let activity_date = new Date()
     this.fetch({query:`
       mutation {
         activity_add(
@@ -610,7 +656,15 @@ export default class ContentMyProject extends React.Component {
         project:'['+code+'] '+name,
         client:client.split('_')[1],
         date:start_text+' - '+end_text,
-        progress:'Preparing'
+        progress:'Preparing',
+
+        code:code,
+        name:name,
+        client_id:client.split('_')[0],
+        status:'0',
+        start:start,
+        end:end,
+        value:null
       }] 
     })
     this.add_project_close()
@@ -619,7 +673,7 @@ export default class ContentMyProject extends React.Component {
   
   //handler validation
   handler_validation(){
-    var counter = 0
+    let counter = 0
     if (this.state.add_form_name !== '') { counter++ }
     if (this.state.add_form_code !== '') { counter++ }
     if (this.state.add_form_client !== '') { counter++ }
@@ -641,10 +695,14 @@ export default class ContentMyProject extends React.Component {
   //table columns
   table_columns = [
     {
-      cell: (row) => <Link to={"/detail-project/"+row.id}><HelpCircle size={22}/></Link>,
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
+    cell: (row) => {
+        return (
+          <Link to={'/detail-project/'+row.id}>
+            <HelpCircle size={22}/>
+          </Link>
+        )
+      },
+      ignoreRowClick:true,allowOverflow:true,button:true,
     },
     {name:'Project',selector:'project',sortable:true},
     {name:'Client',selector:'client',sortable:true},
@@ -657,17 +715,20 @@ export default class ContentMyProject extends React.Component {
     return (
       <Row>
         <Col>
-          <b style={{fontSize:20}}>Project List</b>
+          {localStorage.getItem('leader') === '1' && <b style={{fontSize:20}}>Project List</b>}
+          {localStorage.getItem('leader') === '0' && <b style={{fontSize:20}}>Collaboration List</b>}
         </Col>
         <Col className="text-right">
-          <Button
-            size="sm"
-            variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.setState({add_project_modal:true})}
-          >
-            Add
-          </Button>
+          {localStorage.getItem('leader') === '1' &&
+            <Button
+              size="sm"
+              variant="outline-dark"
+              disabled={this.state.header_button}
+              onClick={()=>this.setState({add_project_modal:true})}
+            >
+              Add
+            </Button>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

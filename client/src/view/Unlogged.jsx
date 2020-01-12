@@ -10,7 +10,13 @@ export default class Unlogged extends React.Component {
         <Route
           path="/"
           exact
-          render = {(props)=> <Home {...props} webservice={this.props.webservice}/>}
+          render = {(props)=>
+            <Home {...props}
+              webservice={this.props.webservice}
+              objectId={this.props.objectId}
+              hashMD5={this.props.hashMD5}
+            />
+          }
         />
         <Route
           path="*"

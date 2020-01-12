@@ -27,7 +27,10 @@ export default class ViewHome extends React.Component {
   appbar_right(){
     return (
       <Form inline className="animated fast fadeIn">
-        <ContentLogin webservice={this.props.webservice}/>
+        <ContentLogin
+          webservice={this.props.webservice}
+          hashMD5={this.props.hashMD5}
+        />
       </Form>
     )
   }
@@ -52,7 +55,11 @@ export default class ViewHome extends React.Component {
             </Col>
             <Col lg={6}>
               <div className="animated fast fadeIn">
-                <ContentSignUp webservice={this.props.webservice}/>
+                <ContentSignUp
+                  webservice={this.props.webservice}
+                  objectId={this.props.objectId}
+                  hashMD5={this.props.hashMD5}
+                />
               </div> 
             </Col>
           </Row>

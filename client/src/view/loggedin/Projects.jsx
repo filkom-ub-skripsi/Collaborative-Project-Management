@@ -17,7 +17,10 @@ export default class ViewMyProjects extends React.Component {
       <div>
         <LayoutBreadcrumb breadcrumb={breadcrumb}/>
         <Container fluid>
-          <ContentMyProject webservice={this.props.webservice}/>
+          <ContentMyProject
+            webservice={this.props.webservice}
+            objectId={this.props.objectId}
+          />
         </Container>
       </div>
     )

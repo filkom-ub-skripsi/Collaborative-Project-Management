@@ -1,11 +1,10 @@
 import React from 'react'
-import RDS from 'randomstring'
 import Swal from 'sweetalert'
 import { NotificationManager } from 'react-notifications'
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap'
 import { RefreshCcw, HelpCircle } from 'react-feather'
 import { createApolloFetch } from 'apollo-fetch'
-import LayoutCardContent  from '../../../layout/CardContent'
+import LayoutCardContent from '../../../layout/CardContent'
 import LayoutTable from '../../../layout/Table'
 
 //notification
@@ -52,30 +51,17 @@ export default class ContentClient extends React.Component {
   push(){
     this.fetch({query:`{
       organization(_id:"`+localStorage.getItem('organization')+`") {
-        client{
-          _id,
-          name,
-          email,
-          contact,
-          address,
-          project {
-            code,
-            name,
-            status,
-            employee {
-              name
-            },
-            module {
-              requirement {
-                status
-              }
-            }
+        client {
+          _id, name, email, contact, address,
+          project { code, name, status,
+            module { requirement { status } }
           }
         }
       }
-    }`}).then(result => {
-      var data = []
-      var temp = result.data.organization.client
+    }`})
+    .then(result => {
+      let data = []
+      let temp = result.data.organization.client
       temp.forEach(function(item){
         data.push({
           id:item._id+'_'+0,
@@ -93,6 +79,10 @@ export default class ContentClient extends React.Component {
         header_button:false
       })
     })
+    .catch(() => {
+      this.setState({data_loading:false})
+      NotificationManager.error('503 Service Unavailable')
+    })
   }
 
   //reload
@@ -102,6 +92,24 @@ export default class ContentClient extends React.Component {
       header_button:true
     })
     this.push()
+  }
+
+  //form validation
+  form_validation(form){
+    let counter = 0
+    form.forEach(function(item){
+      if (document.getElementById(item.field).value === '') {
+        document.getElementById(item.field).className = 'form-control is-invalid'
+        document.getElementById(item.feedback).innerHTML = 'this field cannot be empty'
+      } else {
+        document.getElementById(item.field).className = 'form-control is-valid'
+        document.getElementById(item.feedback).innerHTML = ''
+        counter++
+      }
+    })
+    if (counter === form.length) {
+      return true
+    }
   }
 
   //add client modal
@@ -202,37 +210,20 @@ export default class ContentClient extends React.Component {
     )
   }
 
-  //client validation
-  client_validation(form){
-    var counter = 0
-    form.forEach(function(item){
-      if (document.getElementById(item.field).value === '') {
-        document.getElementById(item.field).className = 'form-control is-invalid'
-        document.getElementById(item.feedback).innerHTML = 'this field cannot be empty'
-      } else {
-        document.getElementById(item.field).className = 'form-control is-valid'
-        document.getElementById(item.feedback).innerHTML = ''
-        counter++
-      }
-    })
-    if (counter === form.length) {
-      return true
-    }
-  }
-
   //add client handler
   add_client_handler(){
-    if (this.client_validation(client_add_form) === true) {
-      var id = RDS.generate({length:32,charset:'alphabetic'})
+    if (this.form_validation(client_add_form) === true) {
+      const value = (id) => { return document.getElementById(id).value }
+      let id = this.props.objectId()
       this.fetch({query:`
         mutation { 
           client_add(
             _id:"`+id+`",
             organization:"`+localStorage.getItem('organization')+`",
-            name:"`+document.getElementById('tambah_name').value+`",
-            email:"`+document.getElementById('tambah_email').value+`",
-            contact:"`+document.getElementById('tambah_contact').value+`",
-            address:"`+document.getElementById('tambah_address').value+`"
+            name:"`+value('tambah_name')+`",
+            email:"`+value('tambah_email')+`",
+            contact:"`+value('tambah_contact')+`",
+            address:"`+value('tambah_address')+`"
           ){_id}
         }`
       })
@@ -240,10 +231,10 @@ export default class ContentClient extends React.Component {
         add_client_modal:false,
         data: [...this.state.data,{
           id:id+'_'+0,
-          name:document.getElementById('tambah_name').value,
-          email:document.getElementById('tambah_email').value,
-          contact:document.getElementById('tambah_contact').value,
-          address:document.getElementById('tambah_address').value,
+          name:value('tambah_name'),
+          email:value('tambah_email'),
+          contact:value('tambah_contact'),
+          address:value('tambah_address'),
           project:0,
           data:[]
         }] 
@@ -254,28 +245,29 @@ export default class ContentClient extends React.Component {
 
   //edit client handler
   edit_client_handler(){
-    if (this.client_validation(client_edit_form) === true) {
-      var id = this.state.detail_id
+    if (this.form_validation(client_edit_form) === true) {
+      const value = (id) => { return document.getElementById(id).value }
+      let id = this.state.detail_id
       this.fetch({query:`
         mutation{
           client_edit(
             _id:"`+id.split('_')[0]+`",
-            name:"`+document.getElementById('sunting_name').value+`",
-            email:"`+document.getElementById('sunting_email').value+`",
-            contact:"`+document.getElementById('sunting_contact').value+`",
-            address:"`+document.getElementById('sunting_address').value+`"
+            name:"`+value('sunting_name')+`",
+            email:"`+value('sunting_email')+`",
+            contact:"`+value('sunting_contact')+`",
+            address:"`+value('sunting_address')+`"
           ){_id}
         }`
       })
-      var data = this.state.data
+      let data = this.state.data
       data.forEach(function(item){
         if (item.id === id) {
-          var version = parseInt(item.id.split('_')[1])+1
+          let version = parseInt(item.id.split('_')[1])+1
           item.id = item.id.split('_')[0]+'_'+version
-          item.name = document.getElementById('sunting_name').value
-          item.email = document.getElementById('sunting_email').value
-          item.contact = document.getElementById('sunting_contact').value
-          item.address = document.getElementById('sunting_address').value
+          item.name = value('sunting_name')
+          item.email = value('sunting_email')
+          item.contact = value('sunting_contact')
+          item.address = value('sunting_address')
         }
       })
       this.setState({data:data})
@@ -301,23 +293,22 @@ export default class ContentClient extends React.Component {
 
   //table handler
   table_handler(id){
-    var data = this.state.data.filter(function(item){ return item.id === id })
-    var temp = []
+    let data = this.state.data.filter(function(item){ return item.id === id })
+    let temp = []
     data[0]['data'].forEach(function(item){
-      var progress = null
+      let progress = null
       if (item.status === '0') { progress = 'Preparing' }
       else if (item.status === '2') { progress = 'Closed' }
       else if (item.status === '1') {
-        var counter = 0
+        let counter = 0
         item.module.forEach(function(module){
-          var done = module.requirement.filter(function(search){ return search.status === '1' })
+          let done = module.requirement.filter(function(search){ return search.status === '1' })
           if (module.requirement.length === done.length) { counter++ }
         })
         progress = 'On Progress ('+Math.round(counter/item.module.length*100)+'%)'
       }
       temp.push({
         project:'['+item.code+'] '+item.name,
-        leader:item.employee[0]['name'],
         progress:progress
       })
     })
@@ -328,7 +319,6 @@ export default class ContentClient extends React.Component {
   detail_modal(){
     const columns = [
       {name:'Project',selector:'project',sortable:true},
-      {name:'Leader',selector:'leader',sortable:true,width:'25%'},
       {name:'Progress',selector:'progress',sortable:true,width:'25%'},
     ]
     return (
@@ -348,29 +338,31 @@ export default class ContentClient extends React.Component {
           columns={columns}
           data={this.state.detail_data}
         />
-        <Modal.Footer>
-          <Button
-            variant="info"
-            onClick={()=>this.detail_edit()}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="danger"
-            onClick={()=>this.detail_delete()}
-          >
-            Delete
-          </Button>
-        </Modal.Footer>
+        {localStorage.getItem('leader') === '1' &&
+          <Modal.Footer>
+            <Button
+              variant="info"
+              onClick={()=>this.detail_edit()}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="danger"
+              onClick={()=>this.detail_delete()}
+            >
+              Delete
+            </Button>
+          </Modal.Footer>
+        }
       </Modal>
     )
   }
 
   //detail edit
   detail_edit(){
-    var id = this.state.detail_id
-    var temp = this.state.data
-    var data = temp.filter(function(item){ return item.id === id })
+    let id = this.state.detail_id
+    let temp = this.state.data
+    let data = temp.filter(function(item){ return item.id === id })
     this.setState({
       detail_modal:false,
       edit_form_name:data[0].name,
@@ -383,8 +375,8 @@ export default class ContentClient extends React.Component {
 
   //detail delete
   detail_delete(){
-    var id = this.state.detail_id
-    var temp = this.state.data.filter(function(item){ return item.id === id })
+    let id = this.state.detail_id
+    let temp = this.state.data.filter(function(item){ return item.id === id })
     if (temp[0]['project'] === 0) {
       Swal({
         title:"Delete",
@@ -400,7 +392,7 @@ export default class ContentClient extends React.Component {
               client_delete(_id:"`+id.split('_')[0]+`"){_id}
             }`
           })
-          var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
+          let data = this.state.data.filter(function(item){ return ( item.id !== id ) })
           this.setState({data:data}) 
           this.detail_close()
           NotificationManager.success(success)
@@ -414,37 +406,6 @@ export default class ContentClient extends React.Component {
         closeOnClickOutside:false,
       })
     }
-    // Swal({
-    //   title:"Delete",
-    //   text:"This client will be deleted",
-    //   icon:"warning",
-    //   closeOnClickOutside:false,
-    //   buttons:true,
-    //   dangerMode:true,
-    // }).then((willDelete) => {
-    //   if (willDelete) {
-    //     var id = this.state.detail_id
-    //     var temp = this.state.data.filter(function(item){ return item.id === id })
-    //     if (temp[0]['project'] === 0) {
-    //       this.fetch({query:`
-    //         mutation{
-    //           client_delete(_id:"`+id.split('_')[0]+`"){_id}
-    //         }`
-    //       })
-    //       var data = this.state.data.filter(function(item){ return ( item.id !== id ) })
-    //       this.setState({data:data}) 
-    //       this.detail_close()
-    //       NotificationManager.success(success)
-    //     } else {
-    //       Swal({
-    //         title:"Failed",
-    //         text:"There are projects that are currently registered",
-    //         icon:"warning",
-    //         closeOnClickOutside:false,
-    //       })
-    //     }
-    //   }
-    // })
   }
 
   //detail close
@@ -463,14 +424,16 @@ export default class ContentClient extends React.Component {
           <b style={{fontSize:20}}>Client List</b>
         </Col>
         <Col className="text-right">
-          <Button
-            size="sm"
-            variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.setState({add_client_modal:true})}
-          >
-            Add
-          </Button>
+          {localStorage.getItem('leader') === '1' &&
+            <Button
+              size="sm"
+              variant="outline-dark"
+              disabled={this.state.header_button}
+              onClick={()=>this.setState({add_client_modal:true})}
+            >
+              Add
+            </Button>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

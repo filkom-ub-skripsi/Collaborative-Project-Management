@@ -1,19 +1,15 @@
 import React from 'react'
-import { Edit3 } from 'react-feather'
 import LayoutTable from 'react-data-table-component'
 
 //class
 export default class ContentRequirementProgress extends React.Component {
 
-  //column
+  //columns
   columns = [
-    {selector:'number',sortable:false,width:"56px"},
+    {selector:'number',sortable:true,width:'56px'},
     {selector:'name',sortable:true,width:'20%'},
     {selector:'detail',sortable:true},
-    {
-      cell: (row) => <a href="#!" onClick={()=>{this.props.handler(row.id)}}><Edit3 size={19}/></a>,
-      ignoreRowClick:true,allowOverflow:true,button:true,width:'250px'
-    },
+    {selector:'progress',sortable:true,width:'10%'},
   ]
 
   //render

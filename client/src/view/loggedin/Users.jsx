@@ -1,6 +1,5 @@
 import React from 'react'
-import RDS from 'randomstring'
-import MD5 from 'md5'
+import { NotificationManager } from 'react-notifications'
 import { Container, Tabs, Tab } from 'react-bootstrap'
 import { createApolloFetch } from 'apollo-fetch'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
@@ -23,7 +22,7 @@ export default class ViewUsers extends React.Component {
   //constructor
   constructor(props){
     super(props)
-    this.state = { data:[], loading:true }
+    this.state = { data:[], loading:true, loading_table:true }
     this.reload = this.reload.bind(this)
     this.division_add = this.division_add.bind(this)
     this.division_edit = this.division_edit.bind(this)
@@ -48,90 +47,42 @@ export default class ViewUsers extends React.Component {
     this.fetch({query:`{
       organization(_id:"`+localStorage.getItem('organization')+`") {
         leader {
-          leader {
-            _id,
-            name,
-            email,
-            contact
-            project {
-              code,
-              name,
-              status,
-              employee {
-                name
-              },
-              module {
-                requirement {
-                  status
-                }
-              }
+          leader { _id, name, email, contact
+            project { code, name, status,
+              module { requirement { status } }
             },
             collaborator {
               project {
-                code,
-                name,
-                status,
-                employee {
-                  name
-                },
-                module {
-                  requirement {
-                    status
-                  }
-                }
+                code, name, status,
+                employee { name },
+                module { requirement { status } }
               },
               status
             }
           }
         }
-        division {
-          _id,
-          name,
-          employee {
-            _id,
-            name,
-            email,
-            contact,
-            project {
-              code,
-              name,
-              status,
-              employee {
-                name
-              },
-              module {
-                requirement {
-                  status
-                }
-              }
+        division { _id, name,
+          employee { _id, name, email, contact,
+            project { code, name, status,
+              module { requirement { status } }
             },
-            collaborator {
-              project {
-                code,
-                name,
-                status,
-                employee {
-                  name
-                },
-                module {
-                  requirement {
-                    status
-                  }
-                }
+            collaborator { status,
+              project { code, name, status,
+                module { requirement { status } }
               },
-              status
             }
           }
         }
       }
-    }`}).then(result => {
-      var data = []
+    }`})
+    .then(result => {
+      let data = []
       result.data.organization.leader.forEach(function(item_d){
-        var employee = []
+        let employee = []
         item_d.leader.forEach(function(item_e){
-          var data = []
-          var l_proj = item_e.project
-          var l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          let data = []
+          let l_proj = item_e.project
+          let l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
           l_coll.forEach(function(item){ data = data.concat(item.project) })
           data = data.concat(l_proj)
           employee.push({
@@ -141,7 +92,8 @@ export default class ViewUsers extends React.Component {
             contact:item_e.contact,
             division_id:leader_id,
             division_name:leader_name,
-            project:l_proj.length+l_coll.length,
+            project:data.length,
+            invitation:'-',
             data:data
           })
         })
@@ -153,11 +105,12 @@ export default class ViewUsers extends React.Component {
         })
       })
       result.data.organization.division.forEach(function(item_d){
-        var employee = []
+        let employee = []
         item_d.employee.forEach(function(item_e){
-          var data = []
-          var l_proj = item_e.project
-          var l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          let data = []
+          let l_proj = item_e.project
+          let l_coll = item_e.collaborator.filter(function(filter){ return filter.status === '1' })
+          let l_wait = item_e.collaborator.filter(function(filter){ return filter.status === '0' })
           l_coll.forEach(function(item){ data = data.concat(item.project) })
           data = data.concat(l_proj)
           employee.push({
@@ -167,7 +120,8 @@ export default class ViewUsers extends React.Component {
             contact:item_e.contact,
             division_id:item_d._id,
             division_name:item_d.name,
-            project:l_proj.length+l_coll.length,
+            project:data.length,
+            invitation:l_wait.length,
             data:data
           })
         })
@@ -181,19 +135,40 @@ export default class ViewUsers extends React.Component {
       this.setState({
         data:data,
         loading:false,
+        loading_table:false,
       })
+    })
+    .catch(() => {
+      this.setState({loading_table:false})
+      NotificationManager.error('503 Service Unavailable')
     })
   }
 
   //reload
   reload(){
-    this.setState({loading:true})
+    this.setState({loading:true,loading_table:true})
     this.push()
+  }
+
+  //division
+  division(){
+    return (
+      <ContentDivision
+        leader={leader_id}
+        data={this.state.data}
+        loading={this.state.loading}
+        table={this.state.loading_table}
+        reload={this.reload}
+        add={this.division_add}
+        edit={this.division_edit}
+        delete={this.division_delete}
+      />
+    )
   }
 
   //division add
   division_add(name){
-    var id = RDS.generate({length:32,charset:'alphabetic'})
+    let id = this.props.objectId()
     this.fetch({query:`
       mutation {
         division_add(
@@ -220,10 +195,10 @@ export default class ViewUsers extends React.Component {
         ){_id}
       }`
     })
-    var data = this.state.data
+    let data = this.state.data
     data.forEach(function(item){
       if (item.id === id) {
-        var version = parseInt(item.id.split('_')[1])+1
+        let version = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+version
         item.name = newName
       }
@@ -238,18 +213,36 @@ export default class ViewUsers extends React.Component {
         division_delete(_id:"`+id.split('_')[0]+`"){_id}
       }`
     })
-    var data = this.state.data.filter(function(item){return(item.id!==id)})
+    let data = this.state.data.filter(function(item){return(item.id!==id)})
     this.setState({data:data})
+  }
+
+  //employee
+  employee(){
+    return (
+      <ContentEmployee
+        webservice={this.props.webservice}
+        leader={leader_id}
+        data={this.state.data}
+        loading={this.state.loading}
+        table={this.state.loading_table}
+        reload={this.reload}
+        add={this.employee_add}
+        edit={this.employee_edit}
+        reset={this.employee_reset}
+        delete={this.employee_delete}
+      />
+    )
   }
 
   //employee add
   employee_add(name,email,contact,division){
-    var id = RDS.generate({length:32,charset:'alphabetic'})
+    let id = this.props.objectId()
     this.fetch({query:`
       mutation {
         employee_add(
           _id:"`+id+`",
-          password:"`+MD5('1234')+`",
+          password:"`+this.props.hashMD5('1234')+`",
           organization:"`+localStorage.getItem('organization')+`",
           division:"`+division.split('_')[0]+`",
           name:"`+name+`",
@@ -258,10 +251,10 @@ export default class ViewUsers extends React.Component {
         ){_id}
       }`
     })
-    var data = this.state.data
+    let data = this.state.data
     data.forEach(function(item_d){
       if (item_d.id === division) {
-        var version = parseInt(item_d.id.split('_')[1])+1
+        let version = parseInt(item_d.id.split('_')[1])+1
         item_d.id = item_d.id.split('_')[0]+'_'+version
         item_d.member = item_d.member + 1
         item_d.employee = [...item_d.employee,{
@@ -271,7 +264,9 @@ export default class ViewUsers extends React.Component {
           contact:contact,
           division_id:item_d.id.split('_')[0],
           division_name:item_d.name,
-          project:0
+          project:0,
+          invitation:0,
+          data:[]
         }]
       }
     })
@@ -288,24 +283,24 @@ export default class ViewUsers extends React.Component {
         ){_id}
       }`
     })
-    var temp = []
-    var data = this.state.data
+    let temp = []
+    let data = this.state.data
     data.forEach(function(item){
       if (item.id.split('_')[0] === oldDivision) {
-        var minVersion = parseInt(item.id.split('_')[1])+1
+        let minVersion = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+minVersion
         item.member = item.member - 1
         temp = item.employee.filter(function(filter){ return filter.id === id })
-        var employee = item.employee.filter(function(filter){ return filter.id !== id })
+        let employee = item.employee.filter(function(filter){ return filter.id !== id })
         item.employee = employee
       }
     })
     data.forEach(function(item){
       if (item.id.split('_')[0] === newDivision) {
-        var addVersionDivision = parseInt(item.id.split('_')[1])+1
+        let addVersionDivision = parseInt(item.id.split('_')[1])+1
         item.id = item.id.split('_')[0]+'_'+addVersionDivision
         item.member = item.member + 1
-        var addVersionEmployee = parseInt(temp[0]['id'].split('_')[1])+1
+        let addVersionEmployee = parseInt(temp[0]['id'].split('_')[1])+1
         temp[0]['id'] = temp[0]['id'].split('_')[0]+'_'+addVersionEmployee
         temp[0]['division_id'] = item.id.split('_')[0]
         temp[0]['division_name'] = item.name
@@ -321,7 +316,7 @@ export default class ViewUsers extends React.Component {
       mutation {
         employee_edit(
           _id:"`+id.split('_')[0]+`",
-          password:"`+MD5('1234')+`"
+          password:"`+this.props.hashMD5('1234')+`"
         ){_id}
       }`
     })
@@ -329,19 +324,17 @@ export default class ViewUsers extends React.Component {
 
   //employee delete
   employee_delete(id){
-    this.fetch({query:`
-      mutation {
-        employee_delete(_id:"`+id.split('_')[0]+`"){_id}
-      }`
-    })
-    var data = this.state.data
+    this.fetch({query:`mutation{
+      employee_delete(_id:"`+id.split('_')[0]+`"){_id}
+    }`})
+    let data = this.state.data
     data.forEach(function(item_d){
       item_d.employee.forEach(function(item_e){
         if (item_e.id === id) {
-          var version = parseInt(item_d.id.split('_')[1])+1
+          let version = parseInt(item_d.id.split('_')[1])+1
           item_d.id = item_d.id.split('_')[0]+'_'+version
           item_d.member = item_d.member - 1
-          var employee = item_d.employee.filter(function(filter){ return filter.id !== id })
+          let employee = item_d.employee.filter(function(filter){ return filter.id !== id })
           item_d.employee = employee
         }
       })
@@ -357,29 +350,10 @@ export default class ViewUsers extends React.Component {
         <Container fluid>
           <Tabs defaultActiveKey="TAB1">
             <Tab eventKey="TAB1" title="Division">
-              <ContentDivision
-                webservice={this.props.webservice}
-                leader={leader_id}
-                data={this.state.data}
-                loading={this.state.loading}
-                reload={this.reload}
-                add={this.division_add}
-                edit={this.division_edit}
-                delete={this.division_delete}
-              />
+              {this.division()}
             </Tab>
             <Tab eventKey="TAB2" title="Employee">
-              <ContentEmployee
-                webservice={this.props.webservice}
-                leader={leader_id}
-                data={this.state.data}
-                loading={this.state.loading}
-                reload={this.reload}
-                add={this.employee_add}
-                edit={this.employee_edit}
-                reset={this.employee_reset}
-                delete={this.employee_delete}
-              />
+              {this.employee()}
             </Tab>
           </Tabs>
         </Container>
