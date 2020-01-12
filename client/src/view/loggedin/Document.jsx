@@ -1,9 +1,8 @@
 import React from 'react'
 import { createApolloFetch } from 'apollo-fetch'
-import { Container, Row, Col, Button } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 import LayoutBreadcrumb from '../../component/layout/Breadcrumb'
-import LayoutCardContent from '../../component/layout/CardContent'
-import Editor from 'for-editor'
+import JoditEditor from 'jodit-react'
 
 const breadcrumb = [
 	{name:'Main',link:'#!'},
@@ -17,11 +16,10 @@ export default class ViewDocument extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      project_id:this.props.match.params.id,
-      breadcrumb:breadcrumb,loading:true,
-      content:'Loading...',
+      project_id:this.props.match.params.id,breadcrumb:breadcrumb,
+      content:'Loading...',config:{height:'83.5vh'}
     }
-    this.$vm = React.createRef()
+    this.editor = React.createRef()
   }
 
   //component did mount
@@ -33,19 +31,11 @@ export default class ViewDocument extends React.Component {
   //fetch
   fetch = createApolloFetch({uri:this.props.webservice})
 
-  //date reformatter
-  date_reformatter(date){
-    let month = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
-    let old_format = new Date(date);
-    let new_format = old_format.getDate()+' '+month[old_format.getMonth()]+', '+old_format.getFullYear()
-    return new_format
-  }
-
   //push
   push(){
     this.fetch({query:`{
       project(_id:"`+this.state.project_id+`") {
-        name, start, end, problem, goal, objective, success, obstacle,
+        name, problem, goal, objective, success, obstacle,
         client { name }, module { name, detail, 
           requirement { name, detail }
         }
@@ -54,29 +44,46 @@ export default class ViewDocument extends React.Component {
       document.title = 'Document - '+result.data.project.name
       let project = result.data.project
       let client = project.client[0]
-      let requirement = ''
-      project.module.forEach(function(mod,index){
-        requirement += '\n| **'+(index + 1)+'** | **'+mod.name+'** | **'+mod.detail+'** |'
-        mod.requirement.forEach(function(req){
-          requirement += '\n|  | - '+req.name+' | '+req.detail+' |'
+      console.log(project.objective)
+      console.log(project.objective.replace('\n','<br/>'))
+      let table = ``
+      project.module.forEach(function(module,im){
+        table += 
+        `<tr>`+
+          `<td>`+(im + 1)+`</td><td>`+module.name+`</td>`+
+          `<td>`+module.detail+`</td>`+
+        `</tr>`
+        module.requirement.forEach(function(requirement){
+          table += 
+          `<tr>`+
+            `<td></td><td>`+requirement.name+`</td>`+
+            `<td>`+requirement.detail+`</td>`+
+          `</tr>`
         })
       })
       let content = 
-      `##### `+project.name+
-      `\n###### `+client.name+
-      `\n###### `+this.date_reformatter(project.start)+` - `+this.date_reformatter(project.end)+
-      `\n---`+
-      `\n###### Latar Belakang\n>`+project.problem+
-      `\n###### Tujuan\n>`+project.goal+
-      `\n###### Objektifitas\n>`+project.objective+
-      `\n###### Kriteria Sukses\n>`+project.success+
-      `\n###### Asumsi, Resiko, dan Hambatan\n>`+project.obstacle+
-      `\n---`+
-      `\n| No | Requirement | Detail |`+
-      `\n| --- | --- | --- |`+requirement+
-      `\n\n---`
+      `<style>
+        table { border-collapse: collapse; width: 100%; }
+        td, th { border: 1px solid #dddddd; text-align:left; padding:5px; }
+      </style>`+
+      `<span style="font-family:Helvetica,sans-serif;">`+
+        `<strong style="font-size:18px">`+project.name+`</strong><br/>`+
+        `<strong style="font-size:18px">`+client.name+`</strong><br/><hr/>`+
+        `<p style="font-size:16px"><strong>Latar Belakang</strong></p><p style="text-align:justify">`+project.problem.replace(/(?:\r\n|\r|\n)/g, '<br>')+`</p>`+
+        `<p style="font-size:16px"><strong>Tujuan</strong></p><p style="text-align:justify">`+project.goal.replace(/(?:\r\n|\r|\n)/g, '<br>')+`</p>`+
+        `<p style="font-size:16px"><strong>Objektifitas</strong></p><p style="text-align:justify">`+project.objective.replace(/(?:\r\n|\r|\n)/g, '<br>')+`</p>`+
+        `<p style="font-size:16px"><strong>Kriteria Sukses</strong></p><p style="text-align:justify">`+project.success.replace(/(?:\r\n|\r|\n)/g, '<br>')+`</p>`+
+        `<p style="font-size:16px"><strong>Asumsi, Resiko, dan Hambatan</strong></p><p style="text-align:justify">`+project.obstacle.replace(/(?:\r\n|\r|\n)/g, '<br>')+`</p>`+
+        `<table>`+
+          `<tbody><tr>`+
+            `<td style="width:5%"><strong>No</strong></td><td style="width:45%"><strong>Requirement</strong></td>`+
+            `<td style="width:50%"><strong>Detail</strong></td>`+
+          `</tr>`+table+`</tbody>`+
+        `</table><hr/>`+
+        `<span>Catatan tambahan : </span><br/><span>...</span>`+
+      `</span>`
       this.setState({
-        loading:false,content:content,
+        content:content,
         breadcrumb:[...breadcrumb,{
           name:project.name,
           link:'/detail-project/'+this.state.project_id,
@@ -87,58 +94,16 @@ export default class ViewDocument extends React.Component {
       })
     })
   }
-
-  //content handler
-  contentHanlder(content){
-    this.setState({content:content})
-  }
-
-  //content image
-  addImg($file) {
-    this.$vm.current.$img2Url($file.name,'file_url')
-  }
-
-  //card header
-  card_header(){
-    return (
-      <Row>
-        <Col>
-          <b style={{fontSize:20}}>Preview</b>
-        </Col>
-        <Col className="text-right">
-          <Button
-            size="sm" variant="outline-dark"
-            disabled={this.state.loading}
-            onClick={()=>console.log('test')}
-          >
-            Download
-          </Button>
-        </Col>
-      </Row>
-    )
-  }
-
-  //card body
-  card_body(){
-    return (
-      <Editor
-        value={this.state.content} onChange={(e)=>this.contentHanlder(e)}
-        ref={this.$vm} addImg={($file) => this.addImg($file)}
-        preview={true} subfield={true} expand={false} height='78vh' language='en'
-      />
-    )
-  }
-
+  
   //render
   render() {
     return (
       <div>
         <LayoutBreadcrumb breadcrumb={this.state.breadcrumb}/>
-        <Container fluid>
-          <LayoutCardContent
-            header={this.card_header()}
-            body={this.card_body()}
-            table={true}
+        <Container>
+          <JoditEditor
+            ref={this.editor} config={this.state.config}
+            value={this.state.content} onBlur={(e)=>this.setState({content:e})}
           />
         </Container>
       </div>
