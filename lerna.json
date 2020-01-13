@@ -1,0 +1,24 @@
+{
+    "packages": [
+      "client",
+      "server"
+    ],
+    "version": "1.0.0",
+    "npmClient": "yarn",
+    "useWorkspaces": true,
+    "command": {
+      "version": {
+        "allowBranch": "master",
+        "conventionalCommits": true,
+        "exact": true,
+        "gitRemote": "vps",
+        "message": "chore(release): %s"
+      }
+    },
+    "ignoreChanges": [
+      "**/__fixtures__/**",
+      "**/__tests__/**",
+      "**/__mocks__/**",
+      "**/*.md"
+    ]
+  }
