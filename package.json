@@ -5,7 +5,7 @@
     "main": "index.js",
     "private": true,
     "scripts": {
-        "build": "yarn workspace cpm-client build",
+        "build:client": "yarn workspace cpm-client build",
         "docker:client": "yarn build:client && docker build -t docker-local.artifactory.inhuaschool.com/cpm-client ./client",
         "docker:server": "docker build -t docker-local.artifactory.inhuaschool.com/cpm-server ./server",
         "docker": "yarn build-docker:client && yarn build-docker:server",
