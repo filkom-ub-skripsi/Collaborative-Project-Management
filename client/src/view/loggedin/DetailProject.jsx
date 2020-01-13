@@ -29,6 +29,7 @@ export default class ViewDetailProject extends React.Component {
       collaborator_accepted:[],collaborator_pending:[],activity:[],
     }
     this.overview_update = this.overview_update.bind(this)
+    this.module_update = this.module_update.bind(this)
     this.moduleProgress_update = this.moduleProgress_update.bind(this)
     this.scrum_updateBacklog = this.scrum_updateBacklog.bind(this)
     this.issue_update = this.issue_update.bind(this)
@@ -120,6 +121,11 @@ export default class ViewDetailProject extends React.Component {
     )
   }
 
+  //module update
+  module_update(data){
+    this.setState({requirement:data})
+  }
+
   //module tab
   module_tab(){
     return (
@@ -127,6 +133,7 @@ export default class ViewDetailProject extends React.Component {
         webservice={this.props.webservice}
         objectId={this.props.objectId}
         id={this.state.project_id}
+        update={this.module_update}
         activity={this.activity_add}
       />
     )
@@ -293,8 +300,10 @@ export default class ViewDetailProject extends React.Component {
         hashMD5={this.props.hashMD5}
         id={this.state.project_id}
         status={this.state.status}
+        requirement={this.state.requirement}
         data={this.state.overview}
         activity={this.activity_add}
+        update={this.module_update}
         start={this.start}
         edit={this.edit}
       />

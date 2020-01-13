@@ -93,6 +93,7 @@ export default class ContentModule extends React.Component {
         data_loading:false,
         header_button:false
       })
+      this.props.update(data)
     })
   }
 
@@ -213,13 +214,19 @@ export default class ContentModule extends React.Component {
       })
       this.setState({
         add_module_modal:false,
-        data: [...this.state.data,{
+        data:[...this.state.data,{
           id:id+'_'+0,
           name:value('tambah_name'),
           detail:value('tambah_detail'),
           requirement:[]
-        }] 
+        }]
       })
+      this.props.update([...this.state.data,{
+        id:id+'_'+0,
+        name:value('tambah_name'),
+        detail:value('tambah_detail'),
+        requirement:[]
+      }])
       let activity_id = this.props.objectId()
       let activity_code = 'M0'
       let activity_detail = value('tambah_name')
@@ -322,6 +329,7 @@ export default class ContentModule extends React.Component {
         }
       })
       this.setState({data:data})
+      this.props.update(data)
       let activity_id = this.props.objectId()
       let activity_code = 'R0'
       let activity_detail = value('tambah_name_req')+'_'+value('tambah_module_req').split('_')[1]
@@ -443,6 +451,7 @@ export default class ContentModule extends React.Component {
         }
       })
       this.setState({data:data})
+      this.props.update(data)
       let activity_id = this.props.objectId()
       let activity_code = 'M1'
       let activity_detail = name
@@ -484,7 +493,8 @@ export default class ContentModule extends React.Component {
             }`
           })
           let data = this.state.data.filter(function(item){ return ( item.id !== id ) })
-          this.setState({ data:data })
+          this.setState({data:data})
+          this.props.update(data)
           let activity_id = this.props.objectId()
           let activity_code = 'M2'
           let activity_detail = temp[0]['name']
@@ -656,6 +666,7 @@ export default class ContentModule extends React.Component {
         })
       }
       this.setState({data:data})
+      this.props.update(data)
       let activity_id = this.props.objectId()
       let activity_code = 'R1'
       let activity_detail = edit_name+'_'+module_name
@@ -703,7 +714,8 @@ export default class ContentModule extends React.Component {
             module.requirement = module.requirement.filter(function(item){ return item.id !== id })
           })
         })
-        this.setState({data:data})    
+        this.setState({data:data})
+        this.props.update(data)
         this.fetch({query:`
           mutation {
             requirement_delete(_id:"`+id.split('_')[0]+`"){_id}

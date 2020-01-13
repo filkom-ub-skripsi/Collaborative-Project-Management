@@ -37,13 +37,11 @@ export default class ContentOverview extends React.Component {
   static getDerivedStateFromProps(props) {
       let status_text = null
       if (props.status === '0') { status_text = 'Status : Preparing ' }
-      if (props.status === '1') { status_text = 'Status : On Progress ' }
-      if (props.status === '2') { status_text = 'Status : Closed ' }
+      else if (props.status === '1') { status_text = 'Status : On Progress ' }
+      else if (props.status === '2') { status_text = 'Status : Closed ' }
       return {
-        overview:props.data[0],
-        status:props.status,
-        status_text:status_text,
-        progress:props.progress,
+        overview:props.data[0],progress:props.progress,
+        status:props.status,status_text:status_text,
       }
   }
 
@@ -204,7 +202,7 @@ export default class ContentOverview extends React.Component {
             <span style={{paddingRight:15}}/>
           {localStorage.getItem('leader') === '1' &&
             <Link
-              to={"/document/"+this.state.project_id}
+              to={'/document/'+this.state.project_id}
               className="btn btn-sm btn-outline-dark"
             >
               <FileText size={15} style={{marginBottom:2}}/>

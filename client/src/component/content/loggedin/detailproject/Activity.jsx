@@ -1,6 +1,6 @@
 import React from 'react'
 import { createApolloFetch } from 'apollo-fetch'
-import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle, Clipboard } from 'react-feather'
+import { Box, Trash, Plus, Edit2, Check, X, UserPlus, UserX, UserCheck, UserMinus, AlertCircle, Clipboard, Briefcase } from 'react-feather'
 import { Timeline, TimelineEvent } from 'react-event-timeline'
 
 const color = {
@@ -106,13 +106,13 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'R3') {
         data.push({
           date:temp[i]['date'],
-          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' module is finished',
+          detail:temp[i]['detail']+' requirement is finished',
           icon:<Check size={size}/>,iconColor:color.green
         })
       } else if (temp[i]['code'] === 'R4') {
         data.push({
           date:temp[i]['date'],
-          detail:'Requirement '+temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' is back to progress',
+          detail:temp[i]['detail']+' requirement is back to progress',
           icon:<X size={size}/>,iconColor:color.red
         })
       } else if (temp[i]['code'] === 'I0') {
@@ -136,12 +136,6 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'I3') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' from '+temp[i]['detail'].split('_')[1]+' division declined the invitation',
-          icon:<UserX size={size}/>,iconColor:color.red
-        })
-      } else if (temp[i]['code'] === 'I4') {
-        data.push({
-          date:temp[i]['date'],
           detail:temp[i]['detail'].split('_')[0]+' from the '+temp[i]['detail'].split('_')[1]+' division is kicked',
           icon:<UserX size={size}/>,iconColor:color.red
         })
@@ -154,19 +148,25 @@ export default class ContentActivity extends React.Component {
       } else if (temp[i]['code'] === 'S1') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is edited',
+          detail:temp[i]['detail']+' issue is edited',
           icon:<AlertCircle size={size}/>,iconColor:color.orange
         })
       } else if (temp[i]['code'] === 'S2') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is resolved',
+          detail:temp[i]['detail']+' issue is resolved',
           icon:<AlertCircle size={size}/>,iconColor:color.green
         })
       } else if (temp[i]['code'] === 'S3') {
         data.push({
           date:temp[i]['date'],
-          detail:temp[i]['detail'].split('_')[0]+' issue is back to unsolved',
+          detail:temp[i]['detail']+' issue is back to unsolved',
+          icon:<AlertCircle size={size}/>,iconColor:color.red
+        })
+      } else if (temp[i]['code'] === 'S4') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' issue is deleted',
           icon:<AlertCircle size={size}/>,iconColor:color.red
         })
       } else if (temp[i]['code'] === 'B0') {
@@ -180,6 +180,30 @@ export default class ContentActivity extends React.Component {
           date:temp[i]['date'],
           detail:temp[i]['detail']+' is deleted from backlog',
           icon:<Clipboard size={size}/>,iconColor:color.red
+        })
+      } else if (temp[i]['code'] === 'N0') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' sprint is added',
+          icon:<Briefcase size={size}/>,iconColor:color.blue
+        })
+      } else if (temp[i]['code'] === 'N1') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' sprint is edited',
+          icon:<Briefcase size={size}/>,iconColor:color.orange
+        })
+      } else if (temp[i]['code'] === 'N2') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail']+' sprint is deleted',
+          icon:<Briefcase size={size}/>,iconColor:color.red
+        })
+      } else if (temp[i]['code'] === 'N3') {
+        data.push({
+          date:temp[i]['date'],
+          detail:temp[i]['detail'].split('_')[0]+' sprint is started for '+temp[i]['detail'].split('_')[1]+' weeks',
+          icon:<Briefcase size={size}/>,iconColor:color.green
         })
       }
     }

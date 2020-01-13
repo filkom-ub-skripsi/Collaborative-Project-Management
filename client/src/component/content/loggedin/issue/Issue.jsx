@@ -7,7 +7,6 @@ import { Send } from 'react-feather'
 
 //prewrap
 const prewrap = { whiteSpace:'pre-wrap' }
-const padding = { paddingTop:15 }
 
 //notification
 const success = 'Your changes have been successfully saved'
@@ -72,8 +71,8 @@ export default class ContentIssue extends React.Component {
   commentHandler(){
     let field = document.getElementById('tambah_comment')
     if (field.value.length !== 0) {
-      this.props.commentHandler(field.value)
-      field.value = ''
+      this.props.commentHandler(field.value); field.value = '';
+      NotificationManager.success(success)
     }
   }
 
@@ -85,6 +84,7 @@ export default class ContentIssue extends React.Component {
     }).then((willDelete) => {
       if (willDelete) {
         this.props.commentDelete(id)
+        NotificationManager.success(success)
       }
     })
   }
@@ -197,9 +197,24 @@ export default class ContentIssue extends React.Component {
         this.fetch({query:`{
           issue(_id:"`+this.state.issue_id+`") {
             task { _id }
+            comment { _id }
           }
         }`}).then(result => {
           if (result.data.issue.task.length === 0) {
+            const fetch = (query) => this.fetch({query:query})
+            result.data.issue.comment.forEach(function(item){
+              fetch('mutation{comment_delete(_id:"'+item._id+'"){_id}}')
+            })
+            fetch('mutation{issue_delete(_id:"'+this.state.issue_id+'"){_id}}')
+            fetch(`mutation {
+              activity_add(
+                _id:"`+this.props.objectId()+`",
+                project:"`+this.state.project_id+`",
+                code:"S4",
+                detail:"`+this.state.issue.name+`",
+                date:"`+new Date()+`"
+              ){_id}
+            }`)
             Swal({
               title:"Success",text:"This issue is successfully deleted",
               icon:"success",closeOnClickOutside:false,button:false
@@ -208,9 +223,6 @@ export default class ContentIssue extends React.Component {
               delete_state:false,
               delete_button:delete_false
             })
-            this.fetch({query:`mutation {
-              issue_delete(_id:"`+this.state.issue_id+`"){_id}
-            }`})
             setTimeout(()=>{window.location.href='/detail-project/'+this.state.project_id},1500)
           } else {
             Swal({
@@ -269,28 +281,7 @@ export default class ContentIssue extends React.Component {
             <div style={prewrap}>{this.state.issue.detail}</div>
           </Card.Body>
         </Card>
-        <Form autoComplete="off" style={padding} className="animated faster fadeIn">
-          <Form.Row>
-            <Col lg={11}>
-              <Form.Control
-                type="text"
-                id="tambah_comment"
-                placeholder="Leave a comment..."
-                disabled={disabled}
-              />
-            </Col>
-            <Col>
-              <Button
-                block
-                disabled={this.state.delete_state}
-                onClick={()=>this.commentHandler()}
-              >
-                <Send size={18}/>
-              </Button>
-            </Col>
-          </Form.Row>
-        </Form>
-        <div className="qa-message-list" style={padding}>
+        <div className="qa-message-list" style={{paddingTop:25}}>
           {this.state.comment.map((item,index) => {
             return (
               <div className="message-item animated faster fadeIn" key={index}>
@@ -317,6 +308,27 @@ export default class ContentIssue extends React.Component {
             )
           })}
         </div>
+        <Form autoComplete="off" className="animated faster fadeIn">
+          <Form.Row>
+            <Col lg={11}>
+              <Form.Control
+                type="text"
+                id="tambah_comment"
+                placeholder="Leave a comment..."
+                disabled={disabled}
+              />
+            </Col>
+            <Col>
+              <Button
+                block
+                disabled={this.state.delete_state}
+                onClick={()=>this.commentHandler()}
+              >
+                <Send size={18}/>
+              </Button>
+            </Col>
+          </Form.Row>
+        </Form>
       </div>
     )
   }
