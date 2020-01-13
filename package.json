@@ -5,13 +5,10 @@
     "main": "index.js",
     "private": true,
     "scripts": {
-        "copy:server": "copy \"../Collaborative-Project-Management/server/!(node_modules)**/*.js\" ./server",
-        "copy:client": "copy \"../Collaborative-Project-Management/client/src/**/*.js?(x)\" ./client/src",
-        "copy": "yarn copy:server && yarn copy:client",
-        "build:client": "yarn workspace cpm-client build",
-        "build-docker:client": "yarn build:client && docker build -t docker-local.artifactory.inhuaschool.com/cpm-client ./client",
-        "build-docker:server": "docker build -t docker-local.artifactory.inhuaschool.com/cpm-server ./server",
-        "build-docker": "yarn build-docker:client && yarn build-docker:server",
+        "build": "yarn workspace cpm-client build",
+        "docker:client": "yarn build:client && docker build -t docker-local.artifactory.inhuaschool.com/cpm-client ./client",
+        "docker:server": "docker build -t docker-local.artifactory.inhuaschool.com/cpm-server ./server",
+        "docker": "yarn build-docker:client && yarn build-docker:server",
         "push:server": "docker push docker-local.artifactory.inhuaschool.com/cpm-server",
         "push:client": "docker push docker-local.artifactory.inhuaschool.com/cpm-client",
         "push": "yarn build-docker && yarn push:server && yarn push:client"
