@@ -8,10 +8,10 @@
         "build:client": "yarn workspace cpm-client build",
         "docker:client": "yarn build:client && docker build -t docker-local.artifactory.inhuaschool.com/cpm-client ./client",
         "docker:server": "docker build -t docker-local.artifactory.inhuaschool.com/cpm-server ./server",
-        "docker": "yarn build-docker:client && yarn build-docker:server",
+        "docker": "yarn docker:client && yarn docker:server",
         "push:server": "docker push docker-local.artifactory.inhuaschool.com/cpm-server",
         "push:client": "docker push docker-local.artifactory.inhuaschool.com/cpm-client",
-        "push": "yarn build-docker && yarn push:server && yarn push:client"
+        "push": "yarn docker && yarn push:server && yarn push:client"
     },
     "license": "ISC",
     "workspaces": {
