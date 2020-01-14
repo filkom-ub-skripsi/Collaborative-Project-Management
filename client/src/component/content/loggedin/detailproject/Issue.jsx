@@ -29,7 +29,7 @@ export default class ContentIssue extends React.Component {
     this.state = {
       project_id:this.props.id,
       header_button:true,header_refresh:refresh_loading,
-      add_issue_modal:false,data:[],myName:null,
+      add_issue_modal:false,data:[],myName:null,status:null,
       module:[],requirement:[],filter:[],filterState:true
     }
   }
@@ -60,6 +60,7 @@ export default class ContentIssue extends React.Component {
     return {
       module:module,
       requirement:requirement,
+      status:props.status
     }
   }
 
@@ -262,14 +263,16 @@ export default class ContentIssue extends React.Component {
       <Row>
         <Col><b style={{fontSize:20}}>Issues</b></Col>
         <Col className="text-right">
-          <Button
-            size="sm"
-            variant="outline-dark"
-            disabled={this.state.header_button}
-            onClick={()=>this.setState({add_issue_modal:true})}
-          >
-            Add
-          </Button>
+          {this.state.status !== '2' &&
+            <Button
+              size="sm"
+              variant="outline-dark"
+              disabled={this.state.header_button}
+              onClick={()=>this.setState({add_issue_modal:true})}
+            >
+              Add
+            </Button>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

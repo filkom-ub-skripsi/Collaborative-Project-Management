@@ -370,6 +370,68 @@ export default class ContentSetting extends React.Component {
     }
   }
 
+  //close project
+  close_project(){
+    Swal({
+      title:"Close Project?",
+      text:"This project will be closed but you can restart this project",
+      icon:"info",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willClose) => {
+      if (willClose) {
+        let project_id = this.state.project_id
+        let activity_id = this.props.objectId()
+        let activity_code = 'P4'
+        let activity_date = new Date()
+        this.fetch({query:`mutation {
+          activity_add(
+            _id:"`+activity_id+`",
+            project:"`+project_id+`",
+            code:"`+activity_code+`",
+            detail:"",
+            date:"`+activity_date+`"
+          ){_id}
+        }`})
+        Swal({
+          title:"Success",text:"Your project is now closed",
+          icon:"success",closeOnClickOutside:false,button:false,timer:1500
+        })
+        this.props.activity(activity_code,'',activity_date)
+        this.props.close()
+      }
+    })
+  }
+
+  //restart project
+  restart_project(){
+    Swal({
+      title:"Restart Project?",
+      text:"This project will be started again",
+      icon:"info",closeOnClickOutside:false,buttons:true,dangerMode:true,
+    }).then((willClose) => {
+      if (willClose) {
+        let project_id = this.state.project_id
+        let activity_id = this.props.objectId()
+        let activity_code = 'P5'
+        let activity_date = new Date()
+        this.fetch({query:`mutation {
+          activity_add(
+            _id:"`+activity_id+`",
+            project:"`+project_id+`",
+            code:"`+activity_code+`",
+            detail:"",
+            date:"`+activity_date+`"
+          ){_id}
+        }`})
+        Swal({
+          title:"Success",text:"Your project is now restarted",
+          icon:"success",closeOnClickOutside:false,button:false,timer:1500
+        })
+        this.props.activity(activity_code,'',activity_date)
+        this.props.start()
+      }
+    })
+  }
+
   //card header
   card_header() {
     return <b style={{fontSize:20}}>Project Setting</b>
@@ -402,9 +464,15 @@ export default class ContentSetting extends React.Component {
           </div>
         }
         {this.state.status === '1' &&
-          <ListGroup.Item action>
+          <ListGroup.Item action onClick={()=>this.close_project()}>
             <div style={div}>Close Project</div>
             <small style={small}>Entering the project review stage. After the project has closed, all data in this project cannot be changed and deleted, but you can still download the report of this project</small>
+          </ListGroup.Item>
+        }
+        {this.state.status === '2' &&
+          <ListGroup.Item action onClick={()=>this.restart_project()}>
+            <div style={div}>Restart Project</div>
+            <small style={small}>Turn back to the project implementation stage.</small>
           </ListGroup.Item>
         }
       </ListGroup>

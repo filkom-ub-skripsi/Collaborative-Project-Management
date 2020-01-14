@@ -67,6 +67,18 @@ export default class ContentActivity extends React.Component {
           detail:'Project is started',
           icon:<Box size={size}/>,iconColor:color.green
         })
+      } else if (temp[i]['code'] === 'P4') {
+        data.push({
+          date:temp[i]['date'],
+          detail:'Project is closed',
+          icon:<Box size={size}/>,iconColor:color.green
+        })
+      } else if (temp[i]['code'] === 'P5') {
+        data.push({
+          date:temp[i]['date'],
+          detail:'Project is restarted',
+          icon:<Box size={size}/>,iconColor:color.orange
+        })
       } else if (temp[i]['code'] === 'M0') {
         data.push({
           date:temp[i]['date'],

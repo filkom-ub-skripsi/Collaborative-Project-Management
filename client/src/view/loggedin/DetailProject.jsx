@@ -37,6 +37,7 @@ export default class ViewDetailProject extends React.Component {
     this.activity_update = this.activity_update.bind(this)
     this.activity_add = this.activity_add.bind(this)
     this.start = this.start.bind(this)
+    this.close = this.close.bind(this)
     this.edit = this.edit.bind(this)
   }
 
@@ -59,6 +60,19 @@ export default class ViewDetailProject extends React.Component {
       }`
     })
     this.setState({status:'1'})
+  }
+
+  //close
+  close(){
+    this.fetch({query:`
+      mutation {
+        project_status(
+          _id:"`+this.state.project_id+`",
+          status:"2"
+        ){_id}
+      }`
+    })
+    this.setState({status:'2'})
   }
 
   //edit
@@ -157,6 +171,7 @@ export default class ViewDetailProject extends React.Component {
         webservice={this.props.webservice}
         id={this.state.project_id}
         update={this.moduleProgress_update}
+        status={this.state.status}
       />
     )
   }
@@ -206,6 +221,7 @@ export default class ViewDetailProject extends React.Component {
         requirement={this.state.requirement}
         update={this.issue_update}
         activity={this.activity_add}
+        status={this.state.status}
       />
     )
   }
@@ -271,6 +287,7 @@ export default class ViewDetailProject extends React.Component {
         backlog={this.state.backlog}
         update={this.collaborator_update}
         activity={this.activity_add}
+        status={this.state.status}
       />
     )
   }
@@ -305,6 +322,7 @@ export default class ViewDetailProject extends React.Component {
         activity={this.activity_add}
         update={this.module_update}
         start={this.start}
+        close={this.close}
         edit={this.edit}
       />
     )
@@ -322,6 +340,7 @@ export default class ViewDetailProject extends React.Component {
               <Tab eventKey="TAB2" title={<Box/>}>
                 {this.state.status === '0' && this.module_tab()}
                 {this.state.status === '1' && this.moduleProgress_tab()}
+                {this.state.status === '2' && this.moduleProgress_tab()}
               </Tab>
             }
             {this.state.status === '1' &&
@@ -330,7 +349,13 @@ export default class ViewDetailProject extends React.Component {
             {this.state.status === '1' &&
               <Tab eventKey="TAB4" title={<AlertCircle/>}>{this.issue_tab()}</Tab>
             }
+            {this.state.status === '2' &&
+              <Tab eventKey="TAB4" title={<AlertCircle/>}>{this.issue_tab()}</Tab>
+            }
             {this.state.status === '1' &&
+              <Tab eventKey="TAB5" title={<Users/>}>{this.collaborator_tab()}</Tab>
+            }
+            {this.state.status === '2' &&
               <Tab eventKey="TAB5" title={<Users/>}>{this.collaborator_tab()}</Tab>
             }
             <Tab eventKey="TAB6" title={<Activity/>}>
