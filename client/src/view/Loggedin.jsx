@@ -23,7 +23,11 @@ export default class Loggedin extends React.Component {
           <Route
             exact
             path="/"
-            render = {(props)=> <Home {...props} webservice={this.props.webservice}/>}
+            render = {(props) =>
+              <Home {...props}
+                webservice={this.props.webservice}
+              />
+            }
           />
           <Route
             path="/projects"

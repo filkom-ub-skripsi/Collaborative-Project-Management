@@ -14,15 +14,19 @@ export default class ContentModuleProgress extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      project_id:this.props.id,
-      header_button:true,
-      data:[],data_loading:true,
+      project_id:this.props.id,header_button:true,
+      data:[],data_loading:true,status:null
     }
   }
 
   //component did mount
   componentDidMount(){
     this.push()
+  }
+
+  //get derived state from props
+  static getDerivedStateFromProps(props) {
+    return { status:props.status }
   }
 
   //fetch
@@ -101,12 +105,14 @@ export default class ContentModuleProgress extends React.Component {
           <b style={{fontSize:20}}>Project Requirement</b>
         </Col>
         <Col className="text-right">
-          <Link
-            to={'/gantt-chart/'+this.state.project_id}
-            className="btn btn-sm btn-outline-dark"
-          >
-            Gantt Chart
-          </Link>
+          {this.state.status !== '2' &&
+            <Link
+              to={'/gantt-chart/'+this.state.project_id}
+              className="btn btn-sm btn-outline-dark"
+            >
+              Gantt Chart
+            </Link>
+          }
           <span style={{paddingRight:15}}/>
           <Button
             size="sm"

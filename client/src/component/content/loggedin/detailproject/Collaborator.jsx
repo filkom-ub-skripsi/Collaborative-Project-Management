@@ -22,7 +22,7 @@ export default class ContentCollaborator extends React.Component {
       project_id:this.props.id,
       header_button:true,header_refresh:refresh_loading,
       data_collaborator:[],data_pending:[],division:[],employee:[],
-      invite_modal:false,invite_employee:[]
+      invite_modal:false,invite_employee:[],status:null
     }
   }
 
@@ -48,6 +48,7 @@ export default class ContentCollaborator extends React.Component {
     return {
       data_collaborator:props.collaborator_accepted,
       data_pending:props.collaborator_pending,
+      status:props.status
     }
   }
 
@@ -347,7 +348,7 @@ export default class ContentCollaborator extends React.Component {
                   </Nav>
                 </Col>
                 <Col className="text-right">
-                  {localStorage.getItem('leader') === '1' &&
+                  {localStorage.getItem('leader') === '1' && this.state.status === '1' &&
                     <Button
                       size="sm"
                       variant="outline-dark"
@@ -387,7 +388,7 @@ export default class ContentCollaborator extends React.Component {
                             <div style={{fontWeight:600}}>{item.name}</div>
                             <small className="text-muted">{item.division_name} Division. Email {item.email} / Contact {item.contact}</small>
                           </Col><Col className="text-right">
-                            {localStorage.getItem('leader') === '1' &&
+                            {localStorage.getItem('leader') === '1' && this.state.status === '1' &&
                               <div style={{paddingTop:8}}>
                                 <div
                                   className="btn btn-sm btn-outline-danger"
@@ -424,7 +425,7 @@ export default class ContentCollaborator extends React.Component {
                               <small className="text-muted">{item.division_name} Division. Email {item.email} / Contact {item.contact}</small>
                             </Col>
                             <Col className="text-right">
-                              {localStorage.getItem('leader') === '1' &&
+                              {localStorage.getItem('leader') === '1' && this.state.status === '1' &&
                                 <div style={{paddingTop:8}}>
                                   <div
                                     className="btn btn-sm btn-outline-danger"
